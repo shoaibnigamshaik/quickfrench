@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   ChevronRight,
   RotateCcw,
@@ -10,6 +11,7 @@ import {
   X,
   Keyboard,
   Edit3,
+  Settings,
 } from "lucide-react";
 
 interface Question {
@@ -55,27 +57,53 @@ const FrenchAdjectivesQuiz = () => {
   const [quizMode, setQuizMode] = useState<"multiple-choice" | "typing">(
     "multiple-choice"
   );
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [questionCount, setQuestionCount] = useState<number | "all">(10);
   const [typedAnswer, setTypedAnswer] = useState<string>("");
-  const [showModeSelector, setShowModeSelector] = useState<boolean>(true);
+  const [showTopicSelector, setShowTopicSelector] = useState<boolean>(true);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Available topics
+  const topics = [
+    {
+      id: "adjectives",
+      name: "Adjectives",
+      description: "Learn French adjectives and their meanings",
+      icon: "📝",
+      color: "from-blue-500 to-indigo-600"
+    }
+  ];
 
   // Generate quiz questions
   useEffect(() => {
-    if (quizMode) {
+    if (selectedTopic && adjectives.length > 0) {
       generateQuestions();
     }
-  }, [quizMode]);
+  }, [selectedTopic, adjectives]);
+
+  // Load quiz mode and question count from localStorage or settings
+  useEffect(() => {
+    const savedMode = localStorage.getItem('quizMode') as "multiple-choice" | "typing";
+    const savedCount = localStorage.getItem('questionCount');
+    
+    if (savedMode) {
+      setQuizMode(savedMode);
+    }
+    if (savedCount) {
+      setQuestionCount(savedCount === "all" ? "all" : parseInt(savedCount));
+    }
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // R to restart quiz (allow restart anytime except mode selector)
-      if (e.key.toLowerCase() === "r" && !showModeSelector) {
+      // R to restart quiz (allow restart anytime except topic selector)
+      if (e.key.toLowerCase() === "r" && !showTopicSelector) {
         resetQuiz();
         return;
       }
 
-      if (showModeSelector || quizComplete) return;
+      if (showTopicSelector || quizComplete) return;
 
       if (quizMode === "multiple-choice") {
         // Number keys 1-4 for multiple choice
@@ -107,7 +135,7 @@ const FrenchAdjectivesQuiz = () => {
     currentQuestion,
     questions,
     typedAnswer,
-    showModeSelector,
+    showTopicSelector,
     quizMode,
   ]);
 
@@ -120,7 +148,8 @@ const FrenchAdjectivesQuiz = () => {
 
   const generateQuestions = () => {
     const shuffled = [...adjectives].sort(() => Math.random() - 0.5);
-    const quizQuestions: Question[] = shuffled.slice(0, 10).map((word) => {
+    const numQuestions = questionCount === "all" ? adjectives.length : Math.min(questionCount, adjectives.length);
+    const quizQuestions: Question[] = shuffled.slice(0, numQuestions).map((word) => {
       const otherOptions = adjectives
         .filter((adj) => adj.meaning !== word.meaning)
         .sort(() => Math.random() - 0.5)
@@ -200,12 +229,14 @@ const FrenchAdjectivesQuiz = () => {
     setQuizComplete(false);
     setStreak(0);
     setMaxStreak(0);
-    setShowModeSelector(true);
+    setShowTopicSelector(true);
+    setSelectedTopic("");
+    // Don't reset question count - keep user's preference from settings
   };
 
-  const startQuiz = (mode: "multiple-choice" | "typing") => {
-    setQuizMode(mode);
-    setShowModeSelector(false);
+  const startQuiz = (topic: string) => {
+    setSelectedTopic(topic);
+    setShowTopicSelector(false);
     generateQuestions();
   };
 
@@ -216,59 +247,60 @@ const FrenchAdjectivesQuiz = () => {
     return "text-red-600";
   };
 
-  if (showModeSelector) {
+  if (showTopicSelector) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-3xl shadow-2xl p-8 text-center border border-gray-100">
+            {/* Settings Button */}
+            <div className="flex justify-end mb-4">
+              <Link
+                href="/settings"
+                className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200"
+              >
+                <Settings className="h-5 w-5 text-gray-600" />
+              </Link>
+            </div>
+            
             <div className="mb-8">
               <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="h-10 w-10 text-white" />
               </div>
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                Choose Quiz Mode
+                Choose a Topic
               </h1>
               <p className="text-gray-600">
-                Select how you'd like to practice French adjectives
+                Select which French vocabulary you'd like to practice
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <button
-                onClick={() => startQuiz("multiple-choice")}
-                className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-400 transition-all duration-200 transform hover:scale-105 text-left"
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-xl mb-4">
-                  <Keyboard className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  Multiple Choice
-                </h3>
-                <p className="text-gray-600 mb-4">Select from 4 options</p>
-                <div className="text-sm text-gray-500">
-                  <div>• Use keys 1-4 to select</div>
-                  <div>• Space/Enter for next</div>
-                  <div>• R to restart</div>
-                </div>
-              </button>
+            <div className="grid grid-cols-1 gap-6">
+              {topics.map((topic) => (
+                <button
+                  key={topic.id}
+                  onClick={() => startQuiz(topic.id)}
+                  className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left`}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="text-4xl mr-4">{topic.icon}</div>
+                    <div>
+                      <h3 className="text-2xl font-bold mb-2">{topic.name}</h3>
+                      <p className="text-blue-100">{topic.description}</p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-blue-100">
+                    <div>• {questionCount === "all" ? "All available questions" : `${questionCount} questions`} per quiz</div>
+                    <div>• Track your progress</div>
+                    <div>• Multiple difficulty levels</div>
+                  </div>
+                </button>
+              ))}
+            </div>
 
-              <button
-                onClick={() => startQuiz("typing")}
-                className="p-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200 hover:border-green-400 transition-all duration-200 transform hover:scale-105 text-left"
-              >
-                <div className="flex items-center justify-center w-12 h-12 bg-green-500 rounded-xl mb-4">
-                  <Edit3 className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  Type Answer
-                </h3>
-                <p className="text-gray-600 mb-4">Type the English meaning</p>
-                <div className="text-sm text-gray-500">
-                  <div>• Type your answer</div>
-                  <div>• Enter to submit</div>
-                  <div>• Space for next question</div>
-                </div>
-              </button>
+            <div className="mt-8 p-4 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600">
+                💡 <strong>Tip:</strong> Visit Settings to choose quiz mode and adjust number of questions per quiz
+              </p>
             </div>
           </div>
         </div>
@@ -300,7 +332,7 @@ const FrenchAdjectivesQuiz = () => {
                 Quiz Complete!
               </h1>
               <p className="text-gray-600">
-                Great job learning French adjectives
+                Great job learning French {topics.find(t => t.id === selectedTopic)?.name.toLowerCase() || 'adjectives'}
               </p>
             </div>
 
@@ -336,13 +368,22 @@ const FrenchAdjectivesQuiz = () => {
               <div className="text-sm text-gray-500 mb-4">
                 Press R to restart or click the button below
               </div>
-              <button
-                onClick={resetQuiz}
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-              >
-                <RotateCcw className="mr-2 h-5 w-5" />
-                Try Again
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                <button
+                  onClick={resetQuiz}
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  <RotateCcw className="mr-2 h-5 w-5" />
+                  Try Again
+                </button>
+                <Link
+                  href="/settings"
+                  className="inline-flex items-center px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-2xl font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  <Settings className="mr-2 h-5 w-5" />
+                  Settings
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -358,10 +399,10 @@ const FrenchAdjectivesQuiz = () => {
           <div className="inline-flex items-center px-4 py-2 bg-white rounded-full shadow-lg border border-gray-100 mb-4">
             <BookOpen className="h-5 w-5 text-indigo-600 mr-2" />
             <span className="text-sm font-semibold text-gray-700">
-              French Adjectives Quiz -{" "}
+              French {topics.find(t => t.id === selectedTopic)?.name || 'Adjectives'} Quiz ({questions.length} questions) -{" "}
               {quizMode === "multiple-choice"
                 ? "Multiple Choice"
-                : "Typing Mode"}
+                : "Fill in the Blank"}
             </span>
           </div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -370,7 +411,7 @@ const FrenchAdjectivesQuiz = () => {
           <p className="text-gray-600">
             {quizMode === "multiple-choice"
               ? "Use keys 1-4 to select answers quickly"
-              : "Type the English meaning of each French adjective"}
+              : "Type the English meaning of each French word"}
           </p>
         </div>
 
