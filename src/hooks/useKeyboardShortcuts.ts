@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { QuizMode } from "@/types/quiz";
+import { QuizMode, Question } from "@/types/quiz";
 
 interface UseKeyboardShortcutsProps {
   showTopicSelector: boolean;
@@ -8,7 +8,7 @@ interface UseKeyboardShortcutsProps {
   quizMode: QuizMode;
   typedAnswer: string;
   currentQuestion: number;
-  questions: any[];
+  questions: Question[];
   onResetQuiz: () => void;
   onAnswerSelect: (answer: string) => void;
   onTypedSubmit: () => void;

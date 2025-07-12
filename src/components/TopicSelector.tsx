@@ -34,7 +34,7 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
               Choose a Topic
             </h1>
             <p className="text-gray-600">
-              Select which French vocabulary you'd like to practice
+              Select which French vocabulary you&apos;d like to practice
             </p>
           </div>
 

@@ -14,10 +14,11 @@ import {
   HelpCircle,
   Info,
   CheckCircle,
+  LucideIcon,
 } from "lucide-react";
 
 interface SettingItem {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   description: string;
   type: "toggle" | "select" | "link" | "quiz-mode" | "question-count";

@@ -33,7 +33,7 @@ export const QuizResult = ({
           </div>
         ) : (
           <div className="text-red-600 font-semibold text-lg">
-            ✗ Incorrect. The correct answer is "{question.correct}"
+            ✗ Incorrect. The correct answer is &quot;{question.correct}&quot;
           </div>
         )}
       </div>

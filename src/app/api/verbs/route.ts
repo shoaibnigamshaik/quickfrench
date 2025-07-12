@@ -5,6 +5,7 @@ export async function GET() {
     const result = await turso.execute('SELECT * FROM verbs ORDER BY RANDOM()');
     return Response.json(result.rows);
   } catch (error) {
+    console.error('Error fetching verbs:', error);
     return Response.json({ error: 'Failed to fetch verbs' }, { status: 500 });
   }
 }
