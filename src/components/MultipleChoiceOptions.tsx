@@ -22,16 +22,11 @@ export const MultipleChoiceOptions = ({
 
         if (showResult) {
           if (option === question.correct) {
-            buttonClass +=
-              " bg-green-50 border-green-500 text-green-700";
-          } else if (
-            option === selectedAnswer &&
-            option !== question.correct
-          ) {
+            buttonClass += " bg-green-50 border-green-500 text-green-700";
+          } else if (option === selectedAnswer && option !== question.correct) {
             buttonClass += " bg-red-50 border-red-500 text-red-700";
           } else {
-            buttonClass +=
-              " bg-gray-50 border-gray-300 text-gray-500";
+            buttonClass += " bg-gray-50 border-gray-300 text-gray-500";
           }
         } else {
           buttonClass +=
@@ -52,10 +47,9 @@ export const MultipleChoiceOptions = ({
                 </span>
                 {option}
               </span>
-              {showResult &&
-                option === question.correct && (
-                  <Check className="h-5 w-5 text-green-600" />
-                )}
+              {showResult && option === question.correct && (
+                <Check className="h-5 w-5 text-green-600" />
+              )}
               {showResult &&
                 option === selectedAnswer &&
                 option !== question.correct && (

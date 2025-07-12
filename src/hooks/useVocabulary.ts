@@ -48,7 +48,19 @@ export const useVocabulary = (topic: string) => {
 
     setVocabulary(data);
     setLoading(isLoading);
-  }, [topic, adjectives, numbers, prepositions, verbs, adverbs, adjLoading, numLoading, prepLoading, verbLoading, advLoading]);
+  }, [
+    topic,
+    adjectives,
+    numbers,
+    prepositions,
+    verbs,
+    adverbs,
+    adjLoading,
+    numLoading,
+    prepLoading,
+    verbLoading,
+    advLoading,
+  ]);
 
   return { vocabulary, loading };
 };

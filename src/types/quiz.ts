@@ -40,6 +40,8 @@ export interface Topic {
 
 export type QuizMode = "multiple-choice" | "typing";
 
+export type TranslationDirection = "french-to-english" | "english-to-french";
+
 export interface QuizState {
   currentQuestion: number;
   score: number;
@@ -56,6 +58,7 @@ export interface QuizSettings {
   quizMode: QuizMode;
   questionCount: number | "all";
   selectedTopic: string;
+  translationDirection: TranslationDirection;
 }
 
 export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb;

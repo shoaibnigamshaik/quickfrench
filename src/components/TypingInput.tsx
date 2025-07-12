@@ -52,18 +52,12 @@ export const TypingInput = ({
       {showResult && (
         <div className="mt-6 text-center">
           <div className="max-w-md mx-auto p-4 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="text-sm text-gray-600 mb-2">
-              Your answer:
-            </div>
+            <div className="text-sm text-gray-600 mb-2">Your answer:</div>
             <div className="font-semibold text-gray-800 mb-3">
               {selectedAnswer}
             </div>
-            <div className="text-sm text-gray-600 mb-2">
-              Correct answer:
-            </div>
-            <div className="font-semibold text-green-700">
-              {correctAnswer}
-            </div>
+            <div className="text-sm text-gray-600 mb-2">Correct answer:</div>
+            <div className="font-semibold text-green-700">{correctAnswer}</div>
           </div>
         </div>
       )}

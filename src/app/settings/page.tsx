@@ -15,13 +15,20 @@ import {
   Info,
   CheckCircle,
   LucideIcon,
+  ArrowLeftRight,
 } from "lucide-react";
 
 interface SettingItem {
   icon: LucideIcon;
   label: string;
   description: string;
-  type: "toggle" | "select" | "link" | "quiz-mode" | "question-count";
+  type:
+    | "toggle"
+    | "select"
+    | "link"
+    | "quiz-mode"
+    | "question-count"
+    | "translation-direction";
   value?: boolean | string;
   options?: string[];
 }
@@ -32,32 +39,70 @@ interface SettingSection {
 }
 
 const SettingsPage = () => {
-  const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">("multiple-choice");
+  const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">(
+    "multiple-choice",
+  );
   const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
+  const [translationDirection, setTranslationDirection] = React.useState<
+    "french-to-english" | "english-to-french"
+  >("french-to-english");
+  const [showCustomInput, setShowCustomInput] = React.useState(false);
 
   // Load saved settings from localStorage
   React.useEffect(() => {
-    const savedMode = localStorage.getItem('quizMode') as "multiple-choice" | "typing";
-    const savedCount = localStorage.getItem('questionCount');
-    
+    const savedMode = localStorage.getItem("quizMode") as
+      | "multiple-choice"
+      | "typing";
+    const savedCount = localStorage.getItem("questionCount");
+    const savedDirection = localStorage.getItem("translationDirection") as
+      | "french-to-english"
+      | "english-to-french";
+
     if (savedMode) {
       setQuizMode(savedMode);
     }
     if (savedCount) {
-      setQuestionCount(savedCount === "all" ? "all" : parseInt(savedCount));
+      const count = savedCount === "all" ? "all" : parseInt(savedCount);
+      setQuestionCount(count);
+      // Show custom input if the saved value isn't one of the preset buttons
+      if (typeof count === "number" && ![5, 10, 15, 20].includes(count)) {
+        setShowCustomInput(true);
+      }
+    }
+    if (savedDirection) {
+      setTranslationDirection(savedDirection);
     }
   }, []);
 
   // Save quiz mode to localStorage when changed
   const handleQuizModeChange = (mode: "multiple-choice" | "typing") => {
     setQuizMode(mode);
-    localStorage.setItem('quizMode', mode);
+    localStorage.setItem("quizMode", mode);
   };
 
   // Save question count to localStorage when changed
   const handleQuestionCountChange = (count: number | "all") => {
     setQuestionCount(count);
-    localStorage.setItem('questionCount', count.toString());
+    localStorage.setItem("questionCount", count.toString());
+    // Hide custom input if selecting a preset value
+    if (count === "all" || [5, 10, 15, 20].includes(count as number)) {
+      setShowCustomInput(false);
+    }
+  };
+
+  // Handle custom button click
+  const handleCustomClick = () => {
+    setShowCustomInput(true);
+  };
+
+  // Save translation direction to localStorage when changed
+  const handleTranslationDirectionChange = () => {
+    const newDirection =
+      translationDirection === "french-to-english"
+        ? "english-to-french"
+        : "french-to-english";
+    setTranslationDirection(newDirection);
+    localStorage.setItem("translationDirection", newDirection);
   };
 
   const settingsSections: SettingSection[] = [
@@ -75,6 +120,12 @@ const SettingsPage = () => {
           label: "Questions per Quiz",
           description: "Choose how many questions per quiz",
           type: "question-count" as const,
+        },
+        {
+          icon: ArrowLeftRight,
+          label: "Translation Direction",
+          description: "Choose the direction of translation",
+          type: "translation-direction" as const,
         },
       ],
     },
@@ -150,12 +201,20 @@ const SettingsPage = () => {
 
   const handleToggle = (sectionIndex: number, itemIndex: number) => {
     // Handle toggle logic here
-    console.log(`Toggle setting: ${settingsSections[sectionIndex].items[itemIndex].label}`);
+    console.log(
+      `Toggle setting: ${settingsSections[sectionIndex].items[itemIndex].label}`,
+    );
   };
 
-  const handleSelectChange = (sectionIndex: number, itemIndex: number, value: string) => {
+  const handleSelectChange = (
+    sectionIndex: number,
+    itemIndex: number,
+    value: string,
+  ) => {
     // Handle select change logic here
-    console.log(`Change setting: ${settingsSections[sectionIndex].items[itemIndex].label} to ${value}`);
+    console.log(
+      `Change setting: ${settingsSections[sectionIndex].items[itemIndex].label} to ${value}`,
+    );
   };
 
   return (
@@ -180,21 +239,33 @@ const SettingsPage = () => {
         {/* Settings Content */}
         <div className="space-y-8">
           {settingsSections.map((section, sectionIndex) => (
-            <div key={section.title} className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+            <div
+              key={section.title}
+              className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden"
+            >
               <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
-                <h2 className="text-xl font-bold text-white">{section.title}</h2>
+                <h2 className="text-xl font-bold text-white">
+                  {section.title}
+                </h2>
               </div>
-              
+
               <div className="p-6 space-y-4">
                 {section.items.map((item, itemIndex) => (
-                  <div key={item.label} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                         <item.icon className="h-5 w-5 text-indigo-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-800">{item.label}</h3>
-                        <p className="text-sm text-gray-600">{item.description}</p>
+                        <h3 className="font-semibold text-gray-800">
+                          {item.label}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {item.description}
+                        </p>
                       </div>
                     </div>
 
@@ -208,14 +279,22 @@ const SettingsPage = () => {
                                 name="quiz-mode"
                                 value="multiple-choice"
                                 checked={quizMode === "multiple-choice"}
-                                onChange={(e) => handleQuizModeChange(e.target.value as "multiple-choice")}
+                                onChange={(e) =>
+                                  handleQuizModeChange(
+                                    e.target.value as "multiple-choice",
+                                  )
+                                }
                                 className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                               />
-                              <span className="text-sm font-medium text-gray-700">Multiple Choice</span>
+                              <span className="text-sm font-medium text-gray-700">
+                                Multiple Choice
+                              </span>
                               <div className="relative group">
                                 <Info className="h-4 w-4 text-gray-400 hover:text-indigo-600 cursor-help" />
                                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 text-xs text-white bg-gray-800 rounded-lg shadow-lg z-10">
-                                  <div className="mb-2 font-semibold">Multiple Choice Mode:</div>
+                                  <div className="mb-2 font-semibold">
+                                    Multiple Choice Mode:
+                                  </div>
                                   <div className="space-y-1">
                                     <div>• Select from 4 options</div>
                                     <div>• Use keys 1-4 to select</div>
@@ -233,14 +312,22 @@ const SettingsPage = () => {
                                 name="quiz-mode"
                                 value="typing"
                                 checked={quizMode === "typing"}
-                                onChange={(e) => handleQuizModeChange(e.target.value as "typing")}
+                                onChange={(e) =>
+                                  handleQuizModeChange(
+                                    e.target.value as "typing",
+                                  )
+                                }
                                 className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                               />
-                              <span className="text-sm font-medium text-gray-700">Fill in the Blank</span>
+                              <span className="text-sm font-medium text-gray-700">
+                                Fill in the Blank
+                              </span>
                               <div className="relative group">
                                 <Info className="h-4 w-4 text-gray-400 hover:text-indigo-600 cursor-help" />
                                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 text-xs text-white bg-gray-800 rounded-lg shadow-lg z-10">
-                                  <div className="mb-2 font-semibold">Fill in the Blank Mode:</div>
+                                  <div className="mb-2 font-semibold">
+                                    Fill in the Blank Mode:
+                                  </div>
                                   <div className="space-y-1">
                                     <div>• Type the English meaning</div>
                                     <div>• Type your answer</div>
@@ -256,22 +343,21 @@ const SettingsPage = () => {
 
                       {item.type === "question-count" && (
                         <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2 justify-end max-w-md">
-                            {[...Array(20)].map((_, i) => (
+                          {/* Quick Select Buttons */}
+                          <div className="flex flex-wrap gap-2 justify-end">
+                            {[5, 10, 15, 20].map((count) => (
                               <button
-                                key={i + 1}
-                                onClick={() => handleQuestionCountChange(i + 1)}
-                                className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                  questionCount === i + 1
+                                key={count}
+                                onClick={() => handleQuestionCountChange(count)}
+                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                  questionCount === count
                                     ? "bg-indigo-600 text-white shadow-lg"
                                     : "bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-300"
                                 }`}
                               >
-                                {i + 1}
+                                {count}
                               </button>
                             ))}
-                          </div>
-                          <div className="flex justify-end">
                             <button
                               onClick={() => handleQuestionCountChange("all")}
                               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -280,16 +366,91 @@ const SettingsPage = () => {
                                   : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-300"
                               }`}
                             >
-                              All Questions
+                              All
+                            </button>
+                            <button
+                              onClick={handleCustomClick}
+                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                showCustomInput &&
+                                typeof questionCount === "number" &&
+                                ![5, 10, 15, 20].includes(questionCount)
+                                  ? "bg-teal-600 text-white shadow-lg"
+                                  : "bg-white text-gray-700 hover:bg-teal-50 hover:text-teal-600 border border-gray-300"
+                              }`}
+                            >
+                              Custom
                             </button>
                           </div>
+
+                          {/* Custom Input - Only shown when custom button is clicked */}
+                          {showCustomInput && (
+                            <div className="flex items-center justify-end space-x-2">
+                              <label className="text-sm text-gray-600">
+                                Enter amount:
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="50"
+                                value={
+                                  typeof questionCount === "number"
+                                    ? questionCount
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value);
+                                  if (value >= 1 && value <= 50) {
+                                    handleQuestionCountChange(value);
+                                  }
+                                }}
+                                placeholder={
+                                  typeof questionCount === "number"
+                                    ? questionCount.toString()
+                                    : "10"
+                                }
+                                className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                autoFocus
+                              />
+                            </div>
+                          )}
+
                           <div className="text-right">
                             <p className="text-xs text-gray-500">
-                              Selected: <strong>
-                                {questionCount === "all" ? "All available questions" : `${questionCount} questions`}
+                              Selected:{" "}
+                              <strong>
+                                {questionCount === "all"
+                                  ? "All available questions"
+                                  : `${questionCount} questions`}
                               </strong>
                             </p>
                           </div>
+                        </div>
+                      )}
+
+                      {item.type === "translation-direction" && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium text-gray-700">
+                            {translationDirection === "french-to-english"
+                              ? "French"
+                              : "English"}
+                          </span>
+                          <button
+                            onClick={handleTranslationDirectionChange}
+                            className="p-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors duration-200"
+                          >
+                            <ArrowLeftRight
+                              className={`h-4 w-4 text-indigo-600 transition-transform duration-200 ${
+                                translationDirection === "english-to-french"
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                            />
+                          </button>
+                          <span className="text-sm font-medium text-gray-700">
+                            {translationDirection === "french-to-english"
+                              ? "English"
+                              : "French"}
+                          </span>
                         </div>
                       )}
 
@@ -311,7 +472,13 @@ const SettingsPage = () => {
                       {item.type === "select" && (
                         <select
                           value={item.value as string}
-                          onChange={(e) => handleSelectChange(sectionIndex, itemIndex, e.target.value)}
+                          onChange={(e) =>
+                            handleSelectChange(
+                              sectionIndex,
+                              itemIndex,
+                              e.target.value,
+                            )
+                          }
                           className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                           {item.options?.map((option: string) => (

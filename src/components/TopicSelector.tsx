@@ -1,15 +1,21 @@
 import Link from "next/link";
 import { BookOpen, Settings } from "lucide-react";
-import { Topic } from "@/types/quiz";
+import { Topic, TranslationDirection } from "@/types/quiz";
 import { useTopicCounts } from "@/hooks/useTopicCounts";
 
 interface TopicSelectorProps {
   topics: Topic[];
   questionCount: number | "all";
+  translationDirection: TranslationDirection;
   onStartQuiz: (topic: string) => void;
 }
 
-export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelectorProps) => {
+export const TopicSelector = ({
+  topics,
+  questionCount,
+  translationDirection,
+  onStartQuiz,
+}: TopicSelectorProps) => {
   const { counts, loading: countsLoading } = useTopicCounts();
 
   return (
@@ -25,7 +31,7 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
               <Settings className="h-5 w-5 text-gray-600" />
             </Link>
           </div>
-          
+
           <div className="mb-8">
             <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="h-10 w-10 text-white" />
@@ -33,16 +39,23 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               Choose a Topic
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-3">
               Select which French vocabulary you&apos;d like to practice
             </p>
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full border border-indigo-200">
+              <span className="text-sm font-medium text-indigo-800">
+                {translationDirection === "french-to-english"
+                  ? "French → English"
+                  : "English → French"}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
             {topics.map((topic) => {
               const itemCount = counts[topic.id] || 0;
               const isLoading = countsLoading;
-              
+
               return (
                 <button
                   key={topic.id}
@@ -61,17 +74,23 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
                         <div className="text-2xl font-bold text-white/90">
                           {itemCount}
                         </div>
-                        <div className="text-sm text-blue-100">
-                          words
-                        </div>
+                        <div className="text-sm text-blue-100">words</div>
                       </div>
                     )}
                   </div>
                   <div className="text-sm text-blue-100">
-                    <div>• {questionCount === "all" ? "All available questions" : `${questionCount} questions`} per quiz</div>
+                    <div>
+                      •{" "}
+                      {questionCount === "all"
+                        ? "All available questions"
+                        : `${questionCount} questions`}{" "}
+                      per quiz
+                    </div>
                     <div>• Track your progress and streaks</div>
                     <div>• Multiple choice and typing modes</div>
-                    {topic.id === "adverbs" && <div>• Organized by adverb categories</div>}
+                    {topic.id === "adverbs" && (
+                      <div>• Organized by adverb categories</div>
+                    )}
                   </div>
                 </button>
               );
@@ -80,7 +99,8 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
 
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">
             <p className="text-sm text-gray-600">
-              💡 <strong>Tip:</strong> Visit Settings to choose quiz mode and adjust number of questions per quiz
+              💡 <strong>Tip:</strong> Visit Settings to choose quiz mode and
+              adjust number of questions per quiz
             </p>
           </div>
         </div>

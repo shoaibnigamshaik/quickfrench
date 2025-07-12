@@ -47,7 +47,11 @@ export const QuizGame = ({
 
   // Focus input in typing mode
   useEffect(() => {
-    if (settings.quizMode === "typing" && inputRef.current && !quizState.showResult) {
+    if (
+      settings.quizMode === "typing" &&
+      inputRef.current &&
+      !quizState.showResult
+    ) {
       inputRef.current.focus();
     }
   }, [quizState.currentQuestion, settings.quizMode, quizState.showResult]);

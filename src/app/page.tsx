@@ -21,7 +21,18 @@ const FrenchVocabularyQuiz = () => {
     resetQuiz,
     startQuiz,
     updateTypedAnswer,
+    updateTranslationDirection,
   } = useQuizState(vocabulary, selectedTopic);
+
+  // Load translation direction from localStorage and update settings
+  React.useEffect(() => {
+    const savedDirection = localStorage.getItem("translationDirection") as
+      | "french-to-english"
+      | "english-to-french";
+    if (savedDirection && savedDirection !== settings.translationDirection) {
+      updateTranslationDirection(savedDirection);
+    }
+  }, [settings.translationDirection, updateTranslationDirection]);
 
   // Handle topic selection
   const handleStartQuiz = (topic: string) => {
@@ -39,7 +50,10 @@ const FrenchVocabularyQuiz = () => {
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading {topics.find(t => t.id === selectedTopic)?.name.toLowerCase()}...</p>
+          <p className="text-gray-600">
+            Loading{" "}
+            {topics.find((t) => t.id === selectedTopic)?.name.toLowerCase()}...
+          </p>
         </div>
       </div>
     );
@@ -50,6 +64,7 @@ const FrenchVocabularyQuiz = () => {
       <TopicSelector
         topics={topics}
         questionCount={settings.questionCount}
+        translationDirection={settings.translationDirection}
         onStartQuiz={handleStartQuiz}
       />
     );

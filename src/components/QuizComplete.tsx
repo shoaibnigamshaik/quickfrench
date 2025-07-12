@@ -32,7 +32,9 @@ export const QuizComplete = ({
               Quiz Complete!
             </h1>
             <p className="text-gray-600">
-              Great job learning French {topics.find(t => t.id === selectedTopic)?.name.toLowerCase() || 'adjectives'}
+              Great job learning French{" "}
+              {topics.find((t) => t.id === selectedTopic)?.name.toLowerCase() ||
+                "adjectives"}
             </p>
           </div>
 
@@ -58,7 +60,9 @@ export const QuizComplete = ({
           </div>
 
           <div className="space-y-4">
-            <div className={`text-2xl font-bold ${getScoreColor(score, totalQuestions)}`}>
+            <div
+              className={`text-2xl font-bold ${getScoreColor(score, totalQuestions)}`}
+            >
               {getScoreMessage(score, totalQuestions)}
             </div>
             <div className="text-sm text-gray-500 mb-4">

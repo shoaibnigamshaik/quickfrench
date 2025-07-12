@@ -11,7 +11,13 @@ export const useTopicCounts = () => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const endpoints = ['adjectives', 'numbers', 'prepositions', 'verbs', 'adverbs'];
+        const endpoints = [
+          "adjectives",
+          "numbers",
+          "prepositions",
+          "verbs",
+          "adverbs",
+        ];
         const promises = endpoints.map(async (endpoint) => {
           try {
             const response = await fetch(`/api/${endpoint}`);
@@ -24,8 +30,11 @@ export const useTopicCounts = () => {
         });
 
         const results = await Promise.all(promises);
-        const countsMap = results.reduce((acc, result) => ({ ...acc, ...result }), {});
-        
+        const countsMap = results.reduce(
+          (acc, result) => ({ ...acc, ...result }),
+          {},
+        );
+
         setCounts(countsMap);
         setLoading(false);
       } catch (error) {

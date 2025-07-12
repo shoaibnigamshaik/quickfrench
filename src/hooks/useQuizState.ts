@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
-import { QuizState, QuizSettings, QuizMode, VocabularyItem, Adverb } from "@/types/quiz";
-import { generateQuestions, generateAdverbQuestions, checkTypedAnswer, loadQuizSettings } from "@/lib/quiz-utils";
+import {
+  QuizState,
+  QuizSettings,
+  QuizMode,
+  VocabularyItem,
+  Adverb,
+  TranslationDirection,
+} from "@/types/quiz";
+import {
+  generateQuestions,
+  generateAdverbQuestions,
+  checkTypedAnswer,
+  loadQuizSettings,
+} from "@/lib/quiz-utils";
 
 export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   const [quizState, setQuizState] = useState<QuizState>({
@@ -19,6 +31,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     quizMode: "multiple-choice",
     questionCount: 10,
     selectedTopic: "",
+    translationDirection: "french-to-english",
   });
 
   const [showTopicSelector, setShowTopicSelector] = useState(true);
@@ -26,10 +39,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   // Load settings from localStorage
   useEffect(() => {
     const savedSettings = loadQuizSettings();
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       quizMode: savedSettings.quizMode as QuizMode,
-      questionCount: savedSettings.questionCount as number | "all"
+      questionCount: savedSettings.questionCount as number | "all",
+      translationDirection:
+        savedSettings.translationDirection as TranslationDirection,
     }));
   }, []);
 
@@ -38,18 +53,32 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     if (settings.selectedTopic && vocabulary.length > 0) {
       let questions;
       if (topic === "adverbs") {
-        questions = generateAdverbQuestions(vocabulary as Adverb[], settings.questionCount);
+        questions = generateAdverbQuestions(
+          vocabulary as Adverb[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
       } else {
-        questions = generateQuestions(vocabulary, settings.questionCount);
+        questions = generateQuestions(
+          vocabulary,
+          settings.questionCount,
+          settings.translationDirection,
+        );
       }
-      setQuizState(prev => ({ ...prev, questions }));
+      setQuizState((prev) => ({ ...prev, questions }));
     }
-  }, [settings.selectedTopic, vocabulary, settings.questionCount, topic]);
+  }, [
+    settings.selectedTopic,
+    vocabulary,
+    settings.questionCount,
+    settings.translationDirection,
+    topic,
+  ]);
 
   const handleAnswerSelect = (answer: string) => {
     if (quizState.showResult) return;
-    
-    setQuizState(prev => {
+
+    setQuizState((prev) => {
       const isCorrect = answer === prev.questions[prev.currentQuestion].correct;
       return {
         ...prev,
@@ -57,7 +86,9 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         showResult: true,
         score: isCorrect ? prev.score + 1 : prev.score,
         streak: isCorrect ? prev.streak + 1 : 0,
-        maxStreak: isCorrect ? Math.max(prev.maxStreak, prev.streak + 1) : prev.maxStreak,
+        maxStreak: isCorrect
+          ? Math.max(prev.maxStreak, prev.streak + 1)
+          : prev.maxStreak,
       };
     });
   };
@@ -67,22 +98,24 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
 
     const isCorrect = checkTypedAnswer(
       quizState.questions[quizState.currentQuestion].correct,
-      quizState.typedAnswer
+      quizState.typedAnswer,
     );
 
-    setQuizState(prev => ({
+    setQuizState((prev) => ({
       ...prev,
       selectedAnswer: prev.typedAnswer,
       showResult: true,
       score: isCorrect ? prev.score + 1 : prev.score,
       streak: isCorrect ? prev.streak + 1 : 0,
-      maxStreak: isCorrect ? Math.max(prev.maxStreak, prev.streak + 1) : prev.maxStreak,
+      maxStreak: isCorrect
+        ? Math.max(prev.maxStreak, prev.streak + 1)
+        : prev.maxStreak,
     }));
   };
 
   const nextQuestion = () => {
     if (quizState.currentQuestion < quizState.questions.length - 1) {
-      setQuizState(prev => ({
+      setQuizState((prev) => ({
         ...prev,
         currentQuestion: prev.currentQuestion + 1,
         selectedAnswer: "",
@@ -90,7 +123,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         showResult: false,
       }));
     } else {
-      setQuizState(prev => ({ ...prev, quizComplete: true }));
+      setQuizState((prev) => ({ ...prev, quizComplete: true }));
     }
   };
 
@@ -106,25 +139,29 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       maxStreak: 0,
       typedAnswer: "",
     });
-    setSettings(prev => ({ ...prev, selectedTopic: "" }));
+    setSettings((prev) => ({ ...prev, selectedTopic: "" }));
     setShowTopicSelector(true);
   };
 
   const startQuiz = (topic: string) => {
-    setSettings(prev => ({ ...prev, selectedTopic: topic }));
+    setSettings((prev) => ({ ...prev, selectedTopic: topic }));
     setShowTopicSelector(false);
   };
 
   const updateTypedAnswer = (answer: string) => {
-    setQuizState(prev => ({ ...prev, typedAnswer: answer }));
+    setQuizState((prev) => ({ ...prev, typedAnswer: answer }));
   };
 
   const updateQuizMode = (mode: QuizMode) => {
-    setSettings(prev => ({ ...prev, quizMode: mode }));
+    setSettings((prev) => ({ ...prev, quizMode: mode }));
   };
 
   const updateQuestionCount = (count: number | "all") => {
-    setSettings(prev => ({ ...prev, questionCount: count }));
+    setSettings((prev) => ({ ...prev, questionCount: count }));
+  };
+
+  const updateTranslationDirection = (direction: TranslationDirection) => {
+    setSettings((prev) => ({ ...prev, translationDirection: direction }));
   };
 
   return {
@@ -139,5 +176,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateTypedAnswer,
     updateQuizMode,
     updateQuestionCount,
+    updateTranslationDirection,
   };
 };
