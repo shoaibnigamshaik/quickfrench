@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Settings } from "lucide-react";
 import { Topic } from "@/types/quiz";
+import { useTopicCounts } from "@/hooks/useTopicCounts";
 
 interface TopicSelectorProps {
   topics: Topic[];
@@ -9,6 +10,8 @@ interface TopicSelectorProps {
 }
 
 export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelectorProps) => {
+  const { counts, loading: countsLoading } = useTopicCounts();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -36,26 +39,43 @@ export const TopicSelector = ({ topics, questionCount, onStartQuiz }: TopicSelec
           </div>
 
           <div className="grid grid-cols-1 gap-6">
-            {topics.map((topic) => (
-              <button
-                key={topic.id}
-                onClick={() => onStartQuiz(topic.id)}
-                className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left`}
-              >
-                <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">{topic.icon}</div>
-                  <div>
-                    <h3 className="text-2xl font-bold mb-2">{topic.name}</h3>
-                    <p className="text-blue-100">{topic.description}</p>
+            {topics.map((topic) => {
+              const itemCount = counts[topic.id] || 0;
+              const isLoading = countsLoading;
+              
+              return (
+                <button
+                  key={topic.id}
+                  onClick={() => onStartQuiz(topic.id)}
+                  disabled={isLoading || itemCount === 0}
+                  className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="text-4xl mr-4">{topic.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold mb-2">{topic.name}</h3>
+                      <p className="text-blue-100">{topic.description}</p>
+                    </div>
+                    {!isLoading && (
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white/90">
+                          {itemCount}
+                        </div>
+                        <div className="text-sm text-blue-100">
+                          words
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="text-sm text-blue-100">
-                  <div>• {questionCount === "all" ? "All available questions" : `${questionCount} questions`} per quiz</div>
-                  <div>• Track your progress</div>
-                  <div>• Multiple difficulty levels</div>
-                </div>
-              </button>
-            ))}
+                  <div className="text-sm text-blue-100">
+                    <div>• {questionCount === "all" ? "All available questions" : `${questionCount} questions`} per quiz</div>
+                    <div>• Track your progress and streaks</div>
+                    <div>• Multiple choice and typing modes</div>
+                    {topic.id === "adverbs" && <div>• Organized by adverb categories</div>}
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">

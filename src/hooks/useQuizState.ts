@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { QuizState, QuizSettings, QuizMode, Adjective } from "@/types/quiz";
-import { generateQuestions, checkTypedAnswer, loadQuizSettings } from "@/lib/quiz-utils";
+import { QuizState, QuizSettings, QuizMode, VocabularyItem, Adverb } from "@/types/quiz";
+import { generateQuestions, generateAdverbQuestions, checkTypedAnswer, loadQuizSettings } from "@/lib/quiz-utils";
 
-export const useQuizState = (adjectives: Adjective[]) => {
+export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestion: 0,
     score: 0,
@@ -35,11 +35,16 @@ export const useQuizState = (adjectives: Adjective[]) => {
 
   // Generate questions when topic is selected
   useEffect(() => {
-    if (settings.selectedTopic && adjectives.length > 0) {
-      const questions = generateQuestions(adjectives, settings.questionCount);
+    if (settings.selectedTopic && vocabulary.length > 0) {
+      let questions;
+      if (topic === "adverbs") {
+        questions = generateAdverbQuestions(vocabulary as Adverb[], settings.questionCount);
+      } else {
+        questions = generateQuestions(vocabulary, settings.questionCount);
+      }
       setQuizState(prev => ({ ...prev, questions }));
     }
-  }, [settings.selectedTopic, adjectives, settings.questionCount]);
+  }, [settings.selectedTopic, vocabulary, settings.questionCount, topic]);
 
   const handleAnswerSelect = (answer: string) => {
     if (quizState.showResult) return;

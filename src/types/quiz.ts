@@ -9,6 +9,27 @@ export interface Adjective {
   meaning: string;
 }
 
+export interface Number {
+  word: string;
+  meaning: string;
+}
+
+export interface Preposition {
+  word: string;
+  meaning: string;
+}
+
+export interface Verb {
+  word: string;
+  meaning: string;
+}
+
+export interface Adverb {
+  word: string;
+  meaning: string;
+  category: string;
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -36,3 +57,5 @@ export interface QuizSettings {
   questionCount: number | "all";
   selectedTopic: string;
 }
+
+export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb;

@@ -1,26 +1,73 @@
-import { Question, Adjective } from "@/types/quiz";
+import { Question, VocabularyItem, Adverb } from "@/types/quiz";
 
 export const generateQuestions = (
-  adjectives: Adjective[],
+  vocabulary: VocabularyItem[],
   questionCount: number | "all"
 ): Question[] => {
-  const shuffled = [...adjectives].sort(() => Math.random() - 0.5);
-  const numQuestions = questionCount === "all" ? adjectives.length : Math.min(questionCount, adjectives.length);
+  const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
+  const numQuestions = questionCount === "all" ? vocabulary.length : Math.min(questionCount, vocabulary.length);
   
-  return shuffled.slice(0, numQuestions).map((word) => {
-    const otherOptions = adjectives
-      .filter((adj) => adj.meaning !== word.meaning)
+  return shuffled.slice(0, numQuestions).map((item) => {
+    const otherOptions = vocabulary
+      .filter((vocabItem) => vocabItem.meaning !== item.meaning)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
-      .map((adj) => adj.meaning);
+      .map((vocabItem) => vocabItem.meaning);
 
-    const options = [word.meaning, ...otherOptions].sort(
+    const options = [item.meaning, ...otherOptions].sort(
       () => Math.random() - 0.5
     );
 
     return {
-      word: word.word,
-      correct: word.meaning,
+      word: item.word,
+      correct: item.meaning,
+      options: options,
+    };
+  });
+};
+
+// Special function for adverbs that includes category information
+export const generateAdverbQuestions = (
+  adverbs: Adverb[],
+  questionCount: number | "all"
+): Question[] => {
+  const shuffled = [...adverbs].sort(() => Math.random() - 0.5);
+  const numQuestions = questionCount === "all" ? adverbs.length : Math.min(questionCount, adverbs.length);
+  
+  return shuffled.slice(0, numQuestions).map((adverb) => {
+    // Try to get options from the same category first, then mix with others
+    const sameCategoryOptions = adverbs
+      .filter((a) => a.category === adverb.category && a.meaning !== adverb.meaning)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 2)
+      .map((a) => a.meaning);
+
+    const otherCategoryOptions = adverbs
+      .filter((a) => a.category !== adverb.category && a.meaning !== adverb.meaning)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3 - sameCategoryOptions.length)
+      .map((a) => a.meaning);
+
+    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
+    
+    // If we don't have enough options, fill with any remaining adverbs
+    if (allOptions.length < 3) {
+      const remainingOptions = adverbs
+        .filter((a) => a.meaning !== adverb.meaning && !allOptions.includes(a.meaning))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3 - allOptions.length)
+        .map((a) => a.meaning);
+      
+      allOptions.push(...remainingOptions);
+    }
+
+    const options = [adverb.meaning, ...allOptions].sort(
+      () => Math.random() - 0.5
+    );
+
+    return {
+      word: `${adverb.word} (${adverb.category})`,
+      correct: adverb.meaning,
       options: options,
     };
   });
