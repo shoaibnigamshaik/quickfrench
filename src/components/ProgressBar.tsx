@@ -5,7 +5,12 @@ interface ProgressBarProps {
   score: number;
 }
 
-export const ProgressBar = ({ currentQuestion, totalQuestions, streak, score }: ProgressBarProps) => {
+export const ProgressBar = ({
+  currentQuestion,
+  totalQuestions,
+  streak,
+  score,
+}: ProgressBarProps) => {
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-2">

@@ -8,13 +8,20 @@ interface QuizHeaderProps {
   quizMode: QuizMode;
 }
 
-export const QuizHeader = ({ selectedTopic, topics, totalQuestions, quizMode }: QuizHeaderProps) => {
+export const QuizHeader = ({
+  selectedTopic,
+  topics,
+  totalQuestions,
+  quizMode,
+}: QuizHeaderProps) => {
   return (
     <div className="text-center mb-8">
       <div className="inline-flex items-center px-4 py-2 bg-white rounded-full shadow-lg border border-gray-100 mb-4">
         <BookOpen className="h-5 w-5 text-indigo-600 mr-2" />
         <span className="text-sm font-semibold text-gray-700">
-          French {topics.find(t => t.id === selectedTopic)?.name || 'Adjectives'} Quiz ({totalQuestions} questions) -{" "}
+          French{" "}
+          {topics.find((t) => t.id === selectedTopic)?.name || "Adjectives"}{" "}
+          Quiz ({totalQuestions} questions) -{" "}
           {quizMode === "multiple-choice"
             ? "Multiple Choice"
             : "Fill in the Blank"}
