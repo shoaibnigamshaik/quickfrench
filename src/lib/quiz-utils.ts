@@ -8,7 +8,7 @@ import {
 export const generateQuestions = (
   vocabulary: VocabularyItem[],
   questionCount: number | "all",
-  translationDirection: TranslationDirection = "french-to-english",
+  translationDirection: TranslationDirection = "french-to-english"
 ): Question[] => {
   const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
   const numQuestions =
@@ -25,16 +25,16 @@ export const generateQuestions = (
       .filter((vocabItem) =>
         isEnglishToFrench
           ? vocabItem.word !== item.word
-          : vocabItem.meaning !== item.meaning,
+          : vocabItem.meaning !== item.meaning
       )
       .sort(() => Math.random() - 0.5)
       .slice(0, 3)
       .map((vocabItem) =>
-        isEnglishToFrench ? vocabItem.word : vocabItem.meaning,
+        isEnglishToFrench ? vocabItem.word : vocabItem.meaning
       );
 
     const options = [correctAnswer, ...otherOptions].sort(
-      () => Math.random() - 0.5,
+      () => Math.random() - 0.5
     );
 
     return {
@@ -49,7 +49,7 @@ export const generateQuestions = (
 export const generateAdverbQuestions = (
   adverbs: Adverb[],
   questionCount: number | "all",
-  translationDirection: TranslationDirection = "french-to-english",
+  translationDirection: TranslationDirection = "french-to-english"
 ): Question[] => {
   const shuffled = [...adverbs].sort(() => Math.random() - 0.5);
   const numQuestions =
@@ -69,7 +69,7 @@ export const generateAdverbQuestions = (
           a.category === adverb.category &&
           (isEnglishToFrench
             ? a.word !== adverb.word
-            : a.meaning !== adverb.meaning),
+            : a.meaning !== adverb.meaning)
       )
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
@@ -81,7 +81,7 @@ export const generateAdverbQuestions = (
           a.category !== adverb.category &&
           (isEnglishToFrench
             ? a.word !== adverb.word
-            : a.meaning !== adverb.meaning),
+            : a.meaning !== adverb.meaning)
       )
       .sort(() => Math.random() - 0.5)
       .slice(0, 3 - sameCategoryOptions.length)
@@ -97,7 +97,7 @@ export const generateAdverbQuestions = (
             (isEnglishToFrench
               ? a.word !== adverb.word
               : a.meaning !== adverb.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? a.word : a.meaning),
+            !allOptions.includes(isEnglishToFrench ? a.word : a.meaning)
         )
         .sort(() => Math.random() - 0.5)
         .slice(0, 3 - allOptions.length)
@@ -107,7 +107,7 @@ export const generateAdverbQuestions = (
     }
 
     const options = [correctAnswer, ...allOptions].sort(
-      () => Math.random() - 0.5,
+      () => Math.random() - 0.5
     );
 
     return {
@@ -119,8 +119,17 @@ export const generateAdverbQuestions = (
 };
 
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
-  const normalizedCorrect = correct.toLowerCase();
-  const normalizedTyped = typed.toLowerCase().trim();
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\([mf]\)/g, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
+  const normalizedCorrect = normalizeText(correct);
+  const normalizedTyped = normalizeText(typed);
 
   // Check for exact match or close match
   return (
@@ -135,7 +144,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
 
 export const getScoreColor = (
   score: number,
-  totalQuestions: number,
+  totalQuestions: number
 ): string => {
   const percentage = (score / totalQuestions) * 100;
   if (percentage >= 80) return "text-green-600";
@@ -145,7 +154,7 @@ export const getScoreColor = (
 
 export const getScoreMessage = (
   score: number,
-  totalQuestions: number,
+  totalQuestions: number
 ): string => {
   const percentage = (score / totalQuestions) * 100;
   if (percentage >= 80) return "Excellent!";
@@ -157,7 +166,7 @@ export const saveQuizSettings = (
   quizMode: "multiple-choice" | "typing",
   questionCount: number | "all",
   translationDirection: TranslationDirection,
-  autoAdvance: boolean = false,
+  autoAdvance: boolean = false
 ) => {
   localStorage.setItem("quizMode", quizMode);
   localStorage.setItem("questionCount", questionCount.toString());
@@ -172,7 +181,7 @@ export const loadQuizSettings = () => {
     | null;
   const savedCount = localStorage.getItem("questionCount");
   const savedDirection = localStorage.getItem(
-    "translationDirection",
+    "translationDirection"
   ) as TranslationDirection | null;
   const savedAutoAdvance = localStorage.getItem("autoAdvance");
 
