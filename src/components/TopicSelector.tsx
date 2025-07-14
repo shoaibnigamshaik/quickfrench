@@ -55,6 +55,7 @@ export const TopicSelector = ({
             {topics.map((topic) => {
               const itemCount = counts[topic.id] || 0;
               const isLoading = countsLoading;
+              const isFood = topic.id === "food";
 
               return (
                 <button
@@ -81,15 +82,20 @@ export const TopicSelector = ({
                   <div className="text-sm text-blue-100">
                     <div>
                       •{" "}
-                      {questionCount === "all"
+                      {isFood 
+                        ? "Choose from multiple categories"
+                        : questionCount === "all"
                         ? "All available questions"
                         : `${questionCount} questions`}{" "}
-                      per quiz
+                      {!isFood && "per quiz"}
                     </div>
                     <div>• Track your progress and streaks</div>
                     <div>• Multiple choice and typing modes</div>
                     {topic.id === "adverbs" && (
                       <div>• Organized by adverb categories</div>
+                    )}
+                    {isFood && (
+                      <div>• Fruits, vegetables, drinks, and more!</div>
                     )}
                   </div>
                 </button>

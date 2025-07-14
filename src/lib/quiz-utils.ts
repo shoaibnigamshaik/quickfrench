@@ -2,6 +2,7 @@ import {
   Question,
   VocabularyItem,
   Adverb,
+  Food,
   TranslationDirection,
 } from "@/types/quiz";
 
@@ -102,6 +103,79 @@ export const generateAdverbQuestions = (
         .sort(() => Math.random() - 0.5)
         .slice(0, 3 - allOptions.length)
         .map((a) => (isEnglishToFrench ? a.word : a.meaning));
+
+      allOptions.push(...remainingOptions);
+    }
+
+    const options = [correctAnswer, ...allOptions].sort(
+      () => Math.random() - 0.5
+    );
+
+    return {
+      word: questionWord,
+      correct: correctAnswer,
+      options: options,
+    };
+  });
+};
+
+// Special function for food that includes category information (similar to adverbs)
+export const generateFoodQuestions = (
+  foods: Food[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english"
+): Question[] => {
+  const shuffled = [...foods].sort(() => Math.random() - 0.5);
+  const numQuestions =
+    questionCount === "all"
+      ? foods.length
+      : Math.min(questionCount, foods.length);
+
+  return shuffled.slice(0, numQuestions).map((food) => {
+    const isEnglishToFrench = translationDirection === "english-to-french";
+    const questionWord = isEnglishToFrench ? food.meaning : food.word;
+    const correctAnswer = isEnglishToFrench ? food.word : food.meaning;
+
+    // Try to get options from the same category first, then mix with others
+    const sameCategoryOptions = foods
+      .filter(
+        (f) =>
+          f.category === food.category &&
+          (isEnglishToFrench
+            ? f.word !== food.word
+            : f.meaning !== food.meaning)
+      )
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 2)
+      .map((f) => (isEnglishToFrench ? f.word : f.meaning));
+
+    const otherCategoryOptions = foods
+      .filter(
+        (f) =>
+          f.category !== food.category &&
+          (isEnglishToFrench
+            ? f.word !== food.word
+            : f.meaning !== food.meaning)
+      )
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3 - sameCategoryOptions.length)
+      .map((f) => (isEnglishToFrench ? f.word : f.meaning));
+
+    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
+
+    // If we don't have enough options, fill with any remaining foods
+    if (allOptions.length < 3) {
+      const remainingOptions = foods
+        .filter(
+          (f) =>
+            (isEnglishToFrench
+              ? f.word !== food.word
+              : f.meaning !== food.meaning) &&
+            !allOptions.includes(isEnglishToFrench ? f.word : f.meaning)
+        )
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3 - allOptions.length)
+        .map((f) => (isEnglishToFrench ? f.word : f.meaning));
 
       allOptions.push(...remainingOptions);
     }

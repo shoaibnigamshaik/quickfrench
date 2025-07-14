@@ -36,4 +36,11 @@ export const topics: Topic[] = [
     icon: "⚡",
     color: "from-pink-500 to-rose-600",
   },
+  {
+    id: "food",
+    name: "Food",
+    description: "Learn French food vocabulary by category",
+    icon: "🍽️",
+    color: "from-amber-500 to-orange-600",
+  },
 ];

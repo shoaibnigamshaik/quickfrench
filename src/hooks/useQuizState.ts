@@ -5,11 +5,13 @@ import {
   QuizMode,
   VocabularyItem,
   Adverb,
+  Food,
   TranslationDirection,
 } from "@/types/quiz";
 import {
   generateQuestions,
   generateAdverbQuestions,
+  generateFoodQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -57,6 +59,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       if (topic === "adverbs") {
         questions = generateAdverbQuestions(
           vocabulary as Adverb[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
+      } else if (topic === "food") {
+        questions = generateFoodQuestions(
+          vocabulary as Food[],
           settings.questionCount,
           settings.translationDirection,
         );

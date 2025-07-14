@@ -30,6 +30,17 @@ export interface Adverb {
   category: string;
 }
 
+export interface Food {
+  word: string;
+  meaning: string;
+  category: string;
+}
+
+export interface FoodCategory {
+  id: number;
+  name: string;
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -62,4 +73,4 @@ export interface QuizSettings {
   autoAdvance: boolean;
 }
 
-export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb;
+export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb | Food;
