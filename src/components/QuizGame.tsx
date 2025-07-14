@@ -29,6 +29,7 @@ export const QuizGame = ({
   onUpdateTypedAnswer,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -56,6 +57,45 @@ export const QuizGame = ({
     }
   }, [quizState.currentQuestion, settings.quizMode, quizState.showResult]);
 
+  // Auto-advance to next question when correct answer is given
+  useEffect(() => {
+    // Clear any existing timeout
+    if (autoAdvanceTimeoutRef.current) {
+      clearTimeout(autoAdvanceTimeoutRef.current);
+      autoAdvanceTimeoutRef.current = null;
+    }
+
+    // Check if we should auto-advance
+    if (
+      settings.autoAdvance &&
+      quizState.showResult &&
+      !quizState.quizComplete &&
+      quizState.selectedAnswer === quizState.questions[quizState.currentQuestion]?.correct
+    ) {
+      // Set timeout to auto-advance after 1 second
+      autoAdvanceTimeoutRef.current = setTimeout(() => {
+        onNextQuestion();
+        autoAdvanceTimeoutRef.current = null;
+      }, 1000);
+    }
+
+    // Cleanup function to clear timeout if component unmounts or dependencies change
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+        autoAdvanceTimeoutRef.current = null;
+      }
+    };
+  }, [
+    settings.autoAdvance,
+    quizState.showResult,
+    quizState.quizComplete,
+    quizState.selectedAnswer,
+    quizState.currentQuestion,
+    quizState.questions,
+    onNextQuestion,
+  ]);
+
   if (quizState.questions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
@@ -77,6 +117,7 @@ export const QuizGame = ({
           topics={topics}
           totalQuestions={quizState.questions.length}
           quizMode={settings.quizMode}
+          onResetQuiz={onResetQuiz}
         />
 
         <ProgressBar

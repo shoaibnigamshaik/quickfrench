@@ -32,6 +32,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     questionCount: 10,
     selectedTopic: "",
     translationDirection: "french-to-english",
+    autoAdvance: false,
   });
 
   const [showTopicSelector, setShowTopicSelector] = useState(true);
@@ -45,6 +46,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       questionCount: savedSettings.questionCount as number | "all",
       translationDirection:
         savedSettings.translationDirection as TranslationDirection,
+      autoAdvance: savedSettings.autoAdvance,
     }));
   }, []);
 
@@ -164,6 +166,10 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     setSettings((prev) => ({ ...prev, translationDirection: direction }));
   };
 
+  const updateAutoAdvance = (autoAdvance: boolean) => {
+    setSettings((prev) => ({ ...prev, autoAdvance }));
+  };
+
   return {
     quizState,
     settings,
@@ -177,5 +183,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateQuizMode,
     updateQuestionCount,
     updateTranslationDirection,
+    updateAutoAdvance,
   };
 };

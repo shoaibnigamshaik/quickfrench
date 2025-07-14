@@ -59,6 +59,7 @@ export interface QuizSettings {
   questionCount: number | "all";
   selectedTopic: string;
   translationDirection: TranslationDirection;
+  autoAdvance: boolean;
 }
 
 export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb;

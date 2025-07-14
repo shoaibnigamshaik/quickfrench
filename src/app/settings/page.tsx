@@ -16,6 +16,7 @@ import {
   CheckCircle,
   LucideIcon,
   ArrowLeftRight,
+  Clock,
 } from "lucide-react";
 
 interface SettingItem {
@@ -28,7 +29,8 @@ interface SettingItem {
     | "link"
     | "quiz-mode"
     | "question-count"
-    | "translation-direction";
+    | "translation-direction"
+    | "auto-advance";
   value?: boolean | string;
   options?: string[];
 }
@@ -46,6 +48,7 @@ const SettingsPage = () => {
   const [translationDirection, setTranslationDirection] = React.useState<
     "french-to-english" | "english-to-french"
   >("french-to-english");
+  const [autoAdvance, setAutoAdvance] = React.useState(false);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
 
   // Load saved settings from localStorage
@@ -57,6 +60,7 @@ const SettingsPage = () => {
     const savedDirection = localStorage.getItem("translationDirection") as
       | "french-to-english"
       | "english-to-french";
+    const savedAutoAdvance = localStorage.getItem("autoAdvance");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -71,6 +75,9 @@ const SettingsPage = () => {
     }
     if (savedDirection) {
       setTranslationDirection(savedDirection);
+    }
+    if (savedAutoAdvance !== null) {
+      setAutoAdvance(savedAutoAdvance === "true");
     }
   }, []);
 
@@ -105,6 +112,13 @@ const SettingsPage = () => {
     localStorage.setItem("translationDirection", newDirection);
   };
 
+  // Save auto advance to localStorage when changed
+  const handleAutoAdvanceChange = () => {
+    const newAutoAdvance = !autoAdvance;
+    setAutoAdvance(newAutoAdvance);
+    localStorage.setItem("autoAdvance", newAutoAdvance.toString());
+  };
+
   const settingsSections: SettingSection[] = [
     {
       title: "Quiz Settings",
@@ -126,6 +140,13 @@ const SettingsPage = () => {
           label: "Translation Direction",
           description: "Choose the direction of translation",
           type: "translation-direction" as const,
+        },
+        {
+          icon: Clock,
+          label: "Auto Advance",
+          description: "Automatically move to next question after correct answer",
+          type: "auto-advance" as const,
+          value: autoAdvance,
         },
       ],
     },
@@ -452,6 +473,21 @@ const SettingsPage = () => {
                               : "French"}
                           </span>
                         </div>
+                      )}
+
+                      {item.type === "auto-advance" && (
+                        <button
+                          onClick={handleAutoAdvanceChange}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                            autoAdvance ? "bg-indigo-600" : "bg-gray-300"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              autoAdvance ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
                       )}
 
                       {item.type === "toggle" && (

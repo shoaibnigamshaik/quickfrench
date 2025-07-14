@@ -157,10 +157,12 @@ export const saveQuizSettings = (
   quizMode: "multiple-choice" | "typing",
   questionCount: number | "all",
   translationDirection: TranslationDirection,
+  autoAdvance: boolean = false,
 ) => {
   localStorage.setItem("quizMode", quizMode);
   localStorage.setItem("questionCount", questionCount.toString());
   localStorage.setItem("translationDirection", translationDirection);
+  localStorage.setItem("autoAdvance", autoAdvance.toString());
 };
 
 export const loadQuizSettings = () => {
@@ -172,11 +174,13 @@ export const loadQuizSettings = () => {
   const savedDirection = localStorage.getItem(
     "translationDirection",
   ) as TranslationDirection | null;
+  const savedAutoAdvance = localStorage.getItem("autoAdvance");
 
   return {
     quizMode: savedMode || "multiple-choice",
     questionCount:
       savedCount === "all" ? "all" : savedCount ? parseInt(savedCount) : 10,
     translationDirection: savedDirection || "french-to-english",
+    autoAdvance: savedAutoAdvance === "true",
   };
 };
