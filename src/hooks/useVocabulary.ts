@@ -1,75 +1,64 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { VocabularyItem } from "@/types/quiz";
-import { useAdjectives } from "./useAdjectives";
-import { useNumbers } from "./useNumbers";
-import { usePrepositions } from "./usePrepositions";
-import { useVerbs } from "./useVerbs";
-import { useAdverbs } from "./useAdverbs";
-import { useFood } from "./useFood";
+import { vocabularyCacheService } from "@/lib/cache-service";
 
-export const useVocabulary = (topic: string, foodCategory?: string) => {
-  const { adjectives, loading: adjLoading } = useAdjectives();
-  const { numbers, loading: numLoading } = useNumbers();
-  const { prepositions, loading: prepLoading } = usePrepositions();
-  const { verbs, loading: verbLoading } = useVerbs();
-  const { adverbs, loading: advLoading } = useAdverbs();
-  const { food, loading: foodLoading } = useFood(foodCategory || "");
-
+export const useVocabulary = () => {
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let data: VocabularyItem[] = [];
-    let isLoading = true;
-
-    switch (topic) {
-      case "adjectives":
-        data = adjectives;
-        isLoading = adjLoading;
-        break;
-      case "numbers":
-        data = numbers;
-        isLoading = numLoading;
-        break;
-      case "prepositions":
-        data = prepositions;
-        isLoading = prepLoading;
-        break;
-      case "verbs":
-        data = verbs;
-        isLoading = verbLoading;
-        break;
-      case "adverbs":
-        data = adverbs;
-        isLoading = advLoading;
-        break;
-      case "food":
-        data = food;
-        isLoading = foodLoading;
-        break;
-      default:
-        data = [];
-        isLoading = false;
+  const fetchVocabulary = useCallback(async (topic: string, foodCategory?: string, forceRefresh = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let data: VocabularyItem[] = [];
+      
+      switch (topic) {
+        case "adjectives":
+          data = await vocabularyCacheService.getAdjectives({ forceRefresh });
+          break;
+        case "numbers":
+          data = await vocabularyCacheService.getNumbers({ forceRefresh });
+          break;
+        case "prepositions":
+          data = await vocabularyCacheService.getPrepositions({ forceRefresh });
+          break;
+        case "verbs":
+          data = await vocabularyCacheService.getVerbs({ forceRefresh });
+          break;
+        case "adverbs":
+          data = await vocabularyCacheService.getAdverbs({ forceRefresh });
+          break;
+        case "food":
+          if (foodCategory) {
+            data = await vocabularyCacheService.getFood(foodCategory, { forceRefresh });
+          }
+          break;
+        default:
+          data = [];
+      }
+      
+      setVocabulary(data);
+    } catch (err) {
+      console.error(`Failed to fetch ${topic}:`, err);
+      setError(`Failed to fetch ${topic}`);
+    } finally {
+      setLoading(false);
     }
+  }, []);
 
-    setVocabulary(data);
-    setLoading(isLoading);
-  }, [
-    topic,
-    foodCategory,
-    adjectives,
-    numbers,
-    prepositions,
-    verbs,
-    adverbs,
-    food,
-    adjLoading,
-    numLoading,
-    prepLoading,
-    verbLoading,
-    advLoading,
-    foodLoading,
-  ]);
+  const clearVocabulary = useCallback(() => {
+    setVocabulary([]);
+    setError(null);
+    setLoading(false);
+  }, []);
 
-  return { vocabulary, loading };
+  return { 
+    vocabulary, 
+    loading, 
+    error, 
+    fetchVocabulary,
+    clearVocabulary
+  };
 };

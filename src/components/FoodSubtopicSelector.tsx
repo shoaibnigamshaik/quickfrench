@@ -1,7 +1,6 @@
 import React from "react";
 import { ArrowLeft, Utensils } from "lucide-react";
-import { FoodCategory, TranslationDirection } from "@/types/quiz";
-import { useFoodCategories } from "@/hooks/useFoodCategories";
+import { TranslationDirection } from "@/types/quiz";
 
 interface FoodSubtopicSelectorProps {
   questionCount: number | "all";
@@ -16,10 +15,8 @@ export const FoodSubtopicSelector = ({
   onSelectSubtopic,
   onBack,
 }: FoodSubtopicSelectorProps) => {
-  const { categories, loading } = useFoodCategories();
-
-  // Default food categories with icons and colors
-  const defaultCategories = [
+  // Food categories with icons and colors - hardcoded for performance
+  const foodCategories = [
     { name: "Fruits", icon: "🍎", color: "from-red-400 to-pink-500" },
     { name: "Vegetables", icon: "🥬", color: "from-green-400 to-emerald-500" },
     { name: "Recipes", icon: "🍳", color: "from-yellow-400 to-orange-500" },
@@ -28,30 +25,8 @@ export const FoodSubtopicSelector = ({
     { name: "Snacks", icon: "🍿", color: "from-purple-400 to-purple-500" },
     { name: "Related Verbs", icon: "🔪", color: "from-gray-400 to-gray-600" },
     { name: "Utensils", icon: "🍴", color: "from-indigo-400 to-indigo-500" },
-    { name: "Other", icon: "🍽️", color: "from-amber-400 to-amber-500" },
+    { name: "Other", icon: "🥄", color: "from-teal-400 to-teal-500" },
   ];
-
-  const getCategoryDisplay = (categoryName: string) => {
-    const defaultCategory = defaultCategories.find(
-      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
-    );
-    return defaultCategory || { 
-      name: categoryName, 
-      icon: "🍽️", 
-      color: "from-gray-400 to-gray-500" 
-    };
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading food categories...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -87,23 +62,19 @@ export const FoodSubtopicSelector = ({
 
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((category: FoodCategory) => {
-              const display = getCategoryDisplay(category.name);
-              
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => onSelectSubtopic(category.name)}
-                  className={`p-6 bg-gradient-to-r ${display.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-center`}
-                >
-                  <div className="text-4xl mb-3">{display.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{display.name}</h3>
-                  <p className="text-sm text-white/80">
-                    Practice French {display.name.toLowerCase()}
-                  </p>
-                </button>
-              );
-            })}
+            {foodCategories.map((category) => (
+              <button
+                key={category.name}
+                onClick={() => onSelectSubtopic(category.name)}
+                className={`p-6 bg-gradient-to-r ${category.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-center`}
+              >
+                <div className="text-4xl mb-3">{category.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
+                <p className="text-sm text-white/80">
+                  Practice French {category.name.toLowerCase()}
+                </p>
+              </button>
+            ))}
           </div>
 
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">

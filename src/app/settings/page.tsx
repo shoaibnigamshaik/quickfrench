@@ -17,7 +17,13 @@ import {
   LucideIcon,
   ArrowLeftRight,
   Clock,
+  // @ts-ignore
+  Database,
+  RefreshCw,
+  Trash2,
+  HardDrive,
 } from "lucide-react";
+import { useCacheManagement } from "@/hooks/useCacheManagement";
 
 interface SettingItem {
   icon: LucideIcon;
@@ -30,7 +36,10 @@ interface SettingItem {
     | "quiz-mode"
     | "question-count"
     | "translation-direction"
-    | "auto-advance";
+    | "auto-advance"
+    | "cache-refresh"
+    | "cache-clear"
+    | "cache-info";
   value?: boolean | string;
   options?: string[];
 }
@@ -50,6 +59,24 @@ const SettingsPage = () => {
   >("french-to-english");
   const [autoAdvance, setAutoAdvance] = React.useState(false);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
+
+  // Cache management
+  const {
+    cacheInfo,
+    isRefreshing,
+    isClearing,
+    error: cacheError,
+    getCacheInfo,
+    refreshAllData,
+    clearAllCache,
+    formatCacheSize,
+    formatLastUpdated,
+  } = useCacheManagement();
+
+  // Load cache info on component mount
+  React.useEffect(() => {
+    getCacheInfo();
+  }, [getCacheInfo]);
 
   // Load saved settings from localStorage
   React.useEffect(() => {
@@ -147,6 +174,29 @@ const SettingsPage = () => {
           description: "Automatically move to next question after correct answer",
           type: "auto-advance" as const,
           value: autoAdvance,
+        },
+      ],
+    },
+    {
+      title: "Data & Cache",
+      items: [
+        {
+          icon: HardDrive,
+          label: "Cache Information",
+          description: `${cacheInfo ? cacheInfo.totalEntries : 0} items cached • ${cacheInfo ? formatCacheSize(cacheInfo.totalSize) : '0 B'} • Last updated: ${cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : 'Never'}`,
+          type: "cache-info" as const,
+        },
+        {
+          icon: RefreshCw,
+          label: "Refresh from Database",
+          description: "Fetch fresh data from the database and update cache",
+          type: "cache-refresh" as const,
+        },
+        {
+          icon: Trash2,
+          label: "Clear Cache",
+          description: "Remove all cached data (will be refetched when needed)",
+          type: "cache-clear" as const,
         },
       ],
     },
@@ -523,6 +573,62 @@ const SettingsPage = () => {
                             </option>
                           ))}
                         </select>
+                      )}
+
+                      {item.type === "cache-info" && (
+                        <div className="text-right">
+                          {cacheError && (
+                            <p className="text-red-600 text-xs mb-1">{cacheError}</p>
+                          )}
+                          <button
+                            onClick={getCacheInfo}
+                            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                          >
+                            Refresh Info
+                          </button>
+                        </div>
+                      )}
+
+                      {item.type === "cache-refresh" && (
+                        <button
+                          onClick={refreshAllData}
+                          disabled={isRefreshing}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            isRefreshing
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                          }`}
+                        >
+                          {isRefreshing ? (
+                            <div className="flex items-center space-x-2">
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                              <span>Refreshing...</span>
+                            </div>
+                          ) : (
+                            "Refresh"
+                          )}
+                        </button>
+                      )}
+
+                      {item.type === "cache-clear" && (
+                        <button
+                          onClick={clearAllCache}
+                          disabled={isClearing}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            isClearing
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-red-100 text-red-600 hover:bg-red-200"
+                          }`}
+                        >
+                          {isClearing ? (
+                            <div className="flex items-center space-x-2">
+                              <Trash2 className="h-4 w-4 animate-pulse" />
+                              <span>Clearing...</span>
+                            </div>
+                          ) : (
+                            "Clear"
+                          )}
+                        </button>
                       )}
 
                       {item.type === "link" && (

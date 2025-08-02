@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { BookOpen, Settings } from "lucide-react";
 import { Topic, TranslationDirection } from "@/types/quiz";
-import { useTopicCounts } from "@/hooks/useTopicCounts";
 
 interface TopicSelectorProps {
   topics: Topic[];
@@ -10,14 +9,22 @@ interface TopicSelectorProps {
   onStartQuiz: (topic: string) => void;
 }
 
+// Hardcoded topic counts as requested
+const TOPIC_COUNTS: Record<string, number> = {
+  adjectives: 96,
+  numbers: 27,
+  prepositions: 26,
+  verbs: 116,
+  adverbs: 28,
+  food: 171,
+};
+
 export const TopicSelector = ({
   topics,
   questionCount,
   translationDirection,
   onStartQuiz,
 }: TopicSelectorProps) => {
-  const { counts, loading: countsLoading } = useTopicCounts();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -53,16 +60,14 @@ export const TopicSelector = ({
 
           <div className="grid grid-cols-1 gap-6">
             {topics.map((topic) => {
-              const itemCount = counts[topic.id] || 0;
-              const isLoading = countsLoading;
+              const itemCount = TOPIC_COUNTS[topic.id] || 0;
               const isFood = topic.id === "food";
 
               return (
                 <button
                   key={topic.id}
                   onClick={() => onStartQuiz(topic.id)}
-                  disabled={isLoading || itemCount === 0}
-                  className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                  className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left`}
                 >
                   <div className="flex items-center mb-4">
                     <div className="text-4xl mr-4">{topic.icon}</div>
@@ -70,14 +75,12 @@ export const TopicSelector = ({
                       <h3 className="text-2xl font-bold mb-2">{topic.name}</h3>
                       <p className="text-blue-100">{topic.description}</p>
                     </div>
-                    {!isLoading && (
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-white/90">
-                          {itemCount}
-                        </div>
-                        <div className="text-sm text-blue-100">words</div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-white/90">
+                        {itemCount}
                       </div>
-                    )}
+                      <div className="text-sm text-blue-100">words</div>
+                    </div>
                   </div>
                   <div className="text-sm text-blue-100">
                     <div>

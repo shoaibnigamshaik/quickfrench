@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import { Adverb } from "@/types/quiz";
+import { vocabularyCacheService } from "@/lib/cache-service";
 
-export const useAdverbs = () => {
+export const useAdverbs = (forceRefresh = false) => {
   const [adverbs, setAdverbs] = useState<Adverb[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAdverbs = async () => {
       try {
-        const response = await fetch("/api/adverbs");
-        const data = await response.json();
+        setLoading(true);
+        setError(null);
+        const data = await vocabularyCacheService.getAdverbs({ forceRefresh });
         setAdverbs(data);
-        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch adverbs:", error);
+        setError("Failed to fetch adverbs");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchAdverbs();
-  }, []);
+  }, [forceRefresh]);
 
-  return { adverbs, loading };
+  return { adverbs, loading, error };
 };

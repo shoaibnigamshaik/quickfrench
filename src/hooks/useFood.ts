@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Food } from "@/types/quiz";
+import { vocabularyCacheService } from "@/lib/cache-service";
 
-export const useFood = (category: string) => {
+export const useFood = (category: string, forceRefresh = false) => {
   const [food, setFood] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!category) {
@@ -15,18 +17,19 @@ export const useFood = (category: string) => {
     const fetchFood = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/food/${encodeURIComponent(category)}`);
-        const data = await response.json();
+        setError(null);
+        const data = await vocabularyCacheService.getFood(category, { forceRefresh });
         setFood(data);
-        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch food:", error);
+        setError("Failed to fetch food");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchFood();
-  }, [category]);
+  }, [category, forceRefresh]);
 
-  return { food, loading };
+  return { food, loading, error };
 };

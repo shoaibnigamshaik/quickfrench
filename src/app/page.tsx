@@ -14,7 +14,7 @@ const FrenchVocabularyQuiz = () => {
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
   const [showFoodSubtopics, setShowFoodSubtopics] = useState(false);
   
-  const { vocabulary, loading } = useVocabulary(selectedTopic, selectedFoodCategory);
+  const { vocabulary, loading, fetchVocabulary, clearVocabulary } = useVocabulary();
   const {
     quizState,
     settings,
@@ -39,21 +39,25 @@ const FrenchVocabularyQuiz = () => {
   }, [settings.translationDirection, updateTranslationDirection]);
 
   // Handle topic selection
-  const handleStartQuiz = (topic: string) => {
+  const handleStartQuiz = async (topic: string) => {
     if (topic === "food") {
       setSelectedTopic(topic);
       setShowFoodSubtopics(true);
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
+      // Fetch vocabulary data when starting quiz
+      await fetchVocabulary(topic);
       startQuiz(topic);
     }
   };
 
   // Handle food subtopic selection
-  const handleFoodSubtopicSelect = (category: string) => {
+  const handleFoodSubtopicSelect = async (category: string) => {
     setSelectedFoodCategory(category);
     setShowFoodSubtopics(false);
+    // Fetch food vocabulary data when starting quiz
+    await fetchVocabulary("food", category);
     startQuiz("food");
   };
 
@@ -68,6 +72,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setShowFoodSubtopics(false);
+    clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
 
