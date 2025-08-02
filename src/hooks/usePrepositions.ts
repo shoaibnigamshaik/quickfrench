@@ -12,7 +12,9 @@ export const usePrepositions = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getPrepositions({ forceRefresh });
+        const data = await vocabularyCacheService.getPrepositions({
+          forceRefresh,
+        });
         setPrepositions(data);
       } catch (error) {
         console.error("Failed to fetch prepositions:", error);

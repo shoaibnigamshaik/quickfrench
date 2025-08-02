@@ -79,7 +79,8 @@ export const FoodSubtopicSelector = ({
 
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">
             <p className="text-sm text-gray-600 text-center">
-              💡 <strong>Tip:</strong> Each category contains different French food vocabulary.
+              💡 <strong>Tip:</strong> Each category contains different French
+              food vocabulary.
               {questionCount === "all"
                 ? " All available questions"
                 : ` ${questionCount} questions`}{" "}

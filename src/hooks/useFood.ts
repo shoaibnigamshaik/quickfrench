@@ -18,7 +18,9 @@ export const useFood = (category: string, forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getFood(category, { forceRefresh });
+        const data = await vocabularyCacheService.getFood(category, {
+          forceRefresh,
+        });
         setFood(data);
       } catch (error) {
         console.error("Failed to fetch food:", error);

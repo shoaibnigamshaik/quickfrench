@@ -85,11 +85,11 @@ export const TopicSelector = ({
                   <div className="text-sm text-blue-100">
                     <div>
                       •{" "}
-                      {isFood 
+                      {isFood
                         ? "Choose from multiple categories"
                         : questionCount === "all"
-                        ? "All available questions"
-                        : `${questionCount} questions`}{" "}
+                          ? "All available questions"
+                          : `${questionCount} questions`}{" "}
                       {!isFood && "per quiz"}
                     </div>
                     <div>• Track your progress and streaks</div>

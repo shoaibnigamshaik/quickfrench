@@ -13,8 +13,9 @@ const FrenchVocabularyQuiz = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
   const [showFoodSubtopics, setShowFoodSubtopics] = useState(false);
-  
-  const { vocabulary, loading, fetchVocabulary, clearVocabulary } = useVocabulary();
+
+  const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
+    useVocabulary();
   const {
     quizState,
     settings,
@@ -77,17 +78,16 @@ const FrenchVocabularyQuiz = () => {
   };
 
   if (loading && selectedTopic) {
-    const topicName = selectedTopic === "food" && selectedFoodCategory 
-      ? `${selectedFoodCategory} (Food)` 
-      : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
-      
+    const topicName =
+      selectedTopic === "food" && selectedFoodCategory
+        ? `${selectedFoodCategory} (Food)`
+        : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            Loading {topicName}...
-          </p>
+          <p className="text-gray-600">Loading {topicName}...</p>
         </div>
       </div>
     );

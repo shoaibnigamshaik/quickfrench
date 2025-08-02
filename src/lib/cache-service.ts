@@ -1,13 +1,13 @@
-import { indexedDBCache } from './indexeddb';
-import type { 
-  Adjective, 
-  Number, 
-  Preposition, 
-  Verb, 
-  Adverb, 
-  Food, 
-  FoodCategory 
-} from '@/types/quiz';
+import { indexedDBCache } from "./indexeddb";
+import type {
+  Adjective,
+  Number,
+  Preposition,
+  Verb,
+  Adverb,
+  Food,
+  FoodCategory,
+} from "@/types/quiz";
 
 export interface CacheConfig {
   ttl?: number;
@@ -16,19 +16,19 @@ export interface CacheConfig {
 
 class VocabularyCacheService {
   private readonly defaultTTL = 24 * 60 * 60 * 1000; // 24 hours
-  private readonly pendingRequests = new Map<string, Promise<any>>();
+  private readonly pendingRequests = new Map<string, Promise<unknown>>();
 
   private async fetchWithCache<T>(
     cacheKey: string,
     apiUrl: string,
-    config: CacheConfig = {}
+    config: CacheConfig = {},
   ): Promise<T> {
     const { ttl = this.defaultTTL, forceRefresh = false } = config;
 
     // Check if there's already a pending request for this key
     if (!forceRefresh && this.pendingRequests.has(cacheKey)) {
       console.log(`Waiting for pending request: ${cacheKey}`);
-      return this.pendingRequests.get(cacheKey);
+      return this.pendingRequests.get(cacheKey) as Promise<T>;
     }
 
     // Check cache first if not forcing refresh
@@ -57,7 +57,11 @@ class VocabularyCacheService {
     }
   }
 
-  private async performFetch<T>(cacheKey: string, apiUrl: string, ttl: number): Promise<T> {
+  private async performFetch<T>(
+    cacheKey: string,
+    apiUrl: string,
+    ttl: number,
+  ): Promise<T> {
     // Fetch from API
     console.log(`Fetching ${cacheKey} from API`);
     try {
@@ -65,9 +69,9 @@ class VocabularyCacheService {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       // Cache the result
       try {
         await indexedDBCache.set(cacheKey, data, { ttl });
@@ -75,11 +79,11 @@ class VocabularyCacheService {
       } catch (error) {
         console.warn(`Cache write error for ${cacheKey}:`, error);
       }
-      
+
       return data;
     } catch (error) {
       console.error(`API fetch error for ${cacheKey}:`, error);
-      
+
       // Try to return stale cache data as fallback
       try {
         const staleData = await indexedDBCache.get<T>(cacheKey);
@@ -90,33 +94,45 @@ class VocabularyCacheService {
       } catch (cacheError) {
         console.warn(`Stale cache read error for ${cacheKey}:`, cacheError);
       }
-      
+
       throw error;
     }
   }
 
   async getAdjectives(config?: CacheConfig): Promise<Adjective[]> {
-    return this.fetchWithCache<Adjective[]>('adjectives', '/api/adjectives', config);
+    return this.fetchWithCache<Adjective[]>(
+      "adjectives",
+      "/api/adjectives",
+      config,
+    );
   }
 
   async getNumbers(config?: CacheConfig): Promise<Number[]> {
-    return this.fetchWithCache<Number[]>('numbers', '/api/numbers', config);
+    return this.fetchWithCache<Number[]>("numbers", "/api/numbers", config);
   }
 
   async getPrepositions(config?: CacheConfig): Promise<Preposition[]> {
-    return this.fetchWithCache<Preposition[]>('prepositions', '/api/prepositions', config);
+    return this.fetchWithCache<Preposition[]>(
+      "prepositions",
+      "/api/prepositions",
+      config,
+    );
   }
 
   async getVerbs(config?: CacheConfig): Promise<Verb[]> {
-    return this.fetchWithCache<Verb[]>('verbs', '/api/verbs', config);
+    return this.fetchWithCache<Verb[]>("verbs", "/api/verbs", config);
   }
 
   async getAdverbs(config?: CacheConfig): Promise<Adverb[]> {
-    return this.fetchWithCache<Adverb[]>('adverbs', '/api/adverbs', config);
+    return this.fetchWithCache<Adverb[]>("adverbs", "/api/adverbs", config);
   }
 
   async getFoodCategories(config?: CacheConfig): Promise<FoodCategory[]> {
-    return this.fetchWithCache<FoodCategory[]>('food-categories', '/api/food-categories', config);
+    return this.fetchWithCache<FoodCategory[]>(
+      "food-categories",
+      "/api/food-categories",
+      config,
+    );
   }
 
   async getFood(category: string, config?: CacheConfig): Promise<Food[]> {
@@ -130,9 +146,9 @@ class VocabularyCacheService {
       await indexedDBCache.clear();
       // Also clear pending requests
       this.pendingRequests.clear();
-      console.log('All cache cleared successfully');
+      console.log("All cache cleared successfully");
     } catch (error) {
-      console.error('Error clearing cache:', error);
+      console.error("Error clearing cache:", error);
       throw error;
     }
   }
@@ -159,14 +175,16 @@ class VocabularyCacheService {
       } else {
         // Clear all food-related cache
         const keys = await indexedDBCache.getAllKeys();
-        const foodKeys = keys.filter(key => key.startsWith('food-'));
-        await Promise.all(foodKeys.map(key => {
-          this.pendingRequests.delete(key);
-          return indexedDBCache.delete(key);
-        }));
-        await indexedDBCache.delete('food-categories');
-        this.pendingRequests.delete('food-categories');
-        console.log('All food cache cleared');
+        const foodKeys = keys.filter((key) => key.startsWith("food-"));
+        await Promise.all(
+          foodKeys.map((key) => {
+            this.pendingRequests.delete(key);
+            return indexedDBCache.delete(key);
+          }),
+        );
+        await indexedDBCache.delete("food-categories");
+        this.pendingRequests.delete("food-categories");
+        console.log("All food cache cleared");
       }
     } catch (error) {
       console.error(`Error clearing food cache:`, error);
@@ -178,7 +196,7 @@ class VocabularyCacheService {
     try {
       return await indexedDBCache.getCacheInfo();
     } catch (error) {
-      console.error('Error getting cache info:', error);
+      console.error("Error getting cache info:", error);
       throw error;
     }
   }
@@ -186,16 +204,16 @@ class VocabularyCacheService {
   async cleanExpiredCache(): Promise<void> {
     try {
       await indexedDBCache.cleanExpired();
-      console.log('Expired cache entries cleaned');
+      console.log("Expired cache entries cleaned");
     } catch (error) {
-      console.error('Error cleaning expired cache:', error);
+      console.error("Error cleaning expired cache:", error);
       throw error;
     }
   }
 
   async preloadAllData(config?: CacheConfig): Promise<void> {
-    console.log('Preloading all vocabulary data...');
-    
+    console.log("Preloading all vocabulary data...");
+
     try {
       const promises = [
         this.getAdjectives(config),
@@ -207,41 +225,41 @@ class VocabularyCacheService {
       ];
 
       await Promise.all(promises);
-      
+
       // Also preload food data for all categories
       const foodCategories = await this.getFoodCategories(config);
-      const foodPromises = foodCategories.map(category => 
-        this.getFood(category.name, config)
+      const foodPromises = foodCategories.map((category) =>
+        this.getFood(category.name, config),
       );
-      
+
       await Promise.all(foodPromises);
-      
-      console.log('All vocabulary data preloaded successfully');
+
+      console.log("All vocabulary data preloaded successfully");
     } catch (error) {
-      console.error('Error preloading data:', error);
+      console.error("Error preloading data:", error);
       throw error;
     }
   }
 
   // Debug method to test cache functionality
   async testCache(): Promise<void> {
-    console.log('Testing cache functionality...');
-    
+    console.log("Testing cache functionality...");
+
     try {
       // Test setting and getting a simple value
-      await indexedDBCache.set('test-key', { test: 'data' }, { ttl: 60000 }); // 1 minute TTL
-      const retrieved = await indexedDBCache.get('test-key');
-      console.log('Cache test result:', retrieved);
-      
+      await indexedDBCache.set("test-key", { test: "data" }, { ttl: 60000 }); // 1 minute TTL
+      const retrieved = await indexedDBCache.get("test-key");
+      console.log("Cache test result:", retrieved);
+
       // Get cache info
       const info = await this.getCacheInfo();
-      console.log('Cache info:', info);
-      
+      console.log("Cache info:", info);
+
       // Clean up test data
-      await indexedDBCache.delete('test-key');
-      console.log('Cache test completed successfully');
+      await indexedDBCache.delete("test-key");
+      console.log("Cache test completed successfully");
     } catch (error) {
-      console.error('Cache test failed:', error);
+      console.error("Cache test failed:", error);
     }
   }
 }

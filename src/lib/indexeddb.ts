@@ -1,4 +1,6 @@
-export interface CachedData<T = any> {
+import Dexie, { Table } from "dexie";
+
+export interface CachedData<T = unknown> {
   data: T;
   timestamp: number;
   expiresAt: number;
@@ -8,165 +10,115 @@ export interface CacheOptions {
   ttl?: number; // Time to live in milliseconds, default 24 hours
 }
 
+interface CacheEntry {
+  key: string;
+  value: CachedData;
+}
+
+class QuickFrenchDB extends Dexie {
+  vocabulary!: Table<CacheEntry>;
+
+  constructor() {
+    super("QuickFrenchCache");
+    this.version(1).stores({
+      vocabulary: "key, value.expiresAt",
+    });
+  }
+}
+
 class IndexedDBCache {
-  private dbName = 'QuickFrenchCache';
-  private version = 1;
-  private storeName = 'vocabulary';
-  private db: IDBDatabase | null = null;
+  private db: QuickFrenchDB;
+
+  constructor() {
+    this.db = new QuickFrenchDB();
+  }
 
   async init(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
-
-      request.onerror = () => {
-        console.error('IndexedDB initialization error:', request.error);
-        reject(request.error);
-      };
-      request.onsuccess = () => {
-        this.db = request.result;
-        resolve();
-      };
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        
-        // Create object store if it doesn't exist
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { keyPath: 'key' });
-          store.createIndex('expiresAt', 'expiresAt', { unique: false });
-        }
-      };
-    });
+    // Dexie handles initialization automatically, but we can open explicitly
+    await this.db.open();
   }
 
   async get<T>(key: string): Promise<T | null> {
-    if (!this.db) await this.init();
+    try {
+      const entry = await this.db.vocabulary.get(key);
+      
+      if (!entry) {
+        return null;
+      }
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readonly');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.get(key);
+      const { value } = entry;
+      
+      // Check if data has expired
+      if (Date.now() > value.expiresAt) {
+        // Delete expired data
+        await this.delete(key);
+        return null;
+      }
 
-      request.onerror = () => {
-        console.error(`IndexedDB get error for key ${key}:`, request.error);
-        reject(request.error);
+      return value.data as T;
+    } catch (error) {
+      console.error(`Dexie get error for key ${key}:`, error);
+      return null;
+    }
+  }  async set<T>(
+    key: string,
+    data: T,
+    options: CacheOptions = {},
+  ): Promise<void> {
+    try {
+      const ttl = options.ttl || 24 * 60 * 60 * 1000; // 24 hours default
+      const now = Date.now();
+
+      const cachedData: CachedData<T> = {
+        data,
+        timestamp: now,
+        expiresAt: now + ttl,
       };
-      request.onsuccess = () => {
-        const result = request.result as { key: string; value: CachedData<T> } | undefined;
-        
-        if (!result) {
-          resolve(null);
-          return;
-        }
 
-        const { value } = result;
-        
-        // Check if data has expired
-        if (Date.now() > value.expiresAt) {
-          // Delete expired data
-          this.delete(key).catch(console.error);
-          resolve(null);
-          return;
-        }
-
-        resolve(value.data);
-      };
-    });
-  }
-
-  async set<T>(key: string, data: T, options: CacheOptions = {}): Promise<void> {
-    if (!this.db) await this.init();
-
-    const ttl = options.ttl || 24 * 60 * 60 * 1000; // 24 hours default
-    const now = Date.now();
-    
-    const cachedData: CachedData<T> = {
-      data,
-      timestamp: now,
-      expiresAt: now + ttl
-    };
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.put({ key, value: cachedData });
-
-      request.onerror = () => {
-        console.error(`IndexedDB set error for key ${key}:`, request.error);
-        reject(request.error);
-      };
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
+      await this.db.vocabulary.put({ key, value: cachedData });
+    } catch (error) {
+      console.error(`Dexie set error for key ${key}:`, error);
+      throw error;
+    }
   }
 
   async delete(key: string): Promise<void> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.delete(key);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
-    });
+    try {
+      await this.db.vocabulary.delete(key);
+    } catch (error) {
+      console.error(`Dexie delete error for key ${key}:`, error);
+      throw error;
+    }
   }
 
   async clear(): Promise<void> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.clear();
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
-    });
+    try {
+      await this.db.vocabulary.clear();
+    } catch (error) {
+      console.error("Dexie clear error:", error);
+      throw error;
+    }
   }
 
   async getAllKeys(): Promise<string[]> {
-    if (!this.db) await this.init();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readonly');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.getAllKeys();
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        resolve(request.result as string[]);
-      };
-    });
+    try {
+      const keys = await this.db.vocabulary.orderBy("key").keys();
+      return keys as string[];
+    } catch (error) {
+      console.error("Dexie getAllKeys error:", error);
+      return [];
+    }
   }
 
   async cleanExpired(): Promise<void> {
-    if (!this.db) await this.init();
-
-    const now = Date.now();
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const index = store.index('expiresAt');
-      
-      // Get all entries that have expired
-      const range = IDBKeyRange.upperBound(now);
-      const request = index.openCursor(range);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest).result;
-        if (cursor) {
-          cursor.delete();
-          cursor.continue();
-        } else {
-          resolve();
-        }
-      };
-    });
+    try {
+      const now = Date.now();
+      // Use Dexie's where clause to filter expired entries
+      await this.db.vocabulary.where("value.expiresAt").below(now).delete();
+    } catch (error) {
+      console.error("Dexie cleanExpired error:", error);
+      throw error;
+    }
   }
 
   async getCacheInfo(): Promise<{
@@ -175,38 +127,36 @@ class IndexedDBCache {
     oldestEntry: number | null;
     newestEntry: number | null;
   }> {
-    if (!this.db) await this.init();
+    try {
+      const entries = await this.db.vocabulary.toArray();
+      
+      if (entries.length === 0) {
+        return {
+          totalEntries: 0,
+          totalSize: 0,
+          oldestEntry: null,
+          newestEntry: null
+        };
+      }
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readonly');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.getAll();
+      const timestamps = entries.map(entry => entry.value.timestamp);
+      const totalSize = JSON.stringify(entries).length;
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        const entries = request.result as { key: string; value: CachedData }[];
-        
-        if (entries.length === 0) {
-          resolve({
-            totalEntries: 0,
-            totalSize: 0,
-            oldestEntry: null,
-            newestEntry: null
-          });
-          return;
-        }
-
-        const timestamps = entries.map(entry => entry.value.timestamp);
-        const totalSize = JSON.stringify(entries).length;
-
-        resolve({
-          totalEntries: entries.length,
-          totalSize,
-          oldestEntry: Math.min(...timestamps),
-          newestEntry: Math.max(...timestamps)
-        });
+      return {
+        totalEntries: entries.length,
+        totalSize,
+        oldestEntry: Math.min(...timestamps),
+        newestEntry: Math.max(...timestamps)
       };
-    });
+    } catch (error) {
+      console.error('Dexie getCacheInfo error:', error);
+      return {
+        totalEntries: 0,
+        totalSize: 0,
+        oldestEntry: null,
+        newestEntry: null
+      };
+    }
   }
 }
 

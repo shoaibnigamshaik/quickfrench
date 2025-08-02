@@ -6,10 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@libsql/client": "^0.15.9",
+    "dexie": "^4.0.11",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
     "react": "^19.0.0",

@@ -70,7 +70,8 @@ export const QuizGame = ({
       settings.autoAdvance &&
       quizState.showResult &&
       !quizState.quizComplete &&
-      quizState.selectedAnswer === quizState.questions[quizState.currentQuestion]?.correct
+      quizState.selectedAnswer ===
+        quizState.questions[quizState.currentQuestion]?.correct
     ) {
       // Set timeout to auto-advance after 1 second
       autoAdvanceTimeoutRef.current = setTimeout(() => {

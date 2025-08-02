@@ -7,46 +7,53 @@ export const useVocabulary = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchVocabulary = useCallback(async (topic: string, foodCategory?: string, forceRefresh = false) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let data: VocabularyItem[] = [];
-      
-      switch (topic) {
-        case "adjectives":
-          data = await vocabularyCacheService.getAdjectives({ forceRefresh });
-          break;
-        case "numbers":
-          data = await vocabularyCacheService.getNumbers({ forceRefresh });
-          break;
-        case "prepositions":
-          data = await vocabularyCacheService.getPrepositions({ forceRefresh });
-          break;
-        case "verbs":
-          data = await vocabularyCacheService.getVerbs({ forceRefresh });
-          break;
-        case "adverbs":
-          data = await vocabularyCacheService.getAdverbs({ forceRefresh });
-          break;
-        case "food":
-          if (foodCategory) {
-            data = await vocabularyCacheService.getFood(foodCategory, { forceRefresh });
-          }
-          break;
-        default:
-          data = [];
+  const fetchVocabulary = useCallback(
+    async (topic: string, foodCategory?: string, forceRefresh = false) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        let data: VocabularyItem[] = [];
+
+        switch (topic) {
+          case "adjectives":
+            data = await vocabularyCacheService.getAdjectives({ forceRefresh });
+            break;
+          case "numbers":
+            data = await vocabularyCacheService.getNumbers({ forceRefresh });
+            break;
+          case "prepositions":
+            data = await vocabularyCacheService.getPrepositions({
+              forceRefresh,
+            });
+            break;
+          case "verbs":
+            data = await vocabularyCacheService.getVerbs({ forceRefresh });
+            break;
+          case "adverbs":
+            data = await vocabularyCacheService.getAdverbs({ forceRefresh });
+            break;
+          case "food":
+            if (foodCategory) {
+              data = await vocabularyCacheService.getFood(foodCategory, {
+                forceRefresh,
+              });
+            }
+            break;
+          default:
+            data = [];
+        }
+
+        setVocabulary(data);
+      } catch (err) {
+        console.error(`Failed to fetch ${topic}:`, err);
+        setError(`Failed to fetch ${topic}`);
+      } finally {
+        setLoading(false);
       }
-      
-      setVocabulary(data);
-    } catch (err) {
-      console.error(`Failed to fetch ${topic}:`, err);
-      setError(`Failed to fetch ${topic}`);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const clearVocabulary = useCallback(() => {
     setVocabulary([]);
@@ -54,11 +61,11 @@ export const useVocabulary = () => {
     setLoading(false);
   }, []);
 
-  return { 
-    vocabulary, 
-    loading, 
-    error, 
+  return {
+    vocabulary,
+    loading,
+    error,
     fetchVocabulary,
-    clearVocabulary
+    clearVocabulary,
   };
 };

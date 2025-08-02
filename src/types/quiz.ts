@@ -73,4 +73,10 @@ export interface QuizSettings {
   autoAdvance: boolean;
 }
 
-export type VocabularyItem = Adjective | Number | Preposition | Verb | Adverb | Food;
+export type VocabularyItem =
+  | Adjective
+  | Number
+  | Preposition
+  | Verb
+  | Adverb
+  | Food;

@@ -17,8 +17,6 @@ import {
   LucideIcon,
   ArrowLeftRight,
   Clock,
-  // @ts-ignore
-  Database,
   RefreshCw,
   Trash2,
   HardDrive,
@@ -171,7 +169,8 @@ const SettingsPage = () => {
         {
           icon: Clock,
           label: "Auto Advance",
-          description: "Automatically move to next question after correct answer",
+          description:
+            "Automatically move to next question after correct answer",
           type: "auto-advance" as const,
           value: autoAdvance,
         },
@@ -183,7 +182,7 @@ const SettingsPage = () => {
         {
           icon: HardDrive,
           label: "Cache Information",
-          description: `${cacheInfo ? cacheInfo.totalEntries : 0} items cached • ${cacheInfo ? formatCacheSize(cacheInfo.totalSize) : '0 B'} • Last updated: ${cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : 'Never'}`,
+          description: `${cacheInfo ? cacheInfo.totalEntries : 0} items cached • ${cacheInfo ? formatCacheSize(cacheInfo.totalSize) : "0 B"} • Last updated: ${cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : "Never"}`,
           type: "cache-info" as const,
         },
         {
@@ -578,7 +577,9 @@ const SettingsPage = () => {
                       {item.type === "cache-info" && (
                         <div className="text-right">
                           {cacheError && (
-                            <p className="text-red-600 text-xs mb-1">{cacheError}</p>
+                            <p className="text-red-600 text-xs mb-1">
+                              {cacheError}
+                            </p>
                           )}
                           <button
                             onClick={getCacheInfo}
