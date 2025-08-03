@@ -8,6 +8,8 @@ interface QuizHeaderProps {
   totalQuestions: number;
   quizMode: QuizMode;
   onResetQuiz: () => void;
+  isFoodQuiz?: boolean;
+  onBackToFoodCategories?: () => void;
 }
 
 export const QuizHeader = ({
@@ -16,17 +18,37 @@ export const QuizHeader = ({
   totalQuestions,
   quizMode,
   onResetQuiz,
+  isFoodQuiz = false,
+  onBackToFoodCategories,
 }: QuizHeaderProps) => {
+  const handleBackClick = () => {
+    if (isFoodQuiz && onBackToFoodCategories) {
+      onBackToFoodCategories();
+    } else {
+      onResetQuiz();
+    }
+  };
+
   return (
     <div className="text-center mb-8 relative">
-      <Link
-        href="/"
-        onClick={onResetQuiz}
-        className="absolute top-4 left-0 flex items-center text-gray-600 hover:text-indigo-600 transition-colors duration-200"
-      >
-        <ArrowLeft className="h-5 w-5 mr-2" />
-        <span className="font-semibold">Back</span>
-      </Link>
+      {isFoodQuiz && onBackToFoodCategories ? (
+        <button
+          onClick={handleBackClick}
+          className="absolute top-4 left-0 flex items-center text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          <span className="font-semibold">Back</span>
+        </button>
+      ) : (
+        <Link
+          href="/"
+          onClick={onResetQuiz}
+          className="absolute top-4 left-0 flex items-center text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          <span className="font-semibold">Back</span>
+        </Link>
+      )}
 
       <div className="pt-12 space-y-3">
         <div className="inline-flex items-center px-5 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-full shadow-sm border border-indigo-100">

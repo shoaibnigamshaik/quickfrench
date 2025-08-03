@@ -16,6 +16,8 @@ interface QuizGameProps {
   onNextQuestion: () => void;
   onResetQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
+  isFoodQuiz?: boolean;
+  onBackToFoodCategories?: () => void;
 }
 
 export const QuizGame = ({
@@ -27,6 +29,8 @@ export const QuizGame = ({
   onNextQuestion,
   onResetQuiz,
   onUpdateTypedAnswer,
+  isFoodQuiz = false,
+  onBackToFoodCategories,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -119,6 +123,8 @@ export const QuizGame = ({
           totalQuestions={quizState.questions.length}
           quizMode={settings.quizMode}
           onResetQuiz={onResetQuiz}
+          isFoodQuiz={isFoodQuiz}
+          onBackToFoodCategories={onBackToFoodCategories}
         />
 
         <ProgressBar

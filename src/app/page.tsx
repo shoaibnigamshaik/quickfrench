@@ -77,6 +77,13 @@ const FrenchVocabularyQuiz = () => {
     resetQuiz();
   };
 
+  const handleBackToFoodCategories = () => {
+    // Go back to food category selection
+    setShowFoodSubtopics(true);
+    clearVocabulary(); // Clear current vocabulary data
+    resetQuiz(); // Reset quiz state
+  };
+
   if (loading && selectedTopic) {
     const topicName =
       selectedTopic === "food" && selectedFoodCategory
@@ -138,6 +145,8 @@ const FrenchVocabularyQuiz = () => {
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
+      isFoodQuiz={selectedTopic === "food"}
+      onBackToFoodCategories={handleBackToFoodCategories}
     />
   );
 };
