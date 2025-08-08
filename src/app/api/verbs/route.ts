@@ -1,5 +1,7 @@
 import { turso } from "../../../lib/turso";
 
+export const runtime = "edge";
+
 export async function GET() {
   try {
     const result = await turso.execute("SELECT * FROM verbs ORDER BY RANDOM()");

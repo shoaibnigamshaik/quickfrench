@@ -6,12 +6,22 @@ import {
   TranslationDirection,
 } from "@/types/quiz";
 
+// Fisher–Yates shuffle (returns a new shuffled copy)
+const shuffleArray = <T>(input: T[]): T[] => {
+  const a = [...input];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
 export const generateQuestions = (
   vocabulary: VocabularyItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => {
-  const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
+  const shuffled = shuffleArray(vocabulary);
   const numQuestions =
     questionCount === "all"
       ? vocabulary.length
@@ -22,21 +32,19 @@ export const generateQuestions = (
     const questionWord = isEnglishToFrench ? item.meaning : item.word;
     const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-    const otherOptions = vocabulary
-      .filter((vocabItem) =>
+    const otherOptions = shuffleArray(
+      vocabulary.filter((vocabItem) =>
         isEnglishToFrench
           ? vocabItem.word !== item.word
           : vocabItem.meaning !== item.meaning,
-      )
-      .sort(() => Math.random() - 0.5)
+      ),
+    )
       .slice(0, 3)
       .map((vocabItem) =>
         isEnglishToFrench ? vocabItem.word : vocabItem.meaning,
       );
 
-    const options = [correctAnswer, ...otherOptions].sort(
-      () => Math.random() - 0.5,
-    );
+    const options = shuffleArray([correctAnswer, ...otherOptions]);
 
     return {
       word: questionWord,
@@ -52,7 +60,7 @@ export const generateAdverbQuestions = (
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => {
-  const shuffled = [...adverbs].sort(() => Math.random() - 0.5);
+  const shuffled = shuffleArray(adverbs);
   const numQuestions =
     questionCount === "all"
       ? adverbs.length
@@ -64,27 +72,27 @@ export const generateAdverbQuestions = (
     const correctAnswer = isEnglishToFrench ? adverb.word : adverb.meaning;
 
     // Try to get options from the same category first, then mix with others
-    const sameCategoryOptions = adverbs
-      .filter(
+    const sameCategoryOptions = shuffleArray(
+      adverbs.filter(
         (a) =>
           a.category === adverb.category &&
           (isEnglishToFrench
             ? a.word !== adverb.word
             : a.meaning !== adverb.meaning),
-      )
-      .sort(() => Math.random() - 0.5)
+      ),
+    )
       .slice(0, 2)
       .map((a) => (isEnglishToFrench ? a.word : a.meaning));
 
-    const otherCategoryOptions = adverbs
-      .filter(
+    const otherCategoryOptions = shuffleArray(
+      adverbs.filter(
         (a) =>
           a.category !== adverb.category &&
           (isEnglishToFrench
             ? a.word !== adverb.word
             : a.meaning !== adverb.meaning),
-      )
-      .sort(() => Math.random() - 0.5)
+      ),
+    )
       .slice(0, 3 - sameCategoryOptions.length)
       .map((a) => (isEnglishToFrench ? a.word : a.meaning));
 
@@ -92,24 +100,22 @@ export const generateAdverbQuestions = (
 
     // If we don't have enough options, fill with any remaining adverbs
     if (allOptions.length < 3) {
-      const remainingOptions = adverbs
-        .filter(
+      const remainingOptions = shuffleArray(
+        adverbs.filter(
           (a) =>
             (isEnglishToFrench
               ? a.word !== adverb.word
               : a.meaning !== adverb.meaning) &&
             !allOptions.includes(isEnglishToFrench ? a.word : a.meaning),
-        )
-        .sort(() => Math.random() - 0.5)
+        ),
+      )
         .slice(0, 3 - allOptions.length)
         .map((a) => (isEnglishToFrench ? a.word : a.meaning));
 
       allOptions.push(...remainingOptions);
     }
 
-    const options = [correctAnswer, ...allOptions].sort(
-      () => Math.random() - 0.5,
-    );
+    const options = shuffleArray([correctAnswer, ...allOptions]);
 
     return {
       word: questionWord,
@@ -125,7 +131,7 @@ export const generateFoodQuestions = (
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => {
-  const shuffled = [...foods].sort(() => Math.random() - 0.5);
+  const shuffled = shuffleArray(foods);
   const numQuestions =
     questionCount === "all"
       ? foods.length
@@ -137,27 +143,27 @@ export const generateFoodQuestions = (
     const correctAnswer = isEnglishToFrench ? food.word : food.meaning;
 
     // Try to get options from the same category first, then mix with others
-    const sameCategoryOptions = foods
-      .filter(
+    const sameCategoryOptions = shuffleArray(
+      foods.filter(
         (f) =>
           f.category === food.category &&
           (isEnglishToFrench
             ? f.word !== food.word
             : f.meaning !== food.meaning),
-      )
-      .sort(() => Math.random() - 0.5)
+      ),
+    )
       .slice(0, 2)
       .map((f) => (isEnglishToFrench ? f.word : f.meaning));
 
-    const otherCategoryOptions = foods
-      .filter(
+    const otherCategoryOptions = shuffleArray(
+      foods.filter(
         (f) =>
           f.category !== food.category &&
           (isEnglishToFrench
             ? f.word !== food.word
             : f.meaning !== food.meaning),
-      )
-      .sort(() => Math.random() - 0.5)
+      ),
+    )
       .slice(0, 3 - sameCategoryOptions.length)
       .map((f) => (isEnglishToFrench ? f.word : f.meaning));
 
@@ -165,24 +171,22 @@ export const generateFoodQuestions = (
 
     // If we don't have enough options, fill with any remaining foods
     if (allOptions.length < 3) {
-      const remainingOptions = foods
-        .filter(
+      const remainingOptions = shuffleArray(
+        foods.filter(
           (f) =>
             (isEnglishToFrench
               ? f.word !== food.word
               : f.meaning !== food.meaning) &&
             !allOptions.includes(isEnglishToFrench ? f.word : f.meaning),
-        )
-        .sort(() => Math.random() - 0.5)
+        ),
+      )
         .slice(0, 3 - allOptions.length)
         .map((f) => (isEnglishToFrench ? f.word : f.meaning));
 
       allOptions.push(...remainingOptions);
     }
 
-    const options = [correctAnswer, ...allOptions].sort(
-      () => Math.random() - 0.5,
-    );
+    const options = shuffleArray([correctAnswer, ...allOptions]);
 
     return {
       word: questionWord,
@@ -193,27 +197,61 @@ export const generateFoodQuestions = (
 };
 
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
+  // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
+  // drop punctuation, collapse spaces.
   const normalizeText = (text: string): string => {
     return text
       .toLowerCase()
       .trim()
-      .replace(/\([mf]\)/g, "")
+      .replace(/\((?:m|f)\)/g, "")
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
   };
 
-  const normalizedCorrect = normalizeText(correct);
-  const normalizedTyped = normalizeText(typed);
+  const a = normalizeText(correct);
+  const b = normalizeText(typed);
 
-  // Check for exact match or close match
-  return (
-    normalizedCorrect === normalizedTyped ||
-    normalizedCorrect.includes(normalizedTyped) ||
-    normalizedTyped.includes(normalizedCorrect) ||
-    // Handle common variations
-    normalizedTyped.replace(/[^a-z]/g, "") ===
-      normalizedCorrect.replace(/[^a-z]/g, "")
-  );
+  if (!a || !b) return false;
+
+  // Fast path: exact normalized equality.
+  if (a === b) return true;
+
+  // Small Levenshtein distance allowance for minor typos.
+  const levenshtein = (s: string, t: string): number => {
+    if (s === t) return 0;
+    const n = s.length;
+    const m = t.length;
+    if (n === 0) return m;
+    if (m === 0) return n;
+
+    const v0 = new Array(m + 1);
+    const v1 = new Array(m + 1);
+    for (let i = 0; i <= m; i++) v0[i] = i;
+
+    for (let i = 0; i < n; i++) {
+      v1[0] = i + 1;
+      const si = s.charCodeAt(i);
+      for (let j = 0; j < m; j++) {
+        const cost = si === t.charCodeAt(j) ? 0 : 1;
+        v1[j + 1] = Math.min(
+          v1[j] + 1, // insertion
+          v0[j + 1] + 1, // deletion
+          v0[j] + cost, // substitution
+        );
+      }
+      for (let j = 0; j <= m; j++) v0[j] = v1[j];
+    }
+    return v0[m];
+  };
+
+  const maxLen = Math.max(a.length, b.length);
+  // Threshold tuned to be strict: no typos for very short strings,
+  // allow 1 edit for medium (<=6), up to 2 for longer.
+  const threshold = maxLen <= 3 ? 0 : maxLen <= 6 ? 1 : 2;
+  return levenshtein(a, b) <= threshold;
 };
 
 export const getScoreColor = (

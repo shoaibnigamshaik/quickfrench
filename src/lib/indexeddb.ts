@@ -41,13 +41,13 @@ class IndexedDBCache {
   async get<T>(key: string): Promise<T | null> {
     try {
       const entry = await this.db.vocabulary.get(key);
-      
+
       if (!entry) {
         return null;
       }
 
       const { value } = entry;
-      
+
       // Check if data has expired
       if (Date.now() > value.expiresAt) {
         // Delete expired data
@@ -60,7 +60,8 @@ class IndexedDBCache {
       console.error(`Dexie get error for key ${key}:`, error);
       return null;
     }
-  }  async set<T>(
+  }
+  async set<T>(
     key: string,
     data: T,
     options: CacheOptions = {},
@@ -129,32 +130,32 @@ class IndexedDBCache {
   }> {
     try {
       const entries = await this.db.vocabulary.toArray();
-      
+
       if (entries.length === 0) {
         return {
           totalEntries: 0,
           totalSize: 0,
           oldestEntry: null,
-          newestEntry: null
+          newestEntry: null,
         };
       }
 
-      const timestamps = entries.map(entry => entry.value.timestamp);
+      const timestamps = entries.map((entry) => entry.value.timestamp);
       const totalSize = JSON.stringify(entries).length;
 
       return {
         totalEntries: entries.length,
         totalSize,
         oldestEntry: Math.min(...timestamps),
-        newestEntry: Math.max(...timestamps)
+        newestEntry: Math.max(...timestamps),
       };
     } catch (error) {
-      console.error('Dexie getCacheInfo error:', error);
+      console.error("Dexie getCacheInfo error:", error);
       return {
         totalEntries: 0,
         totalSize: 0,
         oldestEntry: null,
-        newestEntry: null
+        newestEntry: null,
       };
     }
   }
