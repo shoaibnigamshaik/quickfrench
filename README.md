@@ -30,6 +30,7 @@ Guiding principles
 - Focus: No feeds, no fluff. Clean UI, keyboard shortcuts, and optional auto‑advance to reduce friction.
 - Relevance: Topic packs and category‑aware distractors keep multiple‑choice options meaningful.
 - Flow: Bi‑directional translation, quick restarts (R), and tight feedback loops encourage repeat sessions.
+- Curriculum: This is taken right off of Cambridge's French as a Foreign Language Syallabus document.
 
 ## Quick start
 
