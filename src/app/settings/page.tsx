@@ -22,6 +22,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { useCacheManagement } from "@/hooks/useCacheManagement";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 interface SettingItem {
   icon: LucideIcon;
@@ -48,6 +49,10 @@ interface SettingSection {
 }
 
 const SettingsPage = () => {
+  // Theme mode state: Light | Dark | Auto
+  const [themeMode, setThemeMode] = React.useState<"Light" | "Dark" | "Auto">(
+    "Auto",
+  );
   const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">(
     "multiple-choice",
   );
@@ -78,6 +83,12 @@ const SettingsPage = () => {
 
   // Load saved settings from localStorage
   React.useEffect(() => {
+    // Initialize theme from storage or system
+    const savedTheme = (localStorage.getItem("theme") || "auto").toLowerCase();
+    if (savedTheme === "light") setThemeMode("Light");
+    else if (savedTheme === "dark") setThemeMode("Dark");
+    else setThemeMode("Auto");
+
     const savedMode = localStorage.getItem("quizMode") as
       | "multiple-choice"
       | "typing";
@@ -105,6 +116,35 @@ const SettingsPage = () => {
       setAutoAdvance(savedAutoAdvance === "true");
     }
   }, []);
+
+  // Keep theme in sync with system when in Auto mode
+  React.useEffect(() => {
+    if (themeMode !== "Auto") return;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      document.documentElement.classList.toggle("dark", media.matches);
+    };
+    apply();
+    // Support older browsers
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", apply);
+      return () => media.removeEventListener("change", apply);
+    } else {
+      // @ts-ignore addListener exists on some implementations
+      media.addListener(apply);
+      return () => {
+        // @ts-ignore removeListener exists on some implementations
+        media.removeListener(apply);
+      };
+    }
+  }, [themeMode]);
+
+  // Apply theme immediately for Light/Dark modes
+  React.useEffect(() => {
+    if (themeMode === "Auto") return;
+    const root = document.documentElement;
+    root.classList.toggle("dark", themeMode === "Dark");
+  }, [themeMode]);
 
   // Save quiz mode to localStorage when changed
   const handleQuizModeChange = (mode: "multiple-choice" | "typing") => {
@@ -145,6 +185,20 @@ const SettingsPage = () => {
   };
 
   const settingsSections: SettingSection[] = [
+    // Moved Appearance above Quiz Settings
+    {
+      title: "Appearance",
+      items: [
+        {
+          icon: Palette,
+          label: "Theme",
+          description: "Choose your preferred theme",
+          type: "select",
+          value: "Light",
+          options: ["Light", "Dark", "Auto"],
+        },
+      ],
+    },
     {
       title: "Quiz Settings",
       items: [
@@ -227,19 +281,6 @@ const SettingsPage = () => {
       ],
     },
     {
-      title: "Appearance",
-      items: [
-        {
-          icon: Palette,
-          label: "Theme",
-          description: "Choose your preferred theme",
-          type: "select",
-          value: "Light",
-          options: ["Light", "Dark", "Auto"],
-        },
-      ],
-    },
-    {
       title: "Account",
       items: [
         {
@@ -281,27 +322,73 @@ const SettingsPage = () => {
     itemIndex: number,
     value: string,
   ) => {
-    // Handle select change logic here
-    console.log(
-      `Change setting: ${settingsSections[sectionIndex].items[itemIndex].label} to ${value}`,
-    );
+    const label = settingsSections[sectionIndex].items[itemIndex].label;
+    if (label === "Theme") {
+      const mode = value as "Light" | "Dark" | "Auto";
+      setThemeMode(mode);
+      const storageValue = mode.toLowerCase();
+      localStorage.setItem("theme", storageValue);
+      const root = document.documentElement;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const shouldDark =
+        storageValue === "dark" || (storageValue === "auto" && prefersDark);
+      root.classList.toggle("dark", shouldDark);
+    } else {
+      // Generic select logging placeholder
+      console.log(`Change setting: ${label} to ${value}`);
+    }
+  };
+
+  const handleThemeSwitch = (t: "light" | "dark" | "system") => {
+    // sync our select state wording with new switcher
+    const mode: "Light" | "Dark" | "Auto" =
+      t === "system" ? "Auto" : t === "light" ? "Light" : "Dark";
+    setThemeMode(mode);
+    const root = document.documentElement;
+    if (t === "system") {
+      localStorage.setItem("theme", "auto");
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      root.classList.toggle("dark", media.matches);
+    } else {
+      localStorage.setItem("theme", t);
+      root.classList.toggle("dark", t === "dark");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--background)" }}
+    >
       <div className="max-w-4xl mx-auto p-4">
         {/* Header with Back Button */}
         <div className="mb-8">
           <div className="flex items-center mb-6">
             <Link
               href="/"
-              className="inline-flex items-center justify-center w-12 h-12 bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-200 transform hover:scale-105 mr-4"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-xl shadow-lg border hover:shadow-xl transition-all duration-200 transform hover:scale-105 mr-4"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border)",
+              }}
             >
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
+              <ArrowLeft
+                className="h-6 w-6"
+                style={{ color: "var(--muted-foreground)" }}
+              />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Settings</h1>
-              <p className="text-gray-600">Customize your quiz experience</p>
+              <h1
+                className="text-3xl font-bold"
+                style={{ color: "var(--foreground)" }}
+              >
+                Settings
+              </h1>
+              <p style={{ color: "var(--muted-foreground)" }}>
+                Customize your quiz experience
+              </p>
             </div>
           </div>
         </div>
@@ -311,10 +398,17 @@ const SettingsPage = () => {
           {settingsSections.map((section, sectionIndex) => (
             <div
               key={section.title}
-              className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden"
+              className="rounded-3xl shadow-lg border overflow-visible"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border)",
+              }}
             >
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
-                <h2 className="text-xl font-bold text-white">
+              <div className="bg-gradient-to-r p-6 from-[var(--section-grad-from)] to-[var(--section-grad-to)]">
+                <h2
+                  className="text-xl font-bold"
+                  style={{ color: "var(--foreground)" }}
+                >
                   {section.title}
                 </h2>
               </div>
@@ -323,17 +417,30 @@ const SettingsPage = () => {
                 {section.items.map((item, itemIndex) => (
                   <div
                     key={item.label}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                    className="flex items-center justify-between p-4 rounded-xl transition-colors duration-200"
+                    style={{ backgroundColor: "var(--muted)" }}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <item.icon className="h-5 w-5 text-indigo-600" />
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: "var(--primary-100)" }}
+                      >
+                        <item.icon
+                          className="h-5 w-5"
+                          style={{ color: "var(--primary-600)" }}
+                        />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-800">
+                        <h3
+                          className="font-semibold"
+                          style={{ color: "var(--foreground)" }}
+                        >
                           {item.label}
                         </h3>
-                        <p className="text-sm text-gray-600">
+                        <p
+                          className="text-sm"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
                           {item.description}
                         </p>
                       </div>
@@ -354,18 +461,27 @@ const SettingsPage = () => {
                                     e.target.value as "multiple-choice",
                                   )
                                 }
-                                className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                className="w-4 h-4"
+                                style={{ accentColor: "var(--primary-600)" }}
                               />
-                              <span className="text-sm font-medium text-gray-700">
+                              <span
+                                className="text-sm font-medium"
+                                style={{ color: "var(--foreground)" }}
+                              >
                                 Multiple Choice
                               </span>
                               <div className="relative group">
-                                <Info className="h-4 w-4 text-gray-400 hover:text-indigo-600 cursor-help" />
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 text-xs text-white bg-gray-800 rounded-lg shadow-lg z-10">
-                                  <div className="mb-2 font-semibold">
+                                <Info
+                                  className="h-4 w-4 cursor-help"
+                                  style={{ color: "var(--muted-foreground)" }}
+                                />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
+                                  style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)", maxWidth: "min(18rem, calc(100vw - 2rem))" }}
+                                >
+                                  <div className="mb-2 font-semibold" style={{ color: "var(--foreground)" }}>
                                     Multiple Choice Mode:
                                   </div>
-                                  <div className="space-y-1">
+                                  <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
                                     <div>• Select from 4 options</div>
                                     <div>• Use keys 1-4 to select</div>
                                     <div>• Space/Enter for next</div>
@@ -387,18 +503,27 @@ const SettingsPage = () => {
                                     e.target.value as "typing",
                                   )
                                 }
-                                className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                className="w-4 h-4"
+                                style={{ accentColor: "var(--primary-600)" }}
                               />
-                              <span className="text-sm font-medium text-gray-700">
+                              <span
+                                className="text-sm font-medium"
+                                style={{ color: "var(--foreground)" }}
+                              >
                                 Fill in the Blank
                               </span>
                               <div className="relative group">
-                                <Info className="h-4 w-4 text-gray-400 hover:text-indigo-600 cursor-help" />
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 text-xs text-white bg-gray-800 rounded-lg shadow-lg z-10">
-                                  <div className="mb-2 font-semibold">
+                                <Info
+                                  className="h-4 w-4 cursor-help"
+                                  style={{ color: "var(--muted-foreground)" }}
+                                />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
+                                  style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)", maxWidth: "min(18rem, calc(100vw - 2rem))" }}
+                                >
+                                  <div className="mb-2 font-semibold" style={{ color: "var(--foreground)" }}>
                                     Fill in the Blank Mode:
                                   </div>
-                                  <div className="space-y-1">
+                                  <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
                                     <div>• Type the English meaning</div>
                                     <div>• Type your answer</div>
                                     <div>• Enter to submit</div>
@@ -419,34 +544,58 @@ const SettingsPage = () => {
                               <button
                                 key={count}
                                 onClick={() => handleQuestionCountChange(count)}
-                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${questionCount === count ? "shadow-lg" : "border"}`}
+                                style={
                                   questionCount === count
-                                    ? "bg-indigo-600 text-white shadow-lg"
-                                    : "bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-300"
-                                }`}
+                                    ? {
+                                        backgroundColor: "var(--primary-600)",
+                                        color: "#fff",
+                                      }
+                                    : {
+                                        backgroundColor: "var(--card)",
+                                        color: "var(--foreground)",
+                                        borderColor: "var(--border)",
+                                      }
+                                }
                               >
                                 {count}
                               </button>
                             ))}
                             <button
                               onClick={() => handleQuestionCountChange("all")}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${questionCount === "all" ? "shadow-lg" : "border"}`}
+                              style={
                                 questionCount === "all"
-                                  ? "bg-purple-600 text-white shadow-lg"
-                                  : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-300"
-                              }`}
+                                  ? {
+                                      backgroundColor: "#7c3aed",
+                                      color: "#fff",
+                                    }
+                                  : {
+                                      backgroundColor: "var(--card)",
+                                      color: "var(--foreground)",
+                                      borderColor: "var(--border)",
+                                    }
+                              }
                             >
                               All
                             </button>
                             <button
                               onClick={handleCustomClick}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${showCustomInput && typeof questionCount === "number" && ![5, 10, 15, 20].includes(questionCount) ? "shadow-lg" : "border"}`}
+                              style={
                                 showCustomInput &&
                                 typeof questionCount === "number" &&
                                 ![5, 10, 15, 20].includes(questionCount)
-                                  ? "bg-teal-600 text-white shadow-lg"
-                                  : "bg-white text-gray-700 hover:bg-teal-50 hover:text-teal-600 border border-gray-300"
-                              }`}
+                                  ? {
+                                      backgroundColor: "var(--accent-600)",
+                                      color: "#fff",
+                                    }
+                                  : {
+                                      backgroundColor: "var(--card)",
+                                      color: "var(--foreground)",
+                                      borderColor: "var(--border)",
+                                    }
+                              }
                             >
                               Custom
                             </button>
@@ -455,7 +604,10 @@ const SettingsPage = () => {
                           {/* Custom Input - Only shown when custom button is clicked */}
                           {showCustomInput && (
                             <div className="flex items-center justify-end space-x-2">
-                              <label className="text-sm text-gray-600">
+                              <label
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
                                 Enter amount:
                               </label>
                               <input
@@ -478,14 +630,22 @@ const SettingsPage = () => {
                                     ? questionCount.toString()
                                     : "10"
                                 }
-                                className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                className="w-20 px-3 py-2 rounded-lg text-sm focus:outline-none"
+                                style={{
+                                  backgroundColor: "var(--card)",
+                                  color: "var(--foreground)",
+                                  border: `1px solid var(--border)`,
+                                }}
                                 autoFocus
                               />
                             </div>
                           )}
 
                           <div className="text-right">
-                            <p className="text-xs text-gray-500">
+                            <p
+                              className="text-xs"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
                               Selected:{" "}
                               <strong>
                                 {questionCount === "all"
@@ -499,24 +659,32 @@ const SettingsPage = () => {
 
                       {item.type === "translation-direction" && (
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-700">
+                          <span
+                            className="text-sm font-medium"
+                            style={{ color: "var(--foreground)" }}
+                          >
                             {translationDirection === "french-to-english"
                               ? "French"
                               : "English"}
                           </span>
                           <button
                             onClick={handleTranslationDirectionChange}
-                            className="p-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors duration-200"
+                            className="p-2 rounded-lg transition-colors duration-200"
+                            style={{ backgroundColor: "var(--primary-100)" }}
                           >
                             <ArrowLeftRight
-                              className={`h-4 w-4 text-indigo-600 transition-transform duration-200 ${
+                              className={`h-4 w-4 transition-transform duration-200 ${
                                 translationDirection === "english-to-french"
                                   ? "rotate-180"
                                   : ""
                               }`}
+                              style={{ color: "var(--primary-600)" }}
                             />
                           </button>
-                          <span className="text-sm font-medium text-gray-700">
+                          <span
+                            className="text-sm font-medium"
+                            style={{ color: "var(--foreground)" }}
+                          >
                             {translationDirection === "french-to-english"
                               ? "English"
                               : "French"}
@@ -527,9 +695,12 @@ const SettingsPage = () => {
                       {item.type === "auto-advance" && (
                         <button
                           onClick={handleAutoAdvanceChange}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                            autoAdvance ? "bg-indigo-600" : "bg-gray-300"
-                          }`}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                          style={{
+                            backgroundColor: autoAdvance
+                              ? "var(--primary-600)"
+                              : "#d1d5db",
+                          }}
                         >
                           <span
                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -554,7 +725,7 @@ const SettingsPage = () => {
                         </button>
                       )}
 
-                      {item.type === "select" && (
+                      {item.type === "select" && item.label !== "Theme" && (
                         <select
                           value={item.value as string}
                           onChange={(e) =>
@@ -564,7 +735,12 @@ const SettingsPage = () => {
                               e.target.value,
                             )
                           }
-                          className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="px-3 py-2 rounded-lg focus:outline-none"
+                          style={{
+                            backgroundColor: "var(--card)",
+                            color: "var(--foreground)",
+                            border: `1px solid var(--border)`,
+                          }}
                         >
                           {item.options?.map((option: string) => (
                             <option key={option} value={option}>
@@ -574,16 +750,34 @@ const SettingsPage = () => {
                         </select>
                       )}
 
+                      {item.type === "select" && item.label === "Theme" && (
+                        <ThemeSwitcher
+                          value={
+                            themeMode === "Auto"
+                              ? "system"
+                              : themeMode === "Light"
+                                ? "light"
+                                : "dark"
+                          }
+                          onChange={handleThemeSwitch}
+                          className="ml-2"
+                        />
+                      )}
+
                       {item.type === "cache-info" && (
                         <div className="text-right">
                           {cacheError && (
-                            <p className="text-red-600 text-xs mb-1">
+                            <p
+                              className="text-xs mb-1"
+                              style={{ color: "var(--danger-600)" }}
+                            >
                               {cacheError}
                             </p>
                           )}
                           <button
                             onClick={getCacheInfo}
-                            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                            className="text-sm font-medium"
+                            style={{ color: "var(--primary-600)" }}
                           >
                             Refresh Info
                           </button>
@@ -594,11 +788,15 @@ const SettingsPage = () => {
                         <button
                           onClick={refreshAllData}
                           disabled={isRefreshing}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isRefreshing ? "cursor-not-allowed" : ""}`}
+                          style={
                             isRefreshing
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
-                          }`}
+                              ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
+                              : {
+                                  backgroundColor: "var(--primary-100)",
+                                  color: "var(--primary-600)",
+                                }
+                          }
                         >
                           {isRefreshing ? (
                             <div className="flex items-center space-x-2">
@@ -615,11 +813,15 @@ const SettingsPage = () => {
                         <button
                           onClick={clearAllCache}
                           disabled={isClearing}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isClearing ? "cursor-not-allowed" : ""}`}
+                          style={
                             isClearing
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-red-100 text-red-600 hover:bg-red-200"
-                          }`}
+                              ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
+                              : {
+                                  backgroundColor: "var(--danger-100)",
+                                  color: "var(--danger-600)",
+                                }
+                          }
                         >
                           {isClearing ? (
                             <div className="flex items-center space-x-2">
@@ -633,7 +835,10 @@ const SettingsPage = () => {
                       )}
 
                       {item.type === "link" && (
-                        <button className="px-4 py-2 text-indigo-600 hover:text-indigo-700 font-medium">
+                        <button
+                          className="px-4 py-2 font-medium"
+                          style={{ color: "var(--primary-600)" }}
+                        >
                           Configure
                         </button>
                       )}
@@ -647,19 +852,31 @@ const SettingsPage = () => {
 
         {/* Footer */}
         <div className="mt-12 text-center">
-          <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-            <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <SettingsIcon className="h-8 w-8 text-white" />
+          <div
+            className="rounded-3xl shadow-lg border p-8"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <div
+              className="w-16 h-16 bg-gradient-to-r from-[var(--badge-grad-from)] to-[var(--badge-grad-to)] rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ color: "var(--foreground)" }}
+            >
+              <SettingsIcon className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
+            <h3
+              className="text-xl font-bold mb-2"
+              style={{ color: "var(--foreground)" }}
+            >
               Your settings have been saved
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6" style={{ color: "var(--muted-foreground)" }}>
               Changes will take effect immediately
             </p>
             <Link
               href="/"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Quiz
