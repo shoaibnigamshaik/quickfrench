@@ -119,7 +119,7 @@ export const TopicSelector = ({
                   {/* Meta badges removed for a cleaner, less redundant card UI */}
                   {isFood && (
                     <ChevronRight
-                      className="h-5 w-5 absolute right-3 bottom-3 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className="h-5 w-5 absolute right-3 bottom-3 text-white/80 opacity-90 group-hover:opacity-100 translate-x-0 group-hover:translate-x-0.5 transition-all duration-200 pointer-events-none"
                       aria-hidden="true"
                     />
                   )}

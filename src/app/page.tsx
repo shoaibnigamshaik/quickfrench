@@ -112,7 +112,6 @@ const FrenchVocabularyQuiz = () => {
     return (
       <FoodSubtopicSelector
         questionCount={settings.questionCount}
-        translationDirection={settings.translationDirection}
         onSelectSubtopic={handleFoodSubtopicSelect}
         onBack={handleBackFromFoodSubtopics}
       />

@@ -1,17 +1,14 @@
 import React from "react";
 import { ArrowLeft, Utensils } from "lucide-react";
-import { TranslationDirection } from "@/types/quiz";
 
 interface FoodSubtopicSelectorProps {
   questionCount: number | "all";
-  translationDirection: TranslationDirection;
   onSelectSubtopic: (category: string) => void;
   onBack: () => void;
 }
 
 export const FoodSubtopicSelector = ({
   questionCount,
-  translationDirection,
   onSelectSubtopic,
   onBack,
 }: FoodSubtopicSelectorProps) => {
@@ -66,19 +63,6 @@ export const FoodSubtopicSelector = ({
               <p className="mb-3" style={{ color: "var(--muted-foreground)" }}>
                 Select which food category you&apos;d like to practice
               </p>
-              <div
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary-100)] to-purple-100 rounded-full border"
-                style={{ borderColor: "var(--primary-200)" }}
-              >
-                <span
-                  className="text-sm font-medium"
-                  style={{ color: "var(--primary-700)" }}
-                >
-                  {translationDirection === "french-to-english"
-                    ? "French → English"
-                    : "English → French"}
-                </span>
-              </div>
             </div>
           </div>
 
