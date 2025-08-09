@@ -100,8 +100,18 @@ export const TopicSelector = ({
                   type="button"
                   onClick={() => onStartQuiz(topic.id)}
                   aria-label={`Start ${topic.name} quiz`}
-                  className={`relative p-4 sm:p-5 bg-gradient-to-r ${topic.color} rounded-xl text-white hover:shadow-md transition-all duration-200 transform motion-safe:hover:scale-105 motion-reduce:transition-none text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)] group`}
+                  className={`relative p-4 sm:p-5 rounded-xl border transition-all duration-200 transform motion-safe:hover:scale-105 motion-reduce:transition-none text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)] hover:shadow-md group`}
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
                 >
+                  {/* subtle topic accent bar */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl bg-gradient-to-b ${topic.color}`}
+                  />
                   <div className="flex items-center mb-3">
                     <div className="text-3xl mr-3" aria-hidden="true">
                       {topic.icon}
@@ -110,21 +120,24 @@ export const TopicSelector = ({
                       <h3 className="text-xl font-semibold mb-1">
                         {topic.name}
                       </h3>
-                      <p className="text-white/80 text-sm text-balance">
+                      <p className="text-sm text-balance" style={{ color: "var(--muted-foreground)" }}>
                         {topic.description}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-white/90">
+                      <div className="text-xl font-bold" style={{ color: "var(--foreground)" }}>
                         {itemCountDisplay}
                       </div>
-                      <div className="text-xs text-white/80">items</div>
+                      <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                        items
+                      </div>
                     </div>
                   </div>
                   {/* Meta badges removed for a cleaner, less redundant card UI */}
                   {hasSubtopics && (
                     <ChevronRight
-                      className="h-5 w-5 absolute right-3 bottom-3 text-white/80 opacity-90 group-hover:opacity-100 translate-x-0 group-hover:translate-x-0.5 transition-all duration-200 pointer-events-none"
+                      className="h-5 w-5 absolute right-3 bottom-3 opacity-90 group-hover:opacity-100 translate-x-0 group-hover:translate-x-0.5 transition-all duration-200 pointer-events-none"
+                      style={{ color: "var(--muted-foreground)" }}
                       aria-hidden="true"
                     />
                   )}
