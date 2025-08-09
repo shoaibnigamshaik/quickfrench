@@ -19,18 +19,42 @@ export const MultipleChoiceOptions = ({
       {question.options.map((option: string, index: number) => {
         let buttonClass =
           "w-full p-6 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
+        let inlineStyle: React.CSSProperties | undefined = undefined;
 
         if (showResult) {
           if (option === question.correct) {
-            buttonClass += " bg-green-50 border-green-500 text-green-700";
+            buttonClass += " border";
+            inlineStyle = {
+              ...(inlineStyle || {}),
+              backgroundColor: "var(--success-50)",
+              borderColor: "var(--success-600)",
+              color: "var(--success-600)",
+            };
           } else if (option === selectedAnswer && option !== question.correct) {
-            buttonClass += " bg-red-50 border-red-500 text-red-700";
+            buttonClass += " border";
+            inlineStyle = {
+              ...(inlineStyle || {}),
+              backgroundColor: "var(--danger-50)",
+              borderColor: "var(--danger-600)",
+              color: "var(--danger-600)",
+            };
           } else {
-            buttonClass += " bg-gray-50 border-gray-300 text-gray-500";
+            buttonClass += " border";
+            inlineStyle = {
+              ...(inlineStyle || {}),
+              backgroundColor: "var(--muted)",
+              borderColor: "var(--border)",
+              color: "var(--muted-foreground)",
+            };
           }
         } else {
-          buttonClass +=
-            " bg-gray-50 border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-300";
+          buttonClass += " border hover:shadow-sm";
+          inlineStyle = {
+            ...(inlineStyle || {}),
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+            color: "var(--foreground)",
+          };
         }
 
         return (
@@ -39,21 +63,31 @@ export const MultipleChoiceOptions = ({
             onClick={() => onAnswerSelect(option)}
             disabled={showResult}
             className={buttonClass}
+            style={inlineStyle}
           >
             <div className="flex items-center justify-between">
               <span>
-                <span className="text-indigo-600 font-bold mr-3">
+                <span
+                  className="font-bold mr-3"
+                  style={{ color: "var(--primary-600)" }}
+                >
                   {index + 1}
                 </span>
                 {option}
               </span>
               {showResult && option === question.correct && (
-                <Check className="h-5 w-5 text-green-600" />
+                <Check
+                  className="h-5 w-5"
+                  style={{ color: "var(--success-600)" }}
+                />
               )}
               {showResult &&
                 option === selectedAnswer &&
                 option !== question.correct && (
-                  <X className="h-5 w-5 text-red-600" />
+                  <X
+                    className="h-5 w-5"
+                    style={{ color: "var(--danger-600)" }}
+                  />
                 )}
             </div>
           </button>

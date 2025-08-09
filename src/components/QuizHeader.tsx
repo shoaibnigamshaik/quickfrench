@@ -34,7 +34,8 @@ export const QuizHeader = ({
       {isFoodQuiz && onBackToFoodCategories ? (
         <button
           onClick={handleBackClick}
-          className="absolute top-4 left-0 flex items-center text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+          className="absolute top-4 left-0 flex items-center transition-colors duration-200 hover:underline"
+          style={{ color: "var(--muted-foreground)" }}
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
           <span className="font-semibold">Back</span>
@@ -43,7 +44,8 @@ export const QuizHeader = ({
         <Link
           href="/"
           onClick={onResetQuiz}
-          className="absolute top-4 left-0 flex items-center text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+          className="absolute top-4 left-0 flex items-center transition-colors duration-200"
+          style={{ color: "var(--muted-foreground)" }}
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
           <span className="font-semibold">Back</span>
@@ -51,17 +53,44 @@ export const QuizHeader = ({
       )}
 
       <div className="pt-12 space-y-3">
-        <div className="inline-flex items-center px-5 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-full shadow-sm border border-indigo-100">
-          <BookOpen className="h-4 w-4 text-indigo-600 mr-2" />
-          <div className="text-sm font-medium text-gray-700">
-            <span className="text-indigo-700 font-semibold">French </span>
-            <span className="text-gray-600">
+        <div
+          className="inline-flex items-center px-5 py-2 bg-gradient-to-r rounded-full shadow-sm border"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
+            borderColor: "var(--border)",
+          }}
+        >
+          <BookOpen
+            className="h-4 w-4 mr-2"
+            style={{ color: "var(--primary-600)" }}
+          />
+          <div
+            className="text-sm font-medium"
+            style={{ color: "var(--foreground)" }}
+          >
+            <span
+              className="font-semibold"
+              style={{ color: "var(--primary-600)" }}
+            >
+              French{" "}
+            </span>
+            <span style={{ color: "var(--muted-foreground)" }}>
               {topics.find((t) => t.id === selectedTopic)?.name || "Adjectives"}
             </span>
-            <span className="text-gray-500 mx-2">•</span>
-            <span className="text-gray-600">{totalQuestions} questions</span>
-            <span className="text-gray-500 mx-2">•</span>
-            <span className="text-indigo-600 font-medium">
+            <span className="mx-2" style={{ color: "var(--muted-foreground)" }}>
+              •
+            </span>
+            <span style={{ color: "var(--muted-foreground)" }}>
+              {totalQuestions} questions
+            </span>
+            <span className="mx-2" style={{ color: "var(--muted-foreground)" }}>
+              •
+            </span>
+            <span
+              className="font-medium"
+              style={{ color: "var(--primary-600)" }}
+            >
               {quizMode === "multiple-choice"
                 ? "Multiple Choice"
                 : "Fill in the Blank"}
@@ -70,7 +99,10 @@ export const QuizHeader = ({
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: "var(--foreground)" }}
+          >
             Translate the Word
           </h1>
         </div>

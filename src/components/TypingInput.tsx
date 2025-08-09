@@ -34,14 +34,19 @@ export const TypingInput = ({
           }
           disabled={showResult}
           placeholder="Type the English meaning..."
-          className="w-full p-6 text-lg text-gray-800 border-2 border-gray-300 rounded-2xl focus:border-indigo-500 focus:outline-none transition-colors duration-200"
+          className="w-full p-6 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
+          style={{
+            color: "var(--foreground)",
+            backgroundColor: "var(--card)",
+            border: `2px solid var(--border)`,
+          }}
         />
         {!showResult && (
           <div className="mt-4 text-center">
             <button
               onClick={onSubmit}
               disabled={!typedAnswer.trim()}
-              className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="px-8 py-3 bg-gradient-to-r from-[var(--primary-600)] to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               Submit (Enter)
             </button>
@@ -51,13 +56,37 @@ export const TypingInput = ({
 
       {showResult && (
         <div className="mt-6 text-center">
-          <div className="max-w-md mx-auto p-4 rounded-xl bg-gray-50 border border-gray-200">
-            <div className="text-sm text-gray-600 mb-2">Your answer:</div>
-            <div className="font-semibold text-gray-800 mb-3">
+          <div
+            className="max-w-md mx-auto p-4 rounded-xl border"
+            style={{
+              backgroundColor: "var(--muted)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <div
+              className="text-sm mb-2"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              Your answer:
+            </div>
+            <div
+              className="font-semibold mb-3"
+              style={{ color: "var(--foreground)" }}
+            >
               {selectedAnswer}
             </div>
-            <div className="text-sm text-gray-600 mb-2">Correct answer:</div>
-            <div className="font-semibold text-green-700">{correctAnswer}</div>
+            <div
+              className="text-sm mb-2"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              Correct answer:
+            </div>
+            <div
+              className="font-semibold"
+              style={{ color: "var(--success-600)" }}
+            >
+              {correctAnswer}
+            </div>
           </div>
         </div>
       )}
