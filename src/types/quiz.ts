@@ -41,6 +41,11 @@ export interface FoodCategory {
   name: string;
 }
 
+export interface Transportation {
+  word: string;
+  meaning: string;
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -79,4 +84,5 @@ export type VocabularyItem =
   | Preposition
   | Verb
   | Adverb
-  | Food;
+  | Food
+  | Transportation;

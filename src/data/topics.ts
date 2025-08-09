@@ -43,4 +43,11 @@ export const topics: Topic[] = [
     icon: "🍽️",
     color: "from-amber-500 to-orange-600",
   },
+  {
+    id: "transportation",
+    name: "Travel and Transportation",
+    description: "Travel words: vehicles, places, directions",
+    icon: "🧭",
+    color: "from-cyan-500 to-teal-600",
+  },
 ];

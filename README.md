@@ -16,7 +16,7 @@ QuickFrench — A lightning‑fast French vocabulary trainer with multiple‑cho
 
 - Interactive quiz engine: Multiple‑choice and typing
 - Bi‑directional translation: French ↔ English
-- Topic packs: adjectives, numbers, prepositions, verbs, adverbs, food
+- Topic packs: adjectives, numbers, prepositions, verbs, adverbs, food, travel & transportation
 - Category‑aware food vocabulary (fruits, vegetables, drinks, etc.)
 - Real‑time score, streaks, and progress
 - Keyboard shortcuts and optional auto‑advance for tight practice loops
@@ -75,7 +75,7 @@ Open http://localhost:3000
 
 1. Pick a topic
 
-- Adjectives, Numbers, Prepositions, Verbs, Adverbs, or Food (with categories)
+- Adjectives, Numbers, Prepositions, Verbs, Adverbs, Travel & Transportation, or Food (with categories)
 
 2. Configure the session (Settings at /settings)
 
@@ -101,7 +101,7 @@ Your preferences (mode, count, direction, auto‑advance) are saved locally.
 
 ### Expected tables
 
-- adjectives, numbers, prepositions, verbs, adverbs, food, food_categories
+- adjectives, numbers, prepositions, verbs, adverbs, transportation, food, food_categories
 - Minimal columns: `word` (TEXT), `meaning` (TEXT); category‑based tables include a category reference
 
 ## Tech stack

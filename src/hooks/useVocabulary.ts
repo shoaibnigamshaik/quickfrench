@@ -33,6 +33,11 @@ export const useVocabulary = () => {
           case "adverbs":
             data = await vocabularyCacheService.getAdverbs({ forceRefresh });
             break;
+          case "transportation":
+            data = await vocabularyCacheService.getTransportation({
+              forceRefresh,
+            });
+            break;
           case "food":
             if (foodCategory) {
               data = await vocabularyCacheService.getFood(foodCategory, {

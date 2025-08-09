@@ -17,6 +17,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   verbs: 116,
   adverbs: 28,
   food: 171,
+  transportation: 101,
 };
 
 export const TopicSelector = ({

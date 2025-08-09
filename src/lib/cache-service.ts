@@ -7,6 +7,7 @@ import type {
   Adverb,
   Food,
   FoodCategory,
+  Transportation,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -127,6 +128,14 @@ class VocabularyCacheService {
     return this.fetchWithCache<Adverb[]>("adverbs", "/api/adverbs", config);
   }
 
+  async getTransportation(config?: CacheConfig): Promise<Transportation[]> {
+    return this.fetchWithCache<Transportation[]>(
+      "transportation",
+      "/api/transportation",
+      config,
+    );
+  }
+
   async getFoodCategories(config?: CacheConfig): Promise<FoodCategory[]> {
     return this.fetchWithCache<FoodCategory[]>(
       "food-categories",
@@ -221,6 +230,7 @@ class VocabularyCacheService {
         this.getPrepositions(config),
         this.getVerbs(config),
         this.getAdverbs(config),
+  this.getTransportation(config),
         this.getFoodCategories(config),
       ];
 
