@@ -130,10 +130,8 @@ const SettingsPage = () => {
       media.addEventListener("change", apply);
       return () => media.removeEventListener("change", apply);
     } else {
-      // @ts-ignore addListener exists on some implementations
       media.addListener(apply);
       return () => {
-        // @ts-ignore removeListener exists on some implementations
         media.removeListener(apply);
       };
     }
