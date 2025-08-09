@@ -1,5 +1,113 @@
 @import "tailwindcss";
 
+/* Light theme (default) */
+:root {
+  /* Surfaces */
+  --background: #ffffff;
+  --card: #ffffff;
+  --muted: #f8f9fa; /* subtle panels */
+  --border: #e5e7eb;
+
+  /* Text */
+  --foreground: #1f2937; /* gray-800 */
+  --muted-foreground: #6b7280; /* gray-600 */
+
+  /* Brand (primary = blue, accent = teal) */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb; /* main */
+  --primary-700: #1d4ed8;
+
+  --accent-50: #ecfeff;
+  --accent-100: #cffafe;
+  --accent-200: #a5f3fc;
+  --accent-300: #67e8f9;
+  --accent-400: #22d3ee;
+  --accent-500: #06b6d4;
+  --accent-600: #0891b2;
+
+  /* Semantic */
+  --success-50: #ecfdf5;
+  --success-100: #d1fae5;
+  --success-500: #10b981;
+  --success-600: #059669;
+  --danger-50: #fef2f2;
+  --danger-100: #fee2e2;
+  --danger-500: #ef4444;
+  --danger-600: #dc2626;
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-600: #d97706;
+
+  /* Gradients (light) — match dark mode styling for section headers */
+  --section-grad-from: rgba(37, 99, 235, 0.18); /* softened to match dark */
+  --section-grad-to: rgba(124, 58, 237, 0.16);
+  --badge-grad-from: #2563eb;
+  --badge-grad-to: #7c3aed;
+  --cta-grad-from: #2563eb; /* strong for light */
+  --cta-grad-to: #7c3aed;
+}
+
+/* Dark theme */
+.dark {
+  color-scheme: dark;
+  --background: #0b1020; /* deep navy */
+  --card: #0f172a; /* slate-900 */
+  --muted: #0b1325; /* slightly lighter than bg */
+  --border: #1f2937; /* gray-800 */
+
+  --foreground: #e5e7eb; /* gray-200 */
+  --muted-foreground: #94a3b8; /* slate-400 */
+
+  --primary-50: #0b1f3f;
+  --primary-100: #102a57;
+  --primary-200: #173a7d;
+  --primary-300: #244aa0;
+  --primary-400: #2f5ec2;
+  --primary-500: #3b82f6;
+  --primary-600: #60a5fa; /* brighter on dark */
+  --primary-700: #93c5fd;
+
+  --accent-50: #062a2f;
+  --accent-100: #0b3a42;
+  --accent-200: #11505a;
+  --accent-300: #1b6874;
+  --accent-400: #238197;
+  --accent-500: #06b6d4;
+  --accent-600: #22d3ee;
+
+  --success-50: #052e26;
+  --success-100: #0a3f34;
+  --success-500: #10b981;
+  --success-600: #34d399;
+  --danger-50: #3b0a0a;
+  --danger-100: #4a0f0f;
+  --danger-500: #ef4444;
+  --danger-600: #f87171;
+  --warning-50: #3a2b05;
+  --warning-100: #4a3808;
+  --warning-600: #fbbf24;
+
+  /* Gradients (dark) */
+  --section-grad-from: rgba(37, 99, 235, 0.18); /* softened */
+  --section-grad-to: rgba(124, 58, 237, 0.16);
+  --badge-grad-from: rgba(37, 99, 235, 0.35);
+  --badge-grad-to: rgba(124, 58, 237, 0.3);
+  --cta-grad-from: rgba(37, 99, 235, 0.65);
+  --cta-grad-to: rgba(124, 58, 237, 0.6);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   font-family: Geist, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
 }
