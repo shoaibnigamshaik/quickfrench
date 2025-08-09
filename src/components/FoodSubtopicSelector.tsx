@@ -29,29 +29,51 @@ export const FoodSubtopicSelector = ({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: "var(--background)" }}
+    >
       <div className="max-w-4xl w-full">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+        <div
+          className="rounded-3xl shadow-2xl p-8 border"
+          style={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
           {/* Header with Back Button */}
           <div className="flex items-center mb-8">
             <button
               onClick={onBack}
-              className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200 mr-4"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-xl transition-colors duration-200 mr-4"
+              style={{ backgroundColor: "var(--muted)" }}
             >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
+              <ArrowLeft
+                className="h-5 w-5"
+                style={{ color: "var(--muted-foreground)" }}
+              />
             </button>
             <div className="flex-1 text-center">
               <div className="w-20 h-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Utensils className="h-10 w-10 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              <h1
+                className="text-3xl font-bold mb-2"
+                style={{ color: "var(--foreground)" }}
+              >
                 Choose Food Category
               </h1>
-              <p className="text-gray-600 mb-3">
+              <p className="mb-3" style={{ color: "var(--muted-foreground)" }}>
                 Select which food category you&apos;d like to practice
               </p>
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full border border-indigo-200">
-                <span className="text-sm font-medium text-indigo-800">
+              <div
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[var(--primary-100)] to-purple-100 rounded-full border"
+                style={{ borderColor: "var(--primary-200)" }}
+              >
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "var(--primary-700)" }}
+                >
                   {translationDirection === "french-to-english"
                     ? "French → English"
                     : "English → French"}
@@ -77,8 +99,14 @@ export const FoodSubtopicSelector = ({
             ))}
           </div>
 
-          <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-            <p className="text-sm text-gray-600 text-center">
+          <div
+            className="mt-8 p-4 rounded-xl"
+            style={{ backgroundColor: "var(--muted)" }}
+          >
+            <p
+              className="text-sm text-center"
+              style={{ color: "var(--muted-foreground)" }}
+            >
               💡 <strong>Tip:</strong> Each category contains different French
               food vocabulary.
               {questionCount === "all"

@@ -103,10 +103,16 @@ export const QuizGame = ({
 
   if (quizState.questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--background)" }}
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading quiz...</p>
+          <div
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style={{ borderColor: "var(--primary-600)" }}
+          ></div>
+          <p style={{ color: "var(--muted-foreground)" }}>Loading quiz...</p>
         </div>
       </div>
     );
@@ -115,7 +121,10 @@ export const QuizGame = ({
   const currentQuestion = quizState.questions[quizState.currentQuestion];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
+    <div
+      className="min-h-screen p-4"
+      style={{ backgroundColor: "var(--background)" }}
+    >
       <div className="max-w-4xl mx-auto">
         <QuizHeader
           selectedTopic={settings.selectedTopic}
@@ -135,9 +144,15 @@ export const QuizGame = ({
         />
 
         {/* Quiz Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+        <div
+          className="rounded-3xl shadow-2xl overflow-hidden border"
+          style={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
           {/* Question */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-center">
+          <div className="bg-gradient-to-r p-8 text-center from-[var(--primary-600)] to-purple-600">
             <h2 className="text-2xl font-bold text-white mb-2">
               What does this mean?
             </h2>

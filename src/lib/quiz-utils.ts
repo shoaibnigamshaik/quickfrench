@@ -259,9 +259,9 @@ export const getScoreColor = (
   totalQuestions: number,
 ): string => {
   const percentage = (score / totalQuestions) * 100;
-  if (percentage >= 80) return "text-green-600";
-  if (percentage >= 60) return "text-yellow-600";
-  return "text-red-600";
+  if (percentage >= 80) return "text-[var(--success-600)]";
+  if (percentage >= 60) return "text-[var(--warning-600)]";
+  return "text-[var(--danger-600)]";
 };
 
 export const getScoreMessage = (

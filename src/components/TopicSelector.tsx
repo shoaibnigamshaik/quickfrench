@@ -26,31 +26,54 @@ export const TopicSelector = ({
   onStartQuiz,
 }: TopicSelectorProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--background)]">
       <div className="max-w-2xl lg:max-w-5xl w-full">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 text-center border border-gray-100">
+        <div
+          className="rounded-3xl shadow-2xl p-8 text-center border"
+          style={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+          }}
+        >
           {/* Settings Button */}
           <div className="flex justify-end mb-4">
             <Link
               href="/settings"
-              className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:shadow"
+              style={{ backgroundColor: "var(--muted)" }}
             >
-              <Settings className="h-5 w-5 text-gray-600" />
+              <Settings
+                className="h-5 w-5"
+                style={{ color: "var(--muted-foreground)" }}
+              />
             </Link>
           </div>
 
           <div className="mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-gradient-to-r from-[var(--primary-600)] to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <h1
+              className="text-3xl font-bold mb-2"
+              style={{ color: "var(--foreground)" }}
+            >
               Choose a Topic
             </h1>
-            <p className="text-gray-600 mb-3">
+            <p className="mb-3" style={{ color: "var(--muted-foreground)" }}>
               Select which French vocabulary you&apos;d like to practice
             </p>
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full border border-indigo-200">
-              <span className="text-sm font-medium text-indigo-800">
+            <div
+              className="inline-flex items-center px-4 py-2 rounded-full border"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
+                borderColor: "var(--border)",
+              }}
+            >
+              <span
+                className="text-sm font-medium"
+                style={{ color: "var(--foreground)" }}
+              >
                 {translationDirection === "french-to-english"
                   ? "French → English"
                   : "English → French"}
@@ -106,8 +129,11 @@ export const TopicSelector = ({
             })}
           </div>
 
-          <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-            <p className="text-sm text-gray-600">
+          <div
+            className="mt-8 p-4 rounded-xl"
+            style={{ backgroundColor: "var(--muted)" }}
+          >
+            <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
               💡 <strong>Tip:</strong> Visit Settings to choose quiz mode and
               adjust number of questions per quiz
             </p>

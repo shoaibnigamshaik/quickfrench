@@ -28,16 +28,25 @@ export const QuizResult = ({
     <div className="text-center">
       <div className="mb-6">
         {isCorrect ? (
-          <div className="text-green-600 font-semibold text-lg">
+          <div
+            className="font-semibold text-lg"
+            style={{ color: "var(--success-600)" }}
+          >
             ✓ Correct! Great job!
           </div>
         ) : (
-          <div className="text-red-600 font-semibold text-lg">
+          <div
+            className="font-semibold text-lg"
+            style={{ color: "var(--danger-600)" }}
+          >
             ✗ Incorrect. The correct answer is &quot;{question.correct}&quot;
           </div>
         )}
       </div>
-      <div className="text-sm text-gray-500 mb-4">
+      <div
+        className="text-sm mb-4"
+        style={{ color: "var(--muted-foreground)" }}
+      >
         Press Space or Enter to continue
       </div>
       <button
