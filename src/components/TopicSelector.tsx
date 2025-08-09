@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Settings } from "lucide-react";
+import { BookOpen, Settings, ChevronRight } from "lucide-react";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
 interface TopicSelectorProps {
@@ -27,7 +27,7 @@ export const TopicSelector = ({
   onStartQuiz,
 }: TopicSelectorProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--background)]">
+    <div className="min-h-screen flex lg:items-center lg:justify-center p-4 bg-[var(--background)]">
       <div className="max-w-2xl lg:max-w-5xl w-full">
         <div
           className="rounded-3xl shadow-2xl p-8 text-center border"
@@ -40,6 +40,7 @@ export const TopicSelector = ({
           <div className="flex justify-end mb-4">
             <Link
               href="/settings"
+              aria-label="Settings"
               className="inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:shadow"
               style={{ backgroundColor: "var(--muted)" }}
             >
@@ -51,7 +52,13 @@ export const TopicSelector = ({
           </div>
 
           <div className="mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-[var(--primary-600)] to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+              }}
+            >
               <BookOpen className="h-10 w-10 text-white" />
             </div>
             <h1
@@ -82,49 +89,40 @@ export const TopicSelector = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {topics.map((topic) => {
-              const itemCount = TOPIC_COUNTS[topic.id] || 0;
+              const itemCount = TOPIC_COUNTS[topic.id];
+              const itemCountDisplay = itemCount ?? "—";
               const isFood = topic.id === "food";
 
               return (
                 <button
                   key={topic.id}
+                  type="button"
                   onClick={() => onStartQuiz(topic.id)}
-                  className={`p-8 bg-gradient-to-r ${topic.color} rounded-2xl text-white hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-left`}
+                  aria-label={`Start ${topic.name} quiz`}
+                  className={`relative p-4 sm:p-5 bg-gradient-to-r ${topic.color} rounded-xl text-white hover:shadow-md transition-all duration-200 transform motion-safe:hover:scale-105 motion-reduce:transition-none text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)] group`}
                 >
-                  <div className="flex items-center mb-4">
-                    <div className="text-4xl mr-4">{topic.icon}</div>
+                  <div className="flex items-center mb-3">
+                    <div className="text-3xl mr-3" aria-hidden="true">{topic.icon}</div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-2">{topic.name}</h3>
-                      <p className="text-blue-100">{topic.description}</p>
+                      <h3 className="text-xl font-semibold mb-1">{topic.name}</h3>
+                      <p className="text-white/80 text-sm text-balance">{topic.description}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-white/90">
-                        {itemCount}
+                      <div className="text-xl font-bold text-white/90">
+                        {itemCountDisplay}
                       </div>
-                      <div className="text-sm text-blue-100">words</div>
+                      <div className="text-xs text-white/80">items</div>
                     </div>
                   </div>
-                  <div className="text-sm text-blue-100">
-                    <div>
-                      •{" "}
-                      {isFood
-                        ? "Choose from multiple categories"
-                        : questionCount === "all"
-                          ? "All available questions"
-                          : `${questionCount} questions`}{" "}
-                      {!isFood && "per quiz"}
-                    </div>
-                    <div>• Track your progress and streaks</div>
-                    <div>• Multiple choice and typing modes</div>
-                    {topic.id === "adverbs" && (
-                      <div>• Organized by adverb categories</div>
-                    )}
-                    {isFood && (
-                      <div>• Fruits, vegetables, drinks, and more!</div>
-                    )}
-                  </div>
+                  {/* Meta badges removed for a cleaner, less redundant card UI */}
+                  {isFood && (
+                    <ChevronRight
+                      className="h-5 w-5 absolute right-3 bottom-3 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      aria-hidden="true"
+                    />
+                  )}
                 </button>
               );
             })}
