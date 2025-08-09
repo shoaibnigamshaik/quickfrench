@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { QuizHeader } from "./QuizHeader";
-import { ProgressBar } from "./ProgressBar";
+import { ProgressBar } from "./ui/ProgressBar";
 import { MultipleChoiceOptions } from "./MultipleChoiceOptions";
-import { TypingInput } from "./TypingInput";
+import { TypingInput } from "./ui/TypingInput";
 import { QuizResult } from "./QuizResult";
 import { QuizState, QuizSettings, Topic } from "@/types/quiz";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -17,7 +17,6 @@ interface QuizGameProps {
   onResetQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
   isFoodQuiz?: boolean;
-  onBackToFoodCategories?: () => void;
 }
 
 export const QuizGame = ({
@@ -30,7 +29,6 @@ export const QuizGame = ({
   onResetQuiz,
   onUpdateTypedAnswer,
   isFoodQuiz = false,
-  onBackToFoodCategories,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,7 +131,6 @@ export const QuizGame = ({
           quizMode={settings.quizMode}
           onResetQuiz={onResetQuiz}
           isFoodQuiz={isFoodQuiz}
-          onBackToFoodCategories={onBackToFoodCategories}
         />
 
         <ProgressBar

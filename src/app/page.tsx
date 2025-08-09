@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { TopicSelector } from "@/components/TopicSelector";
-import { FoodSubtopicSelector } from "@/components/FoodSubtopicSelector";
-import { BodySubtopicSelector } from "@/components/BodySubtopicSelector";
 import { QuizGame } from "@/components/QuizGame";
 import { QuizComplete } from "@/components/QuizComplete";
 import { useVocabulary } from "@/hooks/useVocabulary";
@@ -13,9 +11,7 @@ import { topics } from "@/data/topics";
 const FrenchVocabularyQuiz = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
-  const [showFoodSubtopics, setShowFoodSubtopics] = useState(false);
   const [selectedBodyCategory, setSelectedBodyCategory] = useState<string>("");
-  const [showBodySubtopics, setShowBodySubtopics] = useState(false);
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -44,12 +40,9 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle topic selection
   const handleStartQuiz = async (topic: string) => {
-    if (topic === "food") {
+    if (topic === "food" || topic === "body") {
+      // Show subtopics within TopicSelector; actual start happens via onStartSubtopic
       setSelectedTopic(topic);
-      setShowFoodSubtopics(true);
-    } else if (topic === "body") {
-      setSelectedTopic(topic);
-      setShowBodySubtopics(true);
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
@@ -63,7 +56,6 @@ const FrenchVocabularyQuiz = () => {
   // Handle food subtopic selection
   const handleFoodSubtopicSelect = async (category: string) => {
     setSelectedFoodCategory(category);
-    setShowFoodSubtopics(false);
     // Fetch food vocabulary data when starting quiz
     await fetchVocabulary("food", category);
     startQuiz("food");
@@ -72,46 +64,17 @@ const FrenchVocabularyQuiz = () => {
   // Handle body subtopic selection
   const handleBodySubtopicSelect = async (category: string) => {
     setSelectedBodyCategory(category);
-    setShowBodySubtopics(false);
     // Fetch body vocabulary data when starting quiz
     await fetchVocabulary("body", category);
     startQuiz("body");
   };
 
   // Handle back from food subtopics
-  const handleBackFromFoodSubtopics = () => {
-    setShowFoodSubtopics(false);
-    setSelectedTopic("");
-    setSelectedFoodCategory("");
-  };
-
-  const handleBackFromBodySubtopics = () => {
-    setShowBodySubtopics(false);
-    setSelectedTopic("");
-    setSelectedBodyCategory("");
-  };
-
   const handleResetQuiz = () => {
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
-    setShowFoodSubtopics(false);
-    setShowBodySubtopics(false);
     clearVocabulary(); // Clear vocabulary data
-    resetQuiz();
-  };
-
-  const handleBackToFoodCategories = () => {
-    // Go back to food category selection
-    setShowFoodSubtopics(true);
-    clearVocabulary(); // Clear current vocabulary data
-    resetQuiz(); // Reset quiz state
-  };
-
-  const handleBackToBodyCategories = () => {
-    // Go back to body category selection
-    setShowBodySubtopics(true);
-    clearVocabulary();
     resetQuiz();
   };
 
@@ -141,25 +104,6 @@ const FrenchVocabularyQuiz = () => {
     );
   }
 
-  if (showFoodSubtopics) {
-    return (
-      <FoodSubtopicSelector
-        questionCount={settings.questionCount}
-        onSelectSubtopic={handleFoodSubtopicSelect}
-        onBack={handleBackFromFoodSubtopics}
-      />
-    );
-  }
-
-  if (showBodySubtopics) {
-    return (
-      <BodySubtopicSelector
-        questionCount={settings.questionCount}
-        onSelectSubtopic={handleBodySubtopicSelect}
-        onBack={handleBackFromBodySubtopics}
-      />
-    );
-  }
 
   if (showTopicSelector) {
     return (
@@ -202,13 +146,6 @@ const FrenchVocabularyQuiz = () => {
       onResetQuiz={handleResetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
       isFoodQuiz={selectedTopic === "food" || selectedTopic === "body"}
-      onBackToFoodCategories={
-        selectedTopic === "food"
-          ? handleBackToFoodCategories
-          : selectedTopic === "body"
-            ? handleBackToBodyCategories
-            : undefined
-      }
     />
   );
 };

@@ -22,7 +22,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { useCacheManagement } from "@/hooks/useCacheManagement";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 interface SettingItem {
   icon: LucideIcon;

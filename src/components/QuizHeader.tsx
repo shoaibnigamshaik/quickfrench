@@ -9,7 +9,6 @@ interface QuizHeaderProps {
   quizMode: QuizMode;
   onResetQuiz: () => void;
   isFoodQuiz?: boolean;
-  onBackToFoodCategories?: () => void;
 }
 
 export const QuizHeader = ({
@@ -19,19 +18,12 @@ export const QuizHeader = ({
   quizMode,
   onResetQuiz,
   isFoodQuiz = false,
-  onBackToFoodCategories,
 }: QuizHeaderProps) => {
-  const handleBackClick = () => {
-    if (isFoodQuiz && onBackToFoodCategories) {
-      onBackToFoodCategories();
-    } else {
-      onResetQuiz();
-    }
-  };
+  const handleBackClick = () => onResetQuiz();
 
   return (
     <div className="text-center mb-8 relative">
-      {isFoodQuiz && onBackToFoodCategories ? (
+  {isFoodQuiz ? (
         <button
           onClick={handleBackClick}
           className="absolute top-4 left-0 flex items-center transition-colors duration-200 hover:underline"
