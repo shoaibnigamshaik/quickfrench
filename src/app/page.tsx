@@ -40,9 +40,20 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle topic selection
   const handleStartQuiz = async (topic: string) => {
-    if (topic === "food" || topic === "body") {
-      // Show subtopics within TopicSelector; actual start happens via onStartSubtopic
+    if (topic === "food") {
+      // Entire Food topic requested
       setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      await fetchVocabulary("food");
+      startQuiz("food");
+    } else if (topic === "body") {
+      // Entire Body topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      await fetchVocabulary("body");
+      startQuiz("body");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");

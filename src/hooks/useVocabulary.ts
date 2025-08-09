@@ -53,6 +53,11 @@ export const useVocabulary = () => {
               data = await vocabularyCacheService.getFood(subCategory, {
                 forceRefresh,
               });
+            } else {
+              // Fetch entire food topic across all categories
+              data = await vocabularyCacheService.getAllFood({
+                forceRefresh,
+              });
             }
             break;
           default:

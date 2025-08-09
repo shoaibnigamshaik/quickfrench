@@ -19,7 +19,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   prepositions: 26,
   verbs: 116,
   adverbs: 28,
-  food: 171,
+  food: 183,
   transportation: 101,
   body: 119,
 };
@@ -140,7 +140,7 @@ export const TopicSelector = ({
                             aria-hidden
                           />
                         )}
-                        <span className="flex-1 font-medium">{topic.name}</span>
+                        <span className="flex-1 font-medium text-balance">{topic.name}</span>
                         <span
                           className="text-xs px-2 py-0.5 rounded-full border"
                           style={{ color: "var(--muted-foreground)", borderColor: "var(--border)" }}
@@ -197,9 +197,26 @@ export const TopicSelector = ({
                   </div>
                   {hasSubtopics(selectedTopic.id) ? (
                     <div>
-                      <h4 className="text-sm font-medium mb-2" style={{ color: "var(--muted-foreground)" }}>
-                        Subtopics
-                      </h4>
+                      <div className="flex items-center justify-between mb-2 gap-3">
+                        <h4 className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+                          Subtopics
+                        </h4>
+                        <button
+                          type="button"
+                          aria-label="Start quiz for entire topic"
+                          onClick={() => onStartQuiz(selectedTopic.id)}
+                          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs"
+                          style={{
+                            backgroundColor: "var(--muted)",
+                            borderColor: "var(--border)",
+                            color: "var(--foreground)",
+                          }}
+                          title="Quiz entire topic"
+                        >
+                          <Play className="h-3 w-3" />
+                          Entire topic
+                        </button>
+                      </div>
                       <ul
                         role="list"
                         className="divide-y rounded-xl border overflow-hidden"
