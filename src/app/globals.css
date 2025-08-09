@@ -44,8 +44,8 @@
   --warning-600: #d97706;
 
   /* Gradients (light) — match dark mode styling for section headers */
-  --section-grad-from: rgba(37, 99, 235, 0.18); /* softened to match dark */
-  --section-grad-to: rgba(124, 58, 237, 0.16);
+  --section-grad-from: rgba(37, 99, 235, 0.36); /* softened to match dark */
+  --section-grad-to: rgba(124, 58, 237, 0.32);
   --badge-grad-from: #2563eb;
   --badge-grad-to: #7c3aed;
   --cta-grad-from: #2563eb; /* strong for light */

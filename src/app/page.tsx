@@ -167,6 +167,13 @@ const FrenchVocabularyQuiz = () => {
         topics={topics}
         translationDirection={settings.translationDirection}
         onStartQuiz={handleStartQuiz}
+        onStartSubtopic={async (topic, sub) => {
+          if (topic === "food") {
+            await handleFoodSubtopicSelect(sub);
+          } else if (topic === "body") {
+            await handleBodySubtopicSelect(sub);
+          }
+        }}
       />
     );
   }
