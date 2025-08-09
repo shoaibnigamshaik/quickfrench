@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { BookOpen, Settings, ChevronRight, Play } from "lucide-react";
-import { BODY_SUBTOPICS, FOOD_SUBTOPICS } from "@/data/subtopics";
+import { BODY_SUBTOPICS, FOOD_SUBTOPICS, FAMILY_SUBTOPICS } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
 interface TopicSelectorProps {
@@ -22,6 +22,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   food: 183,
   transportation: 101,
   body: 119,
+  family: 194,
 };
 
 export const TopicSelector = ({
@@ -45,10 +46,11 @@ export const TopicSelector = ({
     ? topics.find((t) => t.id === selectedId) || null
     : null;
 
-  const hasSubtopics = (id: string) => id === "food" || id === "body";
+  const hasSubtopics = (id: string) => id === "food" || id === "body" || id === "family";
   const subtopicsFor = (id: string): readonly string[] => {
     if (id === "food") return FOOD_SUBTOPICS;
     if (id === "body") return BODY_SUBTOPICS;
+    if (id === "family") return FAMILY_SUBTOPICS;
     return [];
   };
 

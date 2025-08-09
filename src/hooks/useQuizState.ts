@@ -7,6 +7,7 @@ import {
   Adverb,
   Food,
   BodyItem,
+  FamilyItem,
   TranslationDirection,
 } from "@/types/quiz";
 import {
@@ -14,6 +15,7 @@ import {
   generateAdverbQuestions,
   generateFoodQuestions,
   generateBodyQuestions,
+  generateFamilyQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -76,6 +78,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
           settings.questionCount,
           settings.translationDirection,
         );
+      } else if (topic === "family") {
+          questions = generateFamilyQuestions(
+            vocabulary as FamilyItem[],
+            settings.questionCount,
+            settings.translationDirection,
+          );
       } else {
         questions = generateQuestions(
           vocabulary,

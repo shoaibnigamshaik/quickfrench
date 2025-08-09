@@ -10,6 +10,8 @@ import type {
   Transportation,
   BodyItem,
   BodyCategory,
+  FamilyItem,
+  FamilyCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -177,6 +179,29 @@ class VocabularyCacheService {
     return this.fetchWithCache<BodyItem[]>(cacheKey, apiUrl, config);
   }
 
+  async getFamily(config?: CacheConfig): Promise<FamilyItem[]> {
+    return this.fetchWithCache<FamilyItem[]>("family", "/api/family", config);
+  }
+
+  async getFamilyCategories(
+    config?: CacheConfig,
+  ): Promise<FamilyCategory[]> {
+    return this.fetchWithCache<FamilyCategory[]>(
+      "family-categories",
+      "/api/family-categories",
+      config,
+    );
+  }
+
+  async getFamilyByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<FamilyItem[]> {
+    const cacheKey = `family-${category}`;
+    const apiUrl = `/api/family/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<FamilyItem[]>(cacheKey, apiUrl, config);
+  }
+
   async clearAllCache(): Promise<void> {
     try {
       await indexedDBCache.clear();
@@ -264,6 +289,8 @@ class VocabularyCacheService {
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
+  this.getFamily(config),
+  this.getFamilyCategories(config),
       ];
 
       await Promise.all(promises);
@@ -275,6 +302,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(foodPromises);
+
+      // Preload family categories and per-category items
+      const familyCategories = await this.getFamilyCategories(config);
+      const familyPromises = familyCategories.map((category) =>
+        this.getFamilyByCategory(category.name, config),
+      );
+
+      await Promise.all(familyPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {

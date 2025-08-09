@@ -48,6 +48,16 @@ export const useVocabulary = () => {
               data = await vocabularyCacheService.getBody({ forceRefresh });
             }
             break;
+          case "family":
+            if (subCategory) {
+              data = await vocabularyCacheService.getFamilyByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getFamily({ forceRefresh });
+            }
+            break;
           case "food":
             if (subCategory) {
               data = await vocabularyCacheService.getFood(subCategory, {
@@ -56,6 +66,18 @@ export const useVocabulary = () => {
             } else {
               // Fetch entire food topic across all categories
               data = await vocabularyCacheService.getAllFood({
+                forceRefresh,
+              });
+            }
+            break;
+          case "family":
+            if (subCategory) {
+              data = await vocabularyCacheService.getFamilyByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getFamily({
                 forceRefresh,
               });
             }

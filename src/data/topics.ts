@@ -58,4 +58,11 @@ export const topics: Topic[] = [
     icon: "🩺",
     color: "from-lime-500 to-emerald-600",
   },
+  {
+    id: "family",
+    name: "Family and Friends",
+    description: "Greetings, relations, and describing people",
+    icon: "👥",
+    color: "from-sky-500 to-blue-600",
+  },
 ];

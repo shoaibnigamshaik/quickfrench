@@ -1,5 +1,4 @@
 // Canonical subtopic names used across UI components
-// Keep in sync with FoodSubtopicSelector and BodySubtopicSelector
 
 export const FOOD_SUBTOPICS = [
   "Fruits",
@@ -17,4 +16,12 @@ export const BODY_SUBTOPICS = [
   "Body Parts",
   "Diseases",
   "Verbs and Expressions",
+] as const;
+
+export const FAMILY_SUBTOPICS = [
+  "Salutations",
+  "Interjections",
+  "Relations",
+  "Physical Description",
+  "Temperament and Mood",
 ] as const;

@@ -12,6 +12,7 @@ const FrenchVocabularyQuiz = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
   const [selectedBodyCategory, setSelectedBodyCategory] = useState<string>("");
+  const [selectedFamilyCategory, setSelectedFamilyCategory] = useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -45,6 +46,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -52,12 +54,22 @@ const FrenchVocabularyQuiz = () => {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
+    } else if (topic === "family") {
+      // Entire Family topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      await fetchVocabulary("family");
+      startQuiz("family");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -80,11 +92,20 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("body");
   };
 
+  // Handle family subtopic selection
+  const handleFamilySubtopicSelect = async (category: string) => {
+    setSelectedFamilyCategory(category);
+    // Fetch family vocabulary data when starting quiz
+    await fetchVocabulary("family", category);
+    startQuiz("family");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
+  setSelectedFamilyCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -95,6 +116,8 @@ const FrenchVocabularyQuiz = () => {
         ? `${selectedFoodCategory} (Food)`
         : selectedTopic === "body" && selectedBodyCategory
           ? `${selectedBodyCategory} (Body)`
+          : selectedTopic === "family" && selectedFamilyCategory
+            ? `${selectedFamilyCategory} (Family)`
           : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
@@ -127,6 +150,8 @@ const FrenchVocabularyQuiz = () => {
             await handleFoodSubtopicSelect(sub);
           } else if (topic === "body") {
             await handleBodySubtopicSelect(sub);
+          } else if (topic === "family") {
+            await handleFamilySubtopicSelect(sub);
           }
         }}
       />
@@ -156,7 +181,9 @@ const FrenchVocabularyQuiz = () => {
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
-      isFoodQuiz={selectedTopic === "food" || selectedTopic === "body"}
+      isFoodQuiz={
+        selectedTopic === "food" || selectedTopic === "body" || selectedTopic === "family"
+      }
     />
   );
 };
