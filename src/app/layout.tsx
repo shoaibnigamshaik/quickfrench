@@ -25,10 +25,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Theme setup to avoid FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => { try {
+              const storageKey = 'theme';
+              const root = document.documentElement;
+              const stored = localStorage.getItem(storageKey);
+              const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              const shouldDark = stored === 'dark' || (stored === 'auto' || !stored) && prefersDark;
+              root.classList.toggle('dark', shouldDark);
+            } catch (_) {} })();`,
+          }}
+        />
         {children}
       </body>
     </html>
