@@ -396,13 +396,13 @@ const SettingsPage = () => {
           {settingsSections.map((section, sectionIndex) => (
             <div
               key={section.title}
-              className="rounded-3xl shadow-lg border overflow-visible"
+              className="rounded-3xl shadow-lg border overflow-hidden"
               style={{
                 backgroundColor: "var(--card)",
                 borderColor: "var(--border)",
               }}
             >
-              <div className="bg-gradient-to-r p-6 from-[var(--section-grad-from)] to-[var(--section-grad-to)]">
+              <div className="bg-gradient-to-r p-6 from-[var(--section-grad-from)] to-[var(--section-grad-to)] rounded-t-3xl">
                 <h2
                   className="text-xl font-bold"
                   style={{ color: "var(--foreground)" }}
