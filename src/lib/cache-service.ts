@@ -8,6 +8,8 @@ import type {
   Food,
   FoodCategory,
   Transportation,
+  BodyItem,
+  BodyCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -150,6 +152,27 @@ class VocabularyCacheService {
     return this.fetchWithCache<Food[]>(cacheKey, apiUrl, config);
   }
 
+  async getBody(config?: CacheConfig): Promise<BodyItem[]> {
+    return this.fetchWithCache<BodyItem[]>("body", "/api/body", config);
+  }
+
+  async getBodyCategories(config?: CacheConfig): Promise<BodyCategory[]> {
+    return this.fetchWithCache<BodyCategory[]>(
+      "body-categories",
+      "/api/body-categories",
+      config,
+    );
+  }
+
+  async getBodyByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<BodyItem[]> {
+    const cacheKey = `body-${category}`;
+    const apiUrl = `/api/body/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<BodyItem[]>(cacheKey, apiUrl, config);
+  }
+
   async clearAllCache(): Promise<void> {
     try {
       await indexedDBCache.clear();
@@ -230,8 +253,10 @@ class VocabularyCacheService {
         this.getPrepositions(config),
         this.getVerbs(config),
         this.getAdverbs(config),
-  this.getTransportation(config),
+        this.getTransportation(config),
         this.getFoodCategories(config),
+        this.getBody(config),
+        this.getBodyCategories(config),
       ];
 
       await Promise.all(promises);

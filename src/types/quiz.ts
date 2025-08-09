@@ -46,6 +46,17 @@ export interface Transportation {
   meaning: string;
 }
 
+export interface BodyItem {
+  word: string;
+  meaning: string;
+  category: string | null;
+}
+
+export interface BodyCategory {
+  id: number;
+  name: string;
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -85,4 +96,5 @@ export type VocabularyItem =
   | Verb
   | Adverb
   | Food
-  | Transportation;
+  | Transportation
+  | BodyItem;

@@ -8,7 +8,7 @@ export const useVocabulary = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchVocabulary = useCallback(
-    async (topic: string, foodCategory?: string, forceRefresh = false) => {
+    async (topic: string, subCategory?: string, forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
@@ -38,9 +38,19 @@ export const useVocabulary = () => {
               forceRefresh,
             });
             break;
+          case "body":
+            if (subCategory) {
+              data = await vocabularyCacheService.getBodyByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getBody({ forceRefresh });
+            }
+            break;
           case "food":
-            if (foodCategory) {
-              data = await vocabularyCacheService.getFood(foodCategory, {
+            if (subCategory) {
+              data = await vocabularyCacheService.getFood(subCategory, {
                 forceRefresh,
               });
             }

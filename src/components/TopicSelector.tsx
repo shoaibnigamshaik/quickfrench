@@ -4,7 +4,6 @@ import { Topic, TranslationDirection } from "@/types/quiz";
 
 interface TopicSelectorProps {
   topics: Topic[];
-  questionCount: number | "all";
   translationDirection: TranslationDirection;
   onStartQuiz: (topic: string) => void;
 }
@@ -18,11 +17,11 @@ const TOPIC_COUNTS: Record<string, number> = {
   adverbs: 28,
   food: 171,
   transportation: 101,
+  body: 119,
 };
 
 export const TopicSelector = ({
   topics,
-  questionCount,
   translationDirection,
   onStartQuiz,
 }: TopicSelectorProps) => {
@@ -93,7 +92,7 @@ export const TopicSelector = ({
             {topics.map((topic) => {
               const itemCount = TOPIC_COUNTS[topic.id];
               const itemCountDisplay = itemCount ?? "—";
-              const isFood = topic.id === "food";
+              const hasSubtopics = topic.id === "food" || topic.id === "body";
 
               return (
                 <button
@@ -104,10 +103,16 @@ export const TopicSelector = ({
                   className={`relative p-4 sm:p-5 bg-gradient-to-r ${topic.color} rounded-xl text-white hover:shadow-md transition-all duration-200 transform motion-safe:hover:scale-105 motion-reduce:transition-none text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)] group`}
                 >
                   <div className="flex items-center mb-3">
-                    <div className="text-3xl mr-3" aria-hidden="true">{topic.icon}</div>
+                    <div className="text-3xl mr-3" aria-hidden="true">
+                      {topic.icon}
+                    </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-1">{topic.name}</h3>
-                      <p className="text-white/80 text-sm text-balance">{topic.description}</p>
+                      <h3 className="text-xl font-semibold mb-1">
+                        {topic.name}
+                      </h3>
+                      <p className="text-white/80 text-sm text-balance">
+                        {topic.description}
+                      </p>
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-bold text-white/90">
@@ -117,7 +122,7 @@ export const TopicSelector = ({
                     </div>
                   </div>
                   {/* Meta badges removed for a cleaner, less redundant card UI */}
-                  {isFood && (
+                  {hasSubtopics && (
                     <ChevronRight
                       className="h-5 w-5 absolute right-3 bottom-3 text-white/80 opacity-90 group-hover:opacity-100 translate-x-0 group-hover:translate-x-0.5 transition-all duration-200 pointer-events-none"
                       aria-hidden="true"

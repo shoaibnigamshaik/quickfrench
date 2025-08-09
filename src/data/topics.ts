@@ -4,7 +4,8 @@ export const topics: Topic[] = [
   {
     id: "adjectives",
     name: "Adjectives",
-    description: "A wide variety of adjectives to describe people, places, and things.",
+    description:
+      "A wide variety of adjectives to describe people, places, and things.",
     icon: "🎨",
     color: "from-blue-500 to-indigo-600",
   },
@@ -49,5 +50,12 @@ export const topics: Topic[] = [
     description: "Travel words: vehicles, places, directions",
     icon: "🧭",
     color: "from-cyan-500 to-teal-600",
+  },
+  {
+    id: "body",
+    name: "Body Parts and Health",
+    description: "Anatomy and health-related vocabulary",
+    icon: "🩺",
+    color: "from-lime-500 to-emerald-600",
   },
 ];

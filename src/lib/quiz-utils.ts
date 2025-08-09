@@ -3,6 +3,7 @@ import {
   VocabularyItem,
   Adverb,
   Food,
+  BodyItem,
   TranslationDirection,
 } from "@/types/quiz";
 
@@ -193,6 +194,71 @@ export const generateFoodQuestions = (
       correct: correctAnswer,
       options: options,
     };
+  });
+};
+
+// Special function for body that may include category information
+export const generateBodyQuestions = (
+  items: BodyItem[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => {
+  const shuffled = shuffleArray(items);
+  const numQuestions =
+    questionCount === "all"
+      ? items.length
+      : Math.min(questionCount, items.length);
+
+  return shuffled.slice(0, numQuestions).map((item) => {
+    const isEnglishToFrench = translationDirection === "english-to-french";
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    // Prefer options within same category if available, otherwise mix
+    const sameCategoryOptions = shuffleArray(
+      items.filter(
+        (x) =>
+          x.category === item.category &&
+          (isEnglishToFrench
+            ? x.word !== item.word
+            : x.meaning !== item.meaning),
+      ),
+    )
+      .slice(0, 2)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const otherCategoryOptions = shuffleArray(
+      items.filter(
+        (x) =>
+          x.category !== item.category &&
+          (isEnglishToFrench
+            ? x.word !== item.word
+            : x.meaning !== item.meaning),
+      ),
+    )
+      .slice(0, 3 - sameCategoryOptions.length)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
+
+    if (allOptions.length < 3) {
+      const remaining = shuffleArray(
+        items.filter(
+          (x) =>
+            (isEnglishToFrench
+              ? x.word !== item.word
+              : x.meaning !== item.meaning) &&
+            !allOptions.includes(isEnglishToFrench ? x.word : x.meaning),
+        ),
+      )
+        .slice(0, 3 - allOptions.length)
+        .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+      allOptions.push(...remaining);
+    }
+
+    const options = shuffleArray([correctAnswer, ...allOptions]);
+
+    return { word: questionWord, correct: correctAnswer, options };
   });
 };
 

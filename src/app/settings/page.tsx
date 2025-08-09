@@ -473,13 +473,25 @@ const SettingsPage = () => {
                                   className="h-4 w-4 cursor-help"
                                   style={{ color: "var(--muted-foreground)" }}
                                 />
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
-                                  style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)", maxWidth: "min(18rem, calc(100vw - 2rem))" }}
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
+                                  style={{
+                                    backgroundColor: "var(--card)",
+                                    color: "var(--foreground)",
+                                    borderColor: "var(--border)",
+                                    maxWidth: "min(18rem, calc(100vw - 2rem))",
+                                  }}
                                 >
-                                  <div className="mb-2 font-semibold" style={{ color: "var(--foreground)" }}>
+                                  <div
+                                    className="mb-2 font-semibold"
+                                    style={{ color: "var(--foreground)" }}
+                                  >
                                     Multiple Choice Mode:
                                   </div>
-                                  <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
+                                  <div
+                                    className="space-y-1"
+                                    style={{ color: "var(--muted-foreground)" }}
+                                  >
                                     <div>• Select from 4 options</div>
                                     <div>• Use keys 1-4 to select</div>
                                     <div>• Space/Enter for next</div>
@@ -515,13 +527,25 @@ const SettingsPage = () => {
                                   className="h-4 w-4 cursor-help"
                                   style={{ color: "var(--muted-foreground)" }}
                                 />
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
-                                  style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)", maxWidth: "min(18rem, calc(100vw - 2rem))" }}
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
+                                  style={{
+                                    backgroundColor: "var(--card)",
+                                    color: "var(--foreground)",
+                                    borderColor: "var(--border)",
+                                    maxWidth: "min(18rem, calc(100vw - 2rem))",
+                                  }}
                                 >
-                                  <div className="mb-2 font-semibold" style={{ color: "var(--foreground)" }}>
+                                  <div
+                                    className="mb-2 font-semibold"
+                                    style={{ color: "var(--foreground)" }}
+                                  >
                                     Fill in the Blank Mode:
                                   </div>
-                                  <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
+                                  <div
+                                    className="space-y-1"
+                                    style={{ color: "var(--muted-foreground)" }}
+                                  >
                                     <div>• Type the English meaning</div>
                                     <div>• Type your answer</div>
                                     <div>• Enter to submit</div>
