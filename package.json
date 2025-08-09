@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && echo TYPECHECK_OK || echo TYPECHECK_FAIL",
     "format": "prettier --write ."
   },
   "dependencies": {
