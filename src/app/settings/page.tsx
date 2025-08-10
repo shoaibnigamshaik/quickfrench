@@ -212,12 +212,7 @@ const SettingsPage = () => {
           description: "Choose how many questions per quiz",
           type: "question-count" as const,
         },
-        {
-          icon: ArrowLeftRight,
-          label: "Translation Direction",
-          description: "Choose the direction of translation",
-          type: "translation-direction" as const,
-        },
+  // Translation Direction control removed; toggle now lives on TopicSelector
         {
           icon: Clock,
           label: "Auto Advance",

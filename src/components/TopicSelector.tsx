@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { BookOpen, Settings, ChevronRight, Play } from "lucide-react";
-import { BODY_SUBTOPICS, FOOD_SUBTOPICS, FAMILY_SUBTOPICS } from "@/data/subtopics";
+import { BODY_SUBTOPICS, FOOD_SUBTOPICS, FAMILY_SUBTOPICS, HOME_SUBTOPICS } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
 interface TopicSelectorProps {
@@ -11,6 +11,7 @@ interface TopicSelectorProps {
   translationDirection: TranslationDirection;
   onStartQuiz: (topic: string) => void;
   onStartSubtopic?: (topic: string, subtopic: string) => void;
+  onToggleDirection: () => void;
 }
 
 const TOPIC_COUNTS: Record<string, number> = {
@@ -23,6 +24,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   transportation: 101,
   body: 119,
   family: 194,
+  home: 240,
 };
 
 export const TopicSelector = ({
@@ -30,6 +32,7 @@ export const TopicSelector = ({
   translationDirection,
   onStartQuiz,
   onStartSubtopic,
+  onToggleDirection,
 }: TopicSelectorProps) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
@@ -46,11 +49,12 @@ export const TopicSelector = ({
     ? topics.find((t) => t.id === selectedId) || null
     : null;
 
-  const hasSubtopics = (id: string) => id === "food" || id === "body" || id === "family";
+  const hasSubtopics = (id: string) => id === "food" || id === "body" || id === "family" || id === "home";
   const subtopicsFor = (id: string): readonly string[] => {
     if (id === "food") return FOOD_SUBTOPICS;
     if (id === "body") return BODY_SUBTOPICS;
     if (id === "family") return FAMILY_SUBTOPICS;
+    if (id === "home") return HOME_SUBTOPICS;
     return [];
   };
 
@@ -81,13 +85,21 @@ export const TopicSelector = ({
                 background: "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
               }}
             >
-              <BookOpen className="h-10 w-10 text-white" />
+              <BookOpen className="h-8 w-8" style={{ color: "white" }} />
             </div>
-            <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--foreground)" }}>
-              Choose a Topic
+            <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--foreground)" }}>
+              French Quiz
             </h1>
-            <div
-              className="inline-flex items-center px-4 py-2 rounded-full border"
+            <button
+              type="button"
+              onClick={onToggleDirection}
+              aria-label={`Toggle translation direction (currently ${
+                translationDirection === "french-to-english"
+                  ? "French to English"
+                  : "English to French"
+              })`}
+              title="Toggle translation direction"
+              className="inline-flex items-center px-4 py-2 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
               style={{
                 background: "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
                 borderColor: "var(--border)",
@@ -98,7 +110,7 @@ export const TopicSelector = ({
                   ? "French → English"
                   : "English → French"}
               </span>
-            </div>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
