@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Trophy, Home } from "lucide-react";
 import { Topic } from "@/types/quiz";
 import { getScoreColor, getScoreMessage } from "@/lib/quiz-utils";
@@ -16,9 +15,9 @@ export const QuizComplete = ({
   score,
   totalQuestions,
   maxStreak,
-  selectedTopic: _selectedTopic,
-  topics: _topics,
-  onResetQuiz: _onResetQuiz,
+  selectedTopic,
+  topics,
+  onResetQuiz,
 }: QuizCompleteProps) => {
   return (
     <div
@@ -115,13 +114,14 @@ export const QuizComplete = ({
               {getScoreMessage(score, totalQuestions)}
             </div>
             <div className="flex items-center justify-center">
-              <Link
-                href="/"
+              <button
+                type="button"
+                onClick={onResetQuiz}
                 className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg text-white bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)]"
               >
                 <Home className="mr-2 h-5 w-5" />
                 Return Home
-              </Link>
+              </button>
             </div>
           </div>
         </div>
