@@ -73,6 +73,16 @@ export interface Colour {
   meaning: string;
 }
 
+export interface Hobby {
+  word: string;
+  meaning: string;
+}
+
+export interface WardrobeItem {
+  word: string;
+  meaning: string;
+}
+
 export interface BodyItem {
   word: string;
   meaning: string;
@@ -125,6 +135,8 @@ export type VocabularyItem =
   | Food
   | Transportation
   | Colour
+  | Hobby
+  | WardrobeItem
   | BodyItem
   | FamilyItem
   | HomeItem;

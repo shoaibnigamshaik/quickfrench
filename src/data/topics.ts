@@ -79,4 +79,18 @@ export const topics: Topic[] = [
     icon: "🎨",
     color: "from-fuchsia-500 to-pink-600",
   },
+  {
+    id: "hobbies",
+    name: "Hobbies",
+    description: "Common hobbies and leisure activities",
+    icon: "🎯",
+    color: "from-emerald-500 to-green-600",
+  },
+  {
+    id: "wardrobe",
+    name: "Wardrobe",
+    description: "Clothing and accessories",
+    icon: "👕",
+    color: "from-slate-500 to-gray-600",
+  },
 ];

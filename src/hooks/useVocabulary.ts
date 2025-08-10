@@ -41,6 +41,12 @@ export const useVocabulary = () => {
           case "colours":
             data = await vocabularyCacheService.getColours({ forceRefresh });
             break;
+          case "hobbies":
+            data = await vocabularyCacheService.getHobbies({ forceRefresh });
+            break;
+          case "wardrobe":
+            data = await vocabularyCacheService.getWardrobe({ forceRefresh });
+            break;
           case "body":
             if (subCategory) {
               data = await vocabularyCacheService.getBodyByCategory(

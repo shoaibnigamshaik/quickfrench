@@ -149,6 +149,22 @@ class VocabularyCacheService {
     );
   }
 
+  async getHobbies(config?: CacheConfig) {
+    return this.fetchWithCache<{ word: string; meaning: string }[]>(
+      "hobbies",
+      "/api/hobbies",
+      config,
+    );
+  }
+
+  async getWardrobe(config?: CacheConfig) {
+    return this.fetchWithCache<{ word: string; meaning: string }[]>(
+      "wardrobe",
+      "/api/wardrobe",
+      config,
+    );
+  }
+
   async getFoodCategories(config?: CacheConfig): Promise<FoodCategory[]> {
     return this.fetchWithCache<FoodCategory[]>(
       "food-categories",
@@ -315,6 +331,8 @@ class VocabularyCacheService {
         this.getAdverbs(config),
         this.getTransportation(config),
   this.getColours(config),
+  this.getHobbies(config),
+  this.getWardrobe(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
