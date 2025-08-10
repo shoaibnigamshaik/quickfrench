@@ -71,10 +71,9 @@ export const TopicSelector = ({
   return (
     <div className="max-w-2xl lg:max-w-5xl w-full mx-auto">
       <div
-        className="rounded-3xl shadow-2xl p-6 md:p-7 border"
+        className="rounded-3xl p-6 md:p-7"
         style={{
-          backgroundColor: "var(--card)",
-          borderColor: "var(--border)",
+          backgroundColor: "var(--background)",
         }}
       >
           {/* Header: compact row with brand, toggle, and settings */}

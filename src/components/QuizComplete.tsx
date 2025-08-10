@@ -17,10 +17,9 @@ export const QuizComplete = ({
   return (
     <div className="max-w-2xl w-full mx-auto">
       <div
-        className="rounded-3xl shadow-2xl p-8 text-center border"
+        className="rounded-3xl p-8 text-center"
         style={{
-          backgroundColor: "var(--card)",
-          borderColor: "var(--border)",
+          backgroundColor: "var(--background)",
         }}
       >
           <div className="mb-8">
