@@ -4,6 +4,7 @@ import {
   QuizSettings,
   QuizMode,
   VocabularyItem,
+  WrongAnswer,
   Adverb,
   Food,
   BodyItem,
@@ -33,6 +34,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     streak: 0,
     maxStreak: 0,
     typedAnswer: "",
+  wrongAnswers: [],
   });
 
   const [settings, setSettings] = useState<QuizSettings>({
@@ -114,7 +116,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
 
     setQuizState((prev) => {
       const isCorrect = answer === prev.questions[prev.currentQuestion].correct;
-      return {
+      const updated: QuizState = {
         ...prev,
         selectedAnswer: answer,
         showResult: true,
@@ -123,7 +125,18 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         maxStreak: isCorrect
           ? Math.max(prev.maxStreak, prev.streak + 1)
           : prev.maxStreak,
+        wrongAnswers: isCorrect
+          ? prev.wrongAnswers
+          : [
+              ...prev.wrongAnswers,
+              {
+                question: prev.questions[prev.currentQuestion],
+                userAnswer: answer,
+                questionIndex: prev.currentQuestion,
+              } as WrongAnswer,
+            ],
       };
+      return updated;
     });
   };
 
@@ -144,6 +157,16 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       maxStreak: isCorrect
         ? Math.max(prev.maxStreak, prev.streak + 1)
         : prev.maxStreak,
+      wrongAnswers: isCorrect
+        ? prev.wrongAnswers
+        : [
+            ...prev.wrongAnswers,
+            {
+              question: prev.questions[prev.currentQuestion],
+              userAnswer: prev.typedAnswer,
+              questionIndex: prev.currentQuestion,
+            } as WrongAnswer,
+          ],
     }));
   };
 
@@ -157,7 +180,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         showResult: false,
       }));
     } else {
-      setQuizState((prev) => ({ ...prev, quizComplete: true }));
+  setQuizState((prev) => ({ ...prev, quizComplete: true }));
     }
   };
 
@@ -172,6 +195,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       streak: 0,
       maxStreak: 0,
       typedAnswer: "",
+  wrongAnswers: [],
     });
     setSettings((prev) => ({ ...prev, selectedTopic: "" }));
     setShowTopicSelector(true);

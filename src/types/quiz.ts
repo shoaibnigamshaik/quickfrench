@@ -125,6 +125,7 @@ export interface QuizState {
   streak: number;
   maxStreak: number;
   typedAnswer: string;
+  wrongAnswers: WrongAnswer[];
 }
 
 export interface QuizSettings {
@@ -150,3 +151,9 @@ export type VocabularyItem =
   | FamilyItem
   | HomeItem
   | NatureItem;
+
+export interface WrongAnswer {
+  question: Question;
+  userAnswer: string;
+  questionIndex: number;
+}
