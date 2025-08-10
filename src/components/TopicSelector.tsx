@@ -69,15 +69,14 @@ export const TopicSelector = ({
   };
 
   return (
-    <div className="min-h-screen flex lg:items-center lg:justify-center p-4 bg-[var(--background)]">
-      <div className="max-w-2xl lg:max-w-5xl w-full">
-        <div
-          className="rounded-3xl shadow-2xl p-6 md:p-7 border"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-        >
+    <div className="max-w-2xl lg:max-w-5xl w-full mx-auto">
+      <div
+        className="rounded-3xl shadow-2xl p-6 md:p-7 border"
+        style={{
+          backgroundColor: "var(--card)",
+          borderColor: "var(--border)",
+        }}
+      >
           {/* Header: compact row with brand, toggle, and settings */}
           <div className="mb-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -146,7 +145,7 @@ export const TopicSelector = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
             {/* List column */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
               <ul
                 role="list"
                 className="divide-y rounded-xl border overflow-hidden"
@@ -211,10 +210,10 @@ export const TopicSelector = ({
             </div>
 
             {/* Details column */}
-            <div className="lg:col-span-2">
+    <div className="lg:col-span-2">
               {selectedTopic ? (
                 <div
-                  className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"}`}
+      className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"}`}
                   style={{
                     backgroundColor: "var(--card)",
                     borderColor: "var(--border)",
@@ -336,8 +335,7 @@ export const TopicSelector = ({
               mobile, tap a topic to start quickly.
             </p>
           </div>
-        </div>
-      </div>
+  </div>
     </div>
   );
 };

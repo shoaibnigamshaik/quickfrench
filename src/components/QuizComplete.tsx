@@ -15,18 +15,14 @@ export const QuizComplete = ({
   onResetQuiz,
 }: QuizCompleteProps) => {
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: "var(--background)" }}
-    >
-      <div className="max-w-2xl w-full">
-        <div
-          className="rounded-3xl shadow-2xl p-8 text-center border"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-        >
+    <div className="max-w-2xl w-full mx-auto">
+      <div
+        className="rounded-3xl shadow-2xl p-8 text-center border"
+        style={{
+          backgroundColor: "var(--card)",
+          borderColor: "var(--border)",
+        }}
+      >
           <div className="mb-8">
             <div className="w-20 h-20 bg-gradient-to-r from-[var(--badge-grad-from)] to-[var(--badge-grad-to)] rounded-full flex items-center justify-center mx-auto mb-4">
               <Trophy className="h-10 w-10 text-white" />
@@ -121,6 +117,5 @@ export const QuizComplete = ({
           </div>
         </div>
       </div>
-    </div>
   );
 };

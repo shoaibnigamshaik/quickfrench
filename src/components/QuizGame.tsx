@@ -101,10 +101,7 @@ export const QuizGame = ({
 
   if (quizState.questions.length === 0) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "var(--background)" }}
-      >
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div
             className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
@@ -119,11 +116,7 @@ export const QuizGame = ({
   const currentQuestion = quizState.questions[quizState.currentQuestion];
 
   return (
-    <div
-      className="min-h-screen p-4"
-      style={{ backgroundColor: "var(--background)" }}
-    >
-      <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
         <QuizHeader
           selectedTopic={settings.selectedTopic}
           topics={topics}
@@ -192,7 +185,6 @@ export const QuizGame = ({
             )}
           </div>
         </div>
-      </div>
-    </div>
+  </div>
   );
 };

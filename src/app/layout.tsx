@@ -42,7 +42,11 @@ export default function RootLayout({
             } catch (_) {} })();`,
           }}
         />
-        {children}
+        <div className="min-h-[100dvh] bg-[var(--background)]">
+          <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
