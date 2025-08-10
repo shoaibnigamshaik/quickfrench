@@ -10,6 +10,9 @@ export async function GET() {
     return Response.json(result.rows);
   } catch (error) {
     console.error("Error fetching wardrobe:", error);
-    return Response.json({ error: "Failed to fetch wardrobe" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch wardrobe" },
+      { status: 500 },
+    );
   }
 }

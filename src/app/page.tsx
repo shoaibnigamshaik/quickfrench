@@ -198,8 +198,6 @@ const FrenchVocabularyQuiz = () => {
         score={quizState.score}
         totalQuestions={quizState.questions.length}
         maxStreak={quizState.maxStreak}
-        selectedTopic={settings.selectedTopic}
-        topics={topics}
         onResetQuiz={handleResetQuiz}
       />
     );
