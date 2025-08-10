@@ -12,7 +12,8 @@ const FrenchVocabularyQuiz = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
   const [selectedBodyCategory, setSelectedBodyCategory] = useState<string>("");
-  const [selectedFamilyCategory, setSelectedFamilyCategory] = useState<string>("");
+  const [selectedFamilyCategory, setSelectedFamilyCategory] =
+    useState<string>("");
   const [selectedHomeCategory, setSelectedHomeCategory] = useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
@@ -42,13 +43,13 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle topic selection
   const handleStartQuiz = async (topic: string) => {
-  if (topic === "food") {
+    if (topic === "food") {
       // Entire Food topic requested
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
-  setSelectedFamilyCategory("");
-  setSelectedHomeCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -56,8 +57,8 @@ const FrenchVocabularyQuiz = () => {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
-  setSelectedFamilyCategory("");
-  setSelectedHomeCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -126,7 +127,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
-  setSelectedFamilyCategory("");
+    setSelectedFamilyCategory("");
     setSelectedHomeCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
@@ -142,7 +143,7 @@ const FrenchVocabularyQuiz = () => {
             ? `${selectedFamilyCategory} (Family)`
             : selectedTopic === "home" && selectedHomeCategory
               ? `${selectedHomeCategory} (Home)`
-          : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
+              : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
       <div
@@ -161,7 +162,6 @@ const FrenchVocabularyQuiz = () => {
       </div>
     );
   }
-
 
   if (showTopicSelector) {
     return (
@@ -216,7 +216,10 @@ const FrenchVocabularyQuiz = () => {
       onResetQuiz={handleResetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
       isFoodQuiz={
-  selectedTopic === "food" || selectedTopic === "body" || selectedTopic === "family" || selectedTopic === "home"
+        selectedTopic === "food" ||
+        selectedTopic === "body" ||
+        selectedTopic === "family" ||
+        selectedTopic === "home"
       }
     />
   );

@@ -184,9 +184,7 @@ class VocabularyCacheService {
     return this.fetchWithCache<FamilyItem[]>("family", "/api/family", config);
   }
 
-  async getFamilyCategories(
-    config?: CacheConfig,
-  ): Promise<FamilyCategory[]> {
+  async getFamilyCategories(config?: CacheConfig): Promise<FamilyCategory[]> {
     return this.fetchWithCache<FamilyCategory[]>(
       "family-categories",
       "/api/family-categories",
@@ -257,17 +255,17 @@ class VocabularyCacheService {
         console.log(`Cache cleared for food category: ${category}`);
       } else {
         // Clear all food-related cache
-  const keys = await indexedDBCache.getAllKeys();
-  const foodKeys = keys.filter((key) => key.startsWith("food-"));
+        const keys = await indexedDBCache.getAllKeys();
+        const foodKeys = keys.filter((key) => key.startsWith("food-"));
         await Promise.all(
           foodKeys.map((key) => {
             this.pendingRequests.delete(key);
             return indexedDBCache.delete(key);
           }),
         );
-  // Also clear the aggregate food key and categories list
-  await indexedDBCache.delete("food");
-  this.pendingRequests.delete("food");
+        // Also clear the aggregate food key and categories list
+        await indexedDBCache.delete("food");
+        this.pendingRequests.delete("food");
         await indexedDBCache.delete("food-categories");
         this.pendingRequests.delete("food-categories");
         console.log("All food cache cleared");
@@ -311,10 +309,10 @@ class VocabularyCacheService {
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
-  this.getFamily(config),
-  this.getFamilyCategories(config),
-  this.getHome(config),
-  this.getHomeCategories(config),
+        this.getFamily(config),
+        this.getFamilyCategories(config),
+        this.getHome(config),
+        this.getHomeCategories(config),
       ];
 
       await Promise.all(promises);

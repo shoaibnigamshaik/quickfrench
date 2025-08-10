@@ -3,7 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { BookOpen, Settings, ChevronRight, Play } from "lucide-react";
-import { BODY_SUBTOPICS, FOOD_SUBTOPICS, FAMILY_SUBTOPICS, HOME_SUBTOPICS } from "@/data/subtopics";
+import {
+  BODY_SUBTOPICS,
+  FOOD_SUBTOPICS,
+  FAMILY_SUBTOPICS,
+  HOME_SUBTOPICS,
+} from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
 interface TopicSelectorProps {
@@ -42,14 +47,16 @@ export const TopicSelector = ({
   }, []);
 
   React.useEffect(() => {
-    if (selectedId) localStorage.setItem("topicSelector:selectedId", selectedId);
+    if (selectedId)
+      localStorage.setItem("topicSelector:selectedId", selectedId);
   }, [selectedId]);
 
   const selectedTopic: Topic | null = selectedId
     ? topics.find((t) => t.id === selectedId) || null
     : null;
 
-  const hasSubtopics = (id: string) => id === "food" || id === "body" || id === "family" || id === "home";
+  const hasSubtopics = (id: string) =>
+    id === "food" || id === "body" || id === "family" || id === "home";
   const subtopicsFor = (id: string): readonly string[] => {
     if (id === "food") return FOOD_SUBTOPICS;
     if (id === "body") return BODY_SUBTOPICS;
@@ -63,7 +70,10 @@ export const TopicSelector = ({
       <div className="max-w-2xl lg:max-w-5xl w-full">
         <div
           className="rounded-3xl shadow-2xl p-8 text-center border"
-          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+          style={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+          }}
         >
           {/* Settings Button */}
           <div className="flex justify-end mb-4">
@@ -73,7 +83,10 @@ export const TopicSelector = ({
               className="inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:shadow"
               style={{ backgroundColor: "var(--muted)" }}
             >
-              <Settings className="h-5 w-5" style={{ color: "var(--muted-foreground)" }} />
+              <Settings
+                className="h-5 w-5"
+                style={{ color: "var(--muted-foreground)" }}
+              />
             </Link>
           </div>
 
@@ -82,12 +95,16 @@ export const TopicSelector = ({
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{
-                background: "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+                background:
+                  "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
               }}
             >
               <BookOpen className="h-8 w-8" style={{ color: "white" }} />
             </div>
-            <h1 className="text-3xl font-bold mb-4" style={{ color: "var(--foreground)" }}>
+            <h1
+              className="text-3xl font-bold mb-4"
+              style={{ color: "var(--foreground)" }}
+            >
               French Quiz
             </h1>
             <button
@@ -101,11 +118,15 @@ export const TopicSelector = ({
               title="Toggle translation direction"
               className="inline-flex items-center px-4 py-2 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
               style={{
-                background: "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
+                background:
+                  "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
                 borderColor: "var(--border)",
               }}
             >
-              <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+              <span
+                className="text-sm font-medium"
+                style={{ color: "var(--foreground)" }}
+              >
                 {translationDirection === "french-to-english"
                   ? "French → English"
                   : "English → French"}
@@ -154,10 +175,15 @@ export const TopicSelector = ({
                             aria-hidden
                           />
                         )}
-                        <span className="flex-1 font-medium text-balance">{topic.name}</span>
+                        <span className="flex-1 font-medium text-balance">
+                          {topic.name}
+                        </span>
                         <span
                           className="text-xs px-2 py-0.5 rounded-full border"
-                          style={{ color: "var(--muted-foreground)", borderColor: "var(--border)" }}
+                          style={{
+                            color: "var(--muted-foreground)",
+                            borderColor: "var(--border)",
+                          }}
                         >
                           {itemCount ?? "—"}
                         </span>
@@ -179,15 +205,23 @@ export const TopicSelector = ({
               {selectedTopic ? (
                 <div
                   className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"}`}
-                  style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                  }}
                 >
-                  <div className={`flex items-start justify-between gap-4 ${hasSubtopics(selectedTopic.id) ? "mb-4" : "mb-2"}`}>
+                  <div
+                    className={`flex items-start justify-between gap-4 ${hasSubtopics(selectedTopic.id) ? "mb-4" : "mb-2"}`}
+                  >
                     <div className="flex items-center gap-3">
                       <span className="text-3xl" aria-hidden>
                         {selectedTopic.icon}
                       </span>
                       <div>
-                        <h3 className="text-2xl font-semibold" style={{ color: "var(--foreground)" }}>
+                        <h3
+                          className="text-2xl font-semibold"
+                          style={{ color: "var(--foreground)" }}
+                        >
                           {selectedTopic.name}
                         </h3>
                       </div>
@@ -212,7 +246,10 @@ export const TopicSelector = ({
                   {hasSubtopics(selectedTopic.id) ? (
                     <div>
                       <div className="flex items-center justify-between mb-2 gap-3">
-                        <h4 className="text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+                        <h4
+                          className="text-sm font-medium"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
                           Subtopics
                         </h4>
                         <button
@@ -264,9 +301,15 @@ export const TopicSelector = ({
               ) : (
                 <div
                   className="rounded-xl border p-6"
-                  style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                  }}
                 >
-                  <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
                     Select a topic to see details and subtopics.
                   </p>
                 </div>
@@ -274,9 +317,13 @@ export const TopicSelector = ({
             </div>
           </div>
 
-          <div className="mt-8 p-4 rounded-xl" style={{ backgroundColor: "var(--muted)" }}>
+          <div
+            className="mt-8 p-4 rounded-xl"
+            style={{ backgroundColor: "var(--muted)" }}
+          >
             <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
-              Tip: Use desktop to browse topics with details and subtopics; on mobile, tap a topic to start quickly.
+              Tip: Use desktop to browse topics with details and subtopics; on
+              mobile, tap a topic to start quickly.
             </p>
           </div>
         </div>

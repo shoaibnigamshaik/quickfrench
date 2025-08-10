@@ -81,11 +81,11 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
           settings.translationDirection,
         );
       } else if (topic === "family") {
-          questions = generateFamilyQuestions(
-            vocabulary as FamilyItem[],
-            settings.questionCount,
-            settings.translationDirection,
-          );
+        questions = generateFamilyQuestions(
+          vocabulary as FamilyItem[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
       } else if (topic === "home") {
         questions = generateHomeQuestions(
           vocabulary as HomeItem[],

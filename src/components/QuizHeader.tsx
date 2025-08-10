@@ -23,7 +23,7 @@ export const QuizHeader = ({
 
   return (
     <div className="text-center mb-8 relative">
-  {isFoodQuiz ? (
+      {isFoodQuiz ? (
         <button
           onClick={handleBackClick}
           className="absolute top-4 left-0 flex items-center transition-colors duration-200 hover:underline"
