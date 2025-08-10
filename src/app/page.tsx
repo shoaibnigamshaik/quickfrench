@@ -15,6 +15,8 @@ const FrenchVocabularyQuiz = () => {
   const [selectedFamilyCategory, setSelectedFamilyCategory] =
     useState<string>("");
   const [selectedHomeCategory, setSelectedHomeCategory] = useState<string>("");
+  const [selectedNatureCategory, setSelectedNatureCategory] =
+    useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -50,6 +52,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -59,6 +62,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -68,6 +72,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
     } else if (topic === "home") {
@@ -77,14 +82,26 @@ const FrenchVocabularyQuiz = () => {
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
       await fetchVocabulary("home");
       startQuiz("home");
+    } else if (topic === "nature") {
+      // Entire Nature topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
+      await fetchVocabulary("nature");
+      startQuiz("nature");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -122,6 +139,13 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("home");
   };
 
+  // Handle nature subtopic selection
+  const handleNatureSubtopicSelect = async (category: string) => {
+    setSelectedNatureCategory(category);
+    await fetchVocabulary("nature", category);
+    startQuiz("nature");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
     setSelectedTopic("");
@@ -129,6 +153,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedBodyCategory("");
     setSelectedFamilyCategory("");
     setSelectedHomeCategory("");
+    setSelectedNatureCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -183,6 +208,8 @@ const FrenchVocabularyQuiz = () => {
             await handleFamilySubtopicSelect(sub);
           } else if (topic === "home") {
             await handleHomeSubtopicSelect(sub);
+          } else if (topic === "nature") {
+            await handleNatureSubtopicSelect(sub);
           }
         }}
       />
@@ -214,7 +241,8 @@ const FrenchVocabularyQuiz = () => {
         selectedTopic === "food" ||
         selectedTopic === "body" ||
         selectedTopic === "family" ||
-        selectedTopic === "home"
+        selectedTopic === "home" ||
+        selectedTopic === "nature"
       }
     />
   );

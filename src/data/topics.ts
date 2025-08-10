@@ -4,7 +4,7 @@ export const topics: Topic[] = [
   {
     id: "adjectives",
     name: "Adjectives",
-  icon: "✨",
+    icon: "✨",
   },
   {
     id: "numbers",
@@ -34,7 +34,7 @@ export const topics: Topic[] = [
   {
     id: "transportation",
     name: "Travel and Transportation",
-    icon: "🧭"
+    icon: "🧭",
   },
   {
     id: "body",
@@ -65,5 +65,10 @@ export const topics: Topic[] = [
     id: "wardrobe",
     name: "Wardrobe",
     icon: "👕",
+  },
+  {
+    id: "nature",
+    name: "Nature",
+    icon: "🌿",
   },
 ];

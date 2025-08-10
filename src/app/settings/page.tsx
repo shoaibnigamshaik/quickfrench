@@ -22,7 +22,7 @@ interface SettingItem {
   label: string;
   description: string;
   type:
-  | "select"
+    | "select"
     | "quiz-mode"
     | "question-count"
     | "auto-advance"
@@ -686,7 +686,10 @@ const SettingsPage = () => {
 
         {/* Footer */}
         <div className="mt-6 flex items-center justify-between">
-          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+          <span
+            className="text-sm"
+            style={{ color: "var(--muted-foreground)" }}
+          >
             Changes will take effect immediately
           </span>
           <Link

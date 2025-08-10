@@ -19,6 +19,16 @@ export const useVocabulary = () => {
           case "adjectives":
             data = await vocabularyCacheService.getAdjectives({ forceRefresh });
             break;
+          case "nature":
+            if (subCategory) {
+              data = await vocabularyCacheService.getNatureByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getNature({ forceRefresh });
+            }
+            break;
           case "numbers":
             data = await vocabularyCacheService.getNumbers({ forceRefresh });
             break;
@@ -87,6 +97,16 @@ export const useVocabulary = () => {
               );
             } else {
               data = await vocabularyCacheService.getHome({ forceRefresh });
+            }
+            break;
+          case "nature":
+            if (subCategory) {
+              data = await vocabularyCacheService.getNatureByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getNature({ forceRefresh });
             }
             break;
           case "family":

@@ -117,74 +117,74 @@ export const QuizGame = ({
 
   return (
     <div className="max-w-4xl mx-auto">
-        <QuizHeader
-          selectedTopic={settings.selectedTopic}
-          topics={topics}
-          totalQuestions={quizState.questions.length}
-          quizMode={settings.quizMode}
-          onResetQuiz={onResetQuiz}
-          isFoodQuiz={isFoodQuiz}
-        />
+      <QuizHeader
+        selectedTopic={settings.selectedTopic}
+        topics={topics}
+        totalQuestions={quizState.questions.length}
+        quizMode={settings.quizMode}
+        onResetQuiz={onResetQuiz}
+        isFoodQuiz={isFoodQuiz}
+      />
 
-        <ProgressBar
-          currentQuestion={quizState.currentQuestion}
-          totalQuestions={quizState.questions.length}
-          streak={quizState.streak}
-          score={quizState.score}
-        />
+      <ProgressBar
+        currentQuestion={quizState.currentQuestion}
+        totalQuestions={quizState.questions.length}
+        streak={quizState.streak}
+        score={quizState.score}
+      />
 
-        {/* Quiz Card */}
-        <div
-          className="rounded-3xl shadow-2xl overflow-hidden border"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          {/* Question */}
-          <div className="bg-gradient-to-r p-8 text-center from-[var(--primary-600)] to-purple-600">
-            <h2 className="text-2xl font-bold text-white mb-2">
-              What does this mean?
-            </h2>
-            <div className="text-4xl font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 bg-opacity-30 rounded-2xl py-6 px-8 inline-block">
-              {currentQuestion?.word}
-            </div>
-          </div>
-
-          {/* Options */}
-          <div className="p-8">
-            {settings.quizMode === "multiple-choice" ? (
-              <MultipleChoiceOptions
-                question={currentQuestion}
-                selectedAnswer={quizState.selectedAnswer}
-                showResult={quizState.showResult}
-                onAnswerSelect={onAnswerSelect}
-              />
-            ) : (
-              <TypingInput
-                typedAnswer={quizState.typedAnswer}
-                showResult={quizState.showResult}
-                selectedAnswer={quizState.selectedAnswer}
-                correctAnswer={currentQuestion.correct}
-                onTypedAnswerChange={onUpdateTypedAnswer}
-                onSubmit={onTypedSubmit}
-                inputRef={inputRef}
-              />
-            )}
-
-            {/* Next Button */}
-            {quizState.showResult && (
-              <QuizResult
-                quizMode={settings.quizMode}
-                selectedAnswer={quizState.selectedAnswer}
-                question={currentQuestion}
-                currentQuestion={quizState.currentQuestion}
-                totalQuestions={quizState.questions.length}
-                onNextQuestion={onNextQuestion}
-              />
-            )}
+      {/* Quiz Card */}
+      <div
+        className="rounded-3xl shadow-2xl overflow-hidden border"
+        style={{
+          backgroundColor: "var(--card)",
+          borderColor: "var(--border)",
+        }}
+      >
+        {/* Question */}
+        <div className="bg-gradient-to-r p-8 text-center from-[var(--primary-600)] to-purple-600">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            What does this mean?
+          </h2>
+          <div className="text-4xl font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 bg-opacity-30 rounded-2xl py-6 px-8 inline-block">
+            {currentQuestion?.word}
           </div>
         </div>
-  </div>
+
+        {/* Options */}
+        <div className="p-8">
+          {settings.quizMode === "multiple-choice" ? (
+            <MultipleChoiceOptions
+              question={currentQuestion}
+              selectedAnswer={quizState.selectedAnswer}
+              showResult={quizState.showResult}
+              onAnswerSelect={onAnswerSelect}
+            />
+          ) : (
+            <TypingInput
+              typedAnswer={quizState.typedAnswer}
+              showResult={quizState.showResult}
+              selectedAnswer={quizState.selectedAnswer}
+              correctAnswer={currentQuestion.correct}
+              onTypedAnswerChange={onUpdateTypedAnswer}
+              onSubmit={onTypedSubmit}
+              inputRef={inputRef}
+            />
+          )}
+
+          {/* Next Button */}
+          {quizState.showResult && (
+            <QuizResult
+              quizMode={settings.quizMode}
+              selectedAnswer={quizState.selectedAnswer}
+              question={currentQuestion}
+              currentQuestion={quizState.currentQuestion}
+              totalQuestions={quizState.questions.length}
+              onNextQuestion={onNextQuestion}
+            />
+          )}
+        </div>
+      </div>
+    </div>
   );
 };

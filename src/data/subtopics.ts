@@ -36,3 +36,9 @@ export const HOME_SUBTOPICS = [
   "Garden",
   "Household Appliances",
 ] as const;
+
+export const NATURE_SUBTOPICS = [
+  "General",
+  "Animals",
+  "Climate and Temperature",
+] as const;

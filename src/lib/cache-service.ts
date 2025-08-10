@@ -14,6 +14,8 @@ import type {
   FamilyCategory,
   HomeItem,
   HomeCategory,
+  NatureItem,
+  NatureCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -246,6 +248,27 @@ class VocabularyCacheService {
     return this.fetchWithCache<HomeItem[]>(cacheKey, apiUrl, config);
   }
 
+  async getNature(config?: CacheConfig): Promise<NatureItem[]> {
+    return this.fetchWithCache<NatureItem[]>("nature", "/api/nature", config);
+  }
+
+  async getNatureCategories(config?: CacheConfig): Promise<NatureCategory[]> {
+    return this.fetchWithCache<NatureCategory[]>(
+      "nature-categories",
+      "/api/nature-categories",
+      config,
+    );
+  }
+
+  async getNatureByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<NatureItem[]> {
+    const cacheKey = `nature-${category}`;
+    const apiUrl = `/api/nature/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<NatureItem[]>(cacheKey, apiUrl, config);
+  }
+
   async clearAllCache(): Promise<void> {
     try {
       await indexedDBCache.clear();
@@ -340,6 +363,8 @@ class VocabularyCacheService {
         this.getFamilyCategories(config),
         this.getHome(config),
         this.getHomeCategories(config),
+        this.getNature(config),
+        this.getNatureCategories(config),
       ];
 
       await Promise.all(promises);
@@ -367,6 +392,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(homePromises);
+
+      // Preload nature categories and per-category items
+      const natureCategories = await this.getNatureCategories(config);
+      const naturePromises = natureCategories.map((category) =>
+        this.getNatureByCategory(category.name, config),
+      );
+
+      await Promise.all(naturePromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {
