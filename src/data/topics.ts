@@ -4,7 +4,7 @@ export const topics: Topic[] = [
   {
     id: "adjectives",
     name: "Adjectives",
-    icon: "🎨",
+  icon: "✨",
   },
   {
     id: "numbers",

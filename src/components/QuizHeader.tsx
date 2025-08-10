@@ -46,10 +46,9 @@ export const QuizHeader = ({
 
       <div className="pt-12 space-y-3">
         <div
-          className="inline-flex items-center px-5 py-2 bg-gradient-to-r rounded-full shadow-sm border"
+          className="inline-flex items-center px-5 py-2 rounded-full shadow-sm border"
           style={{
-            background:
-              "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
+            backgroundColor: "var(--muted)",
             borderColor: "var(--border)",
           }}
         >

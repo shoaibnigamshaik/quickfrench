@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Settings as SettingsIcon,
   Palette,
   HelpCircle,
   Info,
@@ -686,37 +685,17 @@ const SettingsPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <div
-            className="rounded-3xl shadow-lg border p-8"
-            style={{
-              backgroundColor: "var(--card)",
-              borderColor: "var(--border)",
-            }}
+        <div className="mt-6 flex items-center justify-between">
+          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+            Changes will take effect immediately
+          </span>
+          <Link
+            href="/"
+            className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
-            <div
-              className="w-16 h-16 bg-gradient-to-r from-[var(--badge-grad-from)] to-[var(--badge-grad-to)] rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ color: "var(--foreground)" }}
-            >
-              <SettingsIcon className="h-8 w-8" />
-            </div>
-            <h3
-              className="text-xl font-bold mb-2"
-              style={{ color: "var(--foreground)" }}
-            >
-              Your settings have been saved
-            </h3>
-            <p className="mb-6" style={{ color: "var(--muted-foreground)" }}>
-              Changes will take effect immediately
-            </p>
-            <Link
-              href="/"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Quiz
-            </Link>
-          </div>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Link>
         </div>
       </div>
     </div>
