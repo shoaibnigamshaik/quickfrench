@@ -15,7 +15,6 @@ import {
   Info,
   CheckCircle,
   LucideIcon,
-  ArrowLeftRight,
   Clock,
   RefreshCw,
   Trash2,
@@ -34,7 +33,6 @@ interface SettingItem {
     | "link"
     | "quiz-mode"
     | "question-count"
-    | "translation-direction"
     | "auto-advance"
     | "cache-refresh"
     | "cache-clear"
@@ -57,9 +55,6 @@ const SettingsPage = () => {
     "multiple-choice",
   );
   const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
-  const [translationDirection, setTranslationDirection] = React.useState<
-    "french-to-english" | "english-to-french"
-  >("french-to-english");
   const [autoAdvance, setAutoAdvance] = React.useState(false);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
 
@@ -93,9 +88,6 @@ const SettingsPage = () => {
       | "multiple-choice"
       | "typing";
     const savedCount = localStorage.getItem("questionCount");
-    const savedDirection = localStorage.getItem("translationDirection") as
-      | "french-to-english"
-      | "english-to-french";
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
 
     if (savedMode) {
@@ -108,9 +100,6 @@ const SettingsPage = () => {
       if (typeof count === "number" && ![5, 10, 15, 20].includes(count)) {
         setShowCustomInput(true);
       }
-    }
-    if (savedDirection) {
-      setTranslationDirection(savedDirection);
     }
     if (savedAutoAdvance !== null) {
       setAutoAdvance(savedAutoAdvance === "true");
@@ -165,16 +154,6 @@ const SettingsPage = () => {
     setShowCustomInput(true);
   };
 
-  // Save translation direction to localStorage when changed
-  const handleTranslationDirectionChange = () => {
-    const newDirection =
-      translationDirection === "french-to-english"
-        ? "english-to-french"
-        : "french-to-english";
-    setTranslationDirection(newDirection);
-    localStorage.setItem("translationDirection", newDirection);
-  };
-
   // Save auto advance to localStorage when changed
   const handleAutoAdvanceChange = () => {
     const newAutoAdvance = !autoAdvance;
@@ -212,7 +191,7 @@ const SettingsPage = () => {
           description: "Choose how many questions per quiz",
           type: "question-count" as const,
         },
-  // Translation Direction control removed; toggle now lives on TopicSelector
+        // Translation Direction control removed; toggle now lives on TopicSelector
         {
           icon: Clock,
           label: "Auto Advance",
@@ -674,40 +653,7 @@ const SettingsPage = () => {
                         </div>
                       )}
 
-                      {item.type === "translation-direction" && (
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className="text-sm font-medium"
-                            style={{ color: "var(--foreground)" }}
-                          >
-                            {translationDirection === "french-to-english"
-                              ? "French"
-                              : "English"}
-                          </span>
-                          <button
-                            onClick={handleTranslationDirectionChange}
-                            className="p-2 rounded-lg transition-colors duration-200"
-                            style={{ backgroundColor: "var(--primary-100)" }}
-                          >
-                            <ArrowLeftRight
-                              className={`h-4 w-4 transition-transform duration-200 ${
-                                translationDirection === "english-to-french"
-                                  ? "rotate-180"
-                                  : ""
-                              }`}
-                              style={{ color: "var(--primary-600)" }}
-                            />
-                          </button>
-                          <span
-                            className="text-sm font-medium"
-                            style={{ color: "var(--foreground)" }}
-                          >
-                            {translationDirection === "french-to-english"
-                              ? "English"
-                              : "French"}
-                          </span>
-                        </div>
-                      )}
+                      {/* translation-direction removed; handled elsewhere */}
 
                       {item.type === "auto-advance" && (
                         <button

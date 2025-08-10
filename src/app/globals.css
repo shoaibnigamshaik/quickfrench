@@ -43,13 +43,13 @@
   --warning-100: #fef3c7;
   --warning-600: #d97706;
 
-  /* Gradients (light) — match dark mode styling for section headers */
-  --section-grad-from: rgba(37, 99, 235, 0.36); /* softened to match dark */
-  --section-grad-to: rgba(124, 58, 237, 0.32);
-  --badge-grad-from: #2563eb;
-  --badge-grad-to: #7c3aed;
-  --cta-grad-from: #2563eb; /* strong for light */
-  --cta-grad-to: #7c3aed;
+  /* Gradients (light) — use primary colors */
+  --section-grad-from: rgba(37, 99, 235, 0.12); /* primary-600 subtle */
+  --section-grad-to: rgba(37, 99, 235, 0.06);
+  --badge-grad-from: var(--primary-600);
+  --badge-grad-to: var(--primary-400);
+  --cta-grad-from: var(--primary-600); /* strong for light */
+  --cta-grad-to: var(--primary-500);
 }
 
 /* Dark theme */
@@ -92,13 +92,13 @@
   --warning-100: #4a3808;
   --warning-600: #fbbf24;
 
-  /* Gradients (dark) */
-  --section-grad-from: rgba(37, 99, 235, 0.18); /* softened */
-  --section-grad-to: rgba(124, 58, 237, 0.16);
-  --badge-grad-from: rgba(37, 99, 235, 0.35);
-  --badge-grad-to: rgba(124, 58, 237, 0.3);
-  --cta-grad-from: rgba(37, 99, 235, 0.65);
-  --cta-grad-to: rgba(124, 58, 237, 0.6);
+  /* Gradients (dark) — use primary colors */
+  --section-grad-from: rgba(96, 165, 250, 0.12); /* primary-600 on dark */
+  --section-grad-to: rgba(96, 165, 250, 0.06);
+  --badge-grad-from: var(--primary-600);
+  --badge-grad-to: var(--primary-400);
+  --cta-grad-from: var(--primary-600);
+  --cta-grad-to: var(--primary-500);
 }
 
 html,
