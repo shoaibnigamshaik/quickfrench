@@ -51,7 +51,11 @@ export const QuizResult = ({
       </div>
       <button
         onClick={onNextQuestion}
-        className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+        className="inline-flex items-center px-8 py-4 text-white rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 hover:brightness-110 active:brightness-95 shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
+        style={{
+          background:
+            "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+        }}
       >
         {currentQuestion < totalQuestions - 1 ? "Next Question" : "Finish Quiz"}
         <ChevronRight className="ml-2 h-5 w-5" />

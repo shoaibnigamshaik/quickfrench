@@ -58,7 +58,8 @@
   --background: #0b1020; /* deep navy */
   --card: #0f172a; /* slate-900 */
   --muted: #0b1325; /* slightly lighter than bg */
-  --border: #1f2937; /* gray-800 */
+  /* Use a slightly lighter border for better contrast on dark cards */
+  --border: #334155; /* slate-700 */
 
   --foreground: #e5e7eb; /* gray-200 */
   --muted-foreground: #94a3b8; /* slate-400 */

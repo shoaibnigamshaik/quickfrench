@@ -35,7 +35,7 @@ export const ProgressBar = ({
           </span>
         </div>
       </div>
-      <div className="w-full rounded-full h-3 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-white/20">
+  <div className="w-full rounded-full h-3 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-[var(--border)]">
         <div
           className="h-3 rounded-full"
           style={{

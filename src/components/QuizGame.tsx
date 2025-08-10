@@ -142,11 +142,20 @@ export const QuizGame = ({
         }}
       >
         {/* Question */}
-        <div className="bg-gradient-to-r p-8 text-center from-[var(--primary-600)] to-purple-600">
-          <h2 className="text-2xl font-bold text-white mb-2">
-            What does this mean?
-          </h2>
-          <div className="text-4xl font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 bg-opacity-30 rounded-2xl py-6 px-8 inline-block">
+        <div
+          className="p-6 sm:p-8 text-center"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+          }}
+        >
+          <div
+            className="text-4xl sm:text-5xl font-bold text-white rounded-2xl py-4 sm:py-6 px-6 sm:px-8 inline-block"
+            style={{
+              background:
+                "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
+            }}
+          >
             {currentQuestion?.word}
           </div>
         </div>
