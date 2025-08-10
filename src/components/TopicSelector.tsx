@@ -72,69 +72,76 @@ export const TopicSelector = ({
     <div className="min-h-screen flex lg:items-center lg:justify-center p-4 bg-[var(--background)]">
       <div className="max-w-2xl lg:max-w-5xl w-full">
         <div
-          className="rounded-3xl shadow-2xl p-8 text-center border"
+          className="rounded-3xl shadow-2xl p-6 md:p-7 border"
           style={{
             backgroundColor: "var(--card)",
             borderColor: "var(--border)",
           }}
         >
-          {/* Settings Button */}
-          <div className="flex justify-end mb-4">
-            <Link
-              href="/settings"
-              aria-label="Settings"
-              className="inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 hover:shadow"
-              style={{ backgroundColor: "var(--muted)" }}
-            >
-              <Settings
-                className="h-5 w-5"
-                style={{ color: "var(--muted-foreground)" }}
-              />
-            </Link>
-          </div>
+          {/* Header: compact row with brand, toggle, and settings */}
+          <div className="mb-4">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              {/* Left: brand */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+                  }}
+                  aria-hidden
+                >
+                  <BookOpen className="h-5 w-5 md:h-6 md:w-6" style={{ color: "white" }} />
+                </div>
+                <h1
+                  className="text-2xl md:text-3xl font-bold"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  French Quiz
+                </h1>
+              </div>
 
-          {/* Header */}
-          <div className="mb-8">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{
-                background:
-                  "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
-              }}
-            >
-              <BookOpen className="h-8 w-8" style={{ color: "white" }} />
+              {/* Right: direction toggle + settings */}
+              <div className="flex items-center gap-2 self-start md:self-auto">
+                <button
+                  type="button"
+                  onClick={onToggleDirection}
+                  aria-label={`Toggle translation direction (currently ${
+                    translationDirection === "french-to-english"
+                      ? "French to English"
+                      : "English to French"
+                  })`}
+                  title="Toggle translation direction"
+                  className="inline-flex items-center px-2 py-1 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
+                    borderColor: "var(--border)",
+                  }}
+                >
+                  <span
+                    className="text-xs font-medium"
+                    style={{ color: "var(--foreground)" }}
+                  >
+                    {translationDirection === "french-to-english"
+                      ? "FR → EN"
+                      : "EN → FR"}
+                  </span>
+                </button>
+                <Link
+                  href="/settings"
+                  aria-label="Settings"
+                  title="Settings"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 hover:shadow border"
+                  style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)" }}
+                >
+                  <Settings
+                    className="h-4 w-4"
+                    style={{ color: "var(--muted-foreground)" }}
+                  />
+                </Link>
+              </div>
             </div>
-            <h1
-              className="text-3xl font-bold mb-4"
-              style={{ color: "var(--foreground)" }}
-            >
-              French Quiz
-            </h1>
-            <button
-              type="button"
-              onClick={onToggleDirection}
-              aria-label={`Toggle translation direction (currently ${
-                translationDirection === "french-to-english"
-                  ? "French to English"
-                  : "English to French"
-              })`}
-              title="Toggle translation direction"
-              className="inline-flex items-center px-4 py-2 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
-              style={{
-                background:
-                  "linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))",
-                borderColor: "var(--border)",
-              }}
-            >
-              <span
-                className="text-sm font-medium"
-                style={{ color: "var(--foreground)" }}
-              >
-                {translationDirection === "french-to-english"
-                  ? "French → English"
-                  : "English → French"}
-              </span>
-            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
@@ -303,7 +310,7 @@ export const TopicSelector = ({
                 </div>
               ) : (
                 <div
-                  className="rounded-xl border p-6"
+                  className="rounded-xl border p-5"
                   style={{
                     backgroundColor: "var(--card)",
                     borderColor: "var(--border)",
@@ -321,7 +328,7 @@ export const TopicSelector = ({
           </div>
 
           <div
-            className="mt-8 p-4 rounded-xl"
+            className="mt-6 p-3 rounded-xl"
             style={{ backgroundColor: "var(--muted)" }}
           >
             <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
