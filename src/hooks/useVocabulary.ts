@@ -38,6 +38,9 @@ export const useVocabulary = () => {
               forceRefresh,
             });
             break;
+          case "colours":
+            data = await vocabularyCacheService.getColours({ forceRefresh });
+            break;
           case "body":
             if (subCategory) {
               data = await vocabularyCacheService.getBodyByCategory(

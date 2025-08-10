@@ -68,6 +68,11 @@ export interface Transportation {
   meaning: string;
 }
 
+export interface Colour {
+  word: string;
+  meaning: string;
+}
+
 export interface BodyItem {
   word: string;
   meaning: string;
@@ -119,6 +124,7 @@ export type VocabularyItem =
   | Adverb
   | Food
   | Transportation
+  | Colour
   | BodyItem
   | FamilyItem
   | HomeItem;
