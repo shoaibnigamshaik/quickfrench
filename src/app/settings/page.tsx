@@ -221,13 +221,7 @@ const SettingsPage = () => {
 
   // Removed generic toggles/links in favor of only functional settings
 
-  const handleSelectChange = (
-    _sectionIndex: number,
-    _itemIndex: number,
-    _value: string,
-  ) => {
-    // Generic select handler removed (no non-theme selects left)
-  };
+  // Generic select handler removed (no non-theme selects left)
 
   const handleThemeSwitch = (t: "light" | "dark" | "system") => {
     // sync our select state wording with new switcher
@@ -283,7 +277,7 @@ const SettingsPage = () => {
 
         {/* Settings Content */}
         <div className="space-y-8">
-          {settingsSections.map((section, sectionIndex) => (
+          {settingsSections.map((section) => (
             <div
               key={section.title}
               className="rounded-3xl shadow-lg border overflow-hidden"
@@ -302,7 +296,7 @@ const SettingsPage = () => {
               </div>
 
               <div className="p-6 space-y-4">
-                {section.items.map((item, itemIndex) => (
+                {section.items.map((item) => (
                   <div
                     key={item.label}
                     className="flex items-center justify-between p-4 rounded-xl transition-colors duration-200"

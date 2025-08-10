@@ -168,6 +168,8 @@ const FrenchVocabularyQuiz = () => {
             ? `${selectedFamilyCategory} (Family)`
             : selectedTopic === "home" && selectedHomeCategory
               ? `${selectedHomeCategory} (Home)`
+              : selectedTopic === "nature" && selectedNatureCategory
+                ? `${selectedNatureCategory} (Nature)`
               : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
