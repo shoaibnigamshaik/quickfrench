@@ -5,12 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Settings as SettingsIcon,
-  Volume2,
-  Bell,
-  Globe,
   Palette,
-  User,
-  Shield,
   HelpCircle,
   Info,
   CheckCircle,
@@ -28,9 +23,7 @@ interface SettingItem {
   label: string;
   description: string;
   type:
-    | "toggle"
-    | "select"
-    | "link"
+  | "select"
     | "quiz-mode"
     | "question-count"
     | "auto-advance"
@@ -225,92 +218,16 @@ const SettingsPage = () => {
         },
       ],
     },
-    {
-      title: "General",
-      items: [
-        {
-          icon: Volume2,
-          label: "Sound Effects",
-          description: "Enable sound feedback during quiz",
-          type: "toggle" as const,
-          value: true,
-        },
-        {
-          icon: Bell,
-          label: "Notifications",
-          description: "Get reminders to practice",
-          type: "toggle" as const,
-          value: false,
-        },
-        {
-          icon: Globe,
-          label: "Language",
-          description: "Interface language",
-          type: "select" as const,
-          value: "English",
-          options: ["English", "French", "Spanish"],
-        },
-      ],
-    },
-    {
-      title: "Account",
-      items: [
-        {
-          icon: User,
-          label: "Profile",
-          description: "Manage your profile information",
-          type: "link",
-        },
-        {
-          icon: Shield,
-          label: "Privacy",
-          description: "Privacy and data settings",
-          type: "link",
-        },
-      ],
-    },
-    {
-      title: "Support",
-      items: [
-        {
-          icon: HelpCircle,
-          label: "Help & FAQ",
-          description: "Get help and find answers",
-          type: "link",
-        },
-      ],
-    },
   ];
 
-  const handleToggle = (sectionIndex: number, itemIndex: number) => {
-    // Handle toggle logic here
-    console.log(
-      `Toggle setting: ${settingsSections[sectionIndex].items[itemIndex].label}`,
-    );
-  };
+  // Removed generic toggles/links in favor of only functional settings
 
   const handleSelectChange = (
-    sectionIndex: number,
-    itemIndex: number,
-    value: string,
+    _sectionIndex: number,
+    _itemIndex: number,
+    _value: string,
   ) => {
-    const label = settingsSections[sectionIndex].items[itemIndex].label;
-    if (label === "Theme") {
-      const mode = value as "Light" | "Dark" | "Auto";
-      setThemeMode(mode);
-      const storageValue = mode.toLowerCase();
-      localStorage.setItem("theme", storageValue);
-      const root = document.documentElement;
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      const shouldDark =
-        storageValue === "dark" || (storageValue === "auto" && prefersDark);
-      root.classList.toggle("dark", shouldDark);
-    } else {
-      // Generic select logging placeholder
-      console.log(`Change setting: ${label} to ${value}`);
-    }
+    // Generic select handler removed (no non-theme selects left)
   };
 
   const handleThemeSwitch = (t: "light" | "dark" | "system") => {
@@ -673,45 +590,7 @@ const SettingsPage = () => {
                         </button>
                       )}
 
-                      {item.type === "toggle" && (
-                        <button
-                          onClick={() => handleToggle(sectionIndex, itemIndex)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                            item.value ? "bg-indigo-600" : "bg-gray-300"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              item.value ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      )}
-
-                      {item.type === "select" && item.label !== "Theme" && (
-                        <select
-                          value={item.value as string}
-                          onChange={(e) =>
-                            handleSelectChange(
-                              sectionIndex,
-                              itemIndex,
-                              e.target.value,
-                            )
-                          }
-                          className="px-3 py-2 rounded-lg focus:outline-none"
-                          style={{
-                            backgroundColor: "var(--card)",
-                            color: "var(--foreground)",
-                            border: `1px solid var(--border)`,
-                          }}
-                        >
-                          {item.options?.map((option: string) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      )}
+                      {/* Removed generic select; Theme uses ThemeSwitcher below */}
 
                       {item.type === "select" && item.label === "Theme" && (
                         <ThemeSwitcher
@@ -797,14 +676,7 @@ const SettingsPage = () => {
                         </button>
                       )}
 
-                      {item.type === "link" && (
-                        <button
-                          className="px-4 py-2 font-medium"
-                          style={{ color: "var(--primary-600)" }}
-                        >
-                          Configure
-                        </button>
-                      )}
+                      {/* link-type removed along with non-functional sections */}
                     </div>
                   </div>
                 ))}

@@ -330,8 +330,10 @@ export const TopicSelector = ({
             style={{ backgroundColor: "var(--muted)" }}
           >
             <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
-              Tip: Use desktop to browse topics with details and subtopics; on
-              mobile, tap a topic to start quickly.
+              Tip: On desktop, click a topic to preview details and subtopics; click
+              the play button to start. On mobile, tap to start immediately (topics
+              with subtopics will first show choices). Use FR ↔ EN above to switch
+              translation direction.
             </p>
           </div>
   </div>

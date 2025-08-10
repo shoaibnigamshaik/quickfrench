@@ -97,9 +97,7 @@ export interface BodyCategory {
 export interface Topic {
   id: string;
   name: string;
-  description: string;
   icon: string;
-  color: string;
 }
 
 export type QuizMode = "multiple-choice" | "typing";
