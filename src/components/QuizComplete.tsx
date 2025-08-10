@@ -1,13 +1,10 @@
 import { Trophy, Home } from "lucide-react";
-import { Topic } from "@/types/quiz";
 import { getScoreColor, getScoreMessage } from "@/lib/quiz-utils";
 
 interface QuizCompleteProps {
   score: number;
   totalQuestions: number;
   maxStreak: number;
-  selectedTopic: string;
-  topics: Topic[];
   onResetQuiz: () => void;
 }
 
@@ -15,8 +12,6 @@ export const QuizComplete = ({
   score,
   totalQuestions,
   maxStreak,
-  selectedTopic,
-  topics,
   onResetQuiz,
 }: QuizCompleteProps) => {
   return (
