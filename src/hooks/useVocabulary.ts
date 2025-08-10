@@ -70,6 +70,16 @@ export const useVocabulary = () => {
               });
             }
             break;
+          case "home":
+            if (subCategory) {
+              data = await vocabularyCacheService.getHomeByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getHome({ forceRefresh });
+            }
+            break;
           case "family":
             if (subCategory) {
               data = await vocabularyCacheService.getFamilyByCategory(

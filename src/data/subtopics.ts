@@ -25,3 +25,14 @@ export const FAMILY_SUBTOPICS = [
   "Physical Description",
   "Temperament and Mood",
 ] as const;
+
+export const HOME_SUBTOPICS = [
+  "Rooms and Furniture",
+  "Bathroom",
+  "Living Room",
+  "Kitchen",
+  "Bedroom",
+  "Household Chores",
+  "Garden",
+  "Household Appliances",
+] as const;

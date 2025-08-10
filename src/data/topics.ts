@@ -65,4 +65,11 @@ export const topics: Topic[] = [
     icon: "👥",
     color: "from-sky-500 to-blue-600",
   },
+  {
+    id: "home",
+    name: "Home",
+    description: "Rooms, furniture, chores, and appliances",
+    icon: "🏠",
+    color: "from-stone-500 to-zinc-600",
+  },
 ];

@@ -52,6 +52,17 @@ export interface FamilyCategory {
   name: string;
 }
 
+export interface HomeItem {
+  word: string;
+  meaning: string;
+  category: string;
+}
+
+export interface HomeCategory {
+  id: number;
+  name: string;
+}
+
 export interface Transportation {
   word: string;
   meaning: string;
@@ -109,4 +120,5 @@ export type VocabularyItem =
   | Food
   | Transportation
   | BodyItem
-  | FamilyItem;
+  | FamilyItem
+  | HomeItem;

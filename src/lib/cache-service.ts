@@ -12,6 +12,8 @@ import type {
   BodyCategory,
   FamilyItem,
   FamilyCategory,
+  HomeItem,
+  HomeCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -61,7 +63,6 @@ class VocabularyCacheService {
       this.pendingRequests.delete(cacheKey);
     }
   }
-
   private async performFetch<T>(
     cacheKey: string,
     apiUrl: string,
@@ -202,6 +203,27 @@ class VocabularyCacheService {
     return this.fetchWithCache<FamilyItem[]>(cacheKey, apiUrl, config);
   }
 
+  async getHome(config?: CacheConfig): Promise<HomeItem[]> {
+    return this.fetchWithCache<HomeItem[]>("home", "/api/home", config);
+  }
+
+  async getHomeCategories(config?: CacheConfig): Promise<HomeCategory[]> {
+    return this.fetchWithCache<HomeCategory[]>(
+      "home-categories",
+      "/api/home-categories",
+      config,
+    );
+  }
+
+  async getHomeByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<HomeItem[]> {
+    const cacheKey = `home-${category}`;
+    const apiUrl = `/api/home/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<HomeItem[]>(cacheKey, apiUrl, config);
+  }
+
   async clearAllCache(): Promise<void> {
     try {
       await indexedDBCache.clear();
@@ -291,6 +313,8 @@ class VocabularyCacheService {
         this.getBodyCategories(config),
   this.getFamily(config),
   this.getFamilyCategories(config),
+  this.getHome(config),
+  this.getHomeCategories(config),
       ];
 
       await Promise.all(promises);
@@ -310,6 +334,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(familyPromises);
+
+      // Preload home categories and per-category items
+      const homeCategories = await this.getHomeCategories(config);
+      const homePromises = homeCategories.map((category) =>
+        this.getHomeByCategory(category.name, config),
+      );
+
+      await Promise.all(homePromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {

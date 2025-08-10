@@ -13,6 +13,7 @@ const FrenchVocabularyQuiz = () => {
   const [selectedFoodCategory, setSelectedFoodCategory] = useState<string>("");
   const [selectedBodyCategory, setSelectedBodyCategory] = useState<string>("");
   const [selectedFamilyCategory, setSelectedFamilyCategory] = useState<string>("");
+  const [selectedHomeCategory, setSelectedHomeCategory] = useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -41,12 +42,13 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle topic selection
   const handleStartQuiz = async (topic: string) => {
-    if (topic === "food") {
+  if (topic === "food") {
       // Entire Food topic requested
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
-      setSelectedFamilyCategory("");
+  setSelectedFamilyCategory("");
+  setSelectedHomeCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -54,7 +56,8 @@ const FrenchVocabularyQuiz = () => {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
-      setSelectedFamilyCategory("");
+  setSelectedFamilyCategory("");
+  setSelectedHomeCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -63,13 +66,24 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
+    } else if (topic === "home") {
+      // Entire Home topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
+      await fetchVocabulary("home");
+      startQuiz("home");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
       setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -100,12 +114,20 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("family");
   };
 
+  // Handle home subtopic selection
+  const handleHomeSubtopicSelect = async (category: string) => {
+    setSelectedHomeCategory(category);
+    await fetchVocabulary("home", category);
+    startQuiz("home");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
   setSelectedFamilyCategory("");
+    setSelectedHomeCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -118,6 +140,8 @@ const FrenchVocabularyQuiz = () => {
           ? `${selectedBodyCategory} (Body)`
           : selectedTopic === "family" && selectedFamilyCategory
             ? `${selectedFamilyCategory} (Family)`
+            : selectedTopic === "home" && selectedHomeCategory
+              ? `${selectedHomeCategory} (Home)`
           : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
@@ -144,6 +168,14 @@ const FrenchVocabularyQuiz = () => {
       <TopicSelector
         topics={topics}
         translationDirection={settings.translationDirection}
+        onToggleDirection={() => {
+          const next =
+            settings.translationDirection === "french-to-english"
+              ? "english-to-french"
+              : "french-to-english";
+          localStorage.setItem("translationDirection", next);
+          updateTranslationDirection(next);
+        }}
         onStartQuiz={handleStartQuiz}
         onStartSubtopic={async (topic, sub) => {
           if (topic === "food") {
@@ -152,6 +184,8 @@ const FrenchVocabularyQuiz = () => {
             await handleBodySubtopicSelect(sub);
           } else if (topic === "family") {
             await handleFamilySubtopicSelect(sub);
+          } else if (topic === "home") {
+            await handleHomeSubtopicSelect(sub);
           }
         }}
       />
@@ -182,7 +216,7 @@ const FrenchVocabularyQuiz = () => {
       onResetQuiz={handleResetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
       isFoodQuiz={
-        selectedTopic === "food" || selectedTopic === "body" || selectedTopic === "family"
+  selectedTopic === "food" || selectedTopic === "body" || selectedTopic === "family" || selectedTopic === "home"
       }
     />
   );
