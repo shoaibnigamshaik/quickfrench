@@ -4,13 +4,12 @@ import { ProgressBar } from "./ui/ProgressBar";
 import { MultipleChoiceOptions } from "./MultipleChoiceOptions";
 import { TypingInput } from "./ui/TypingInput";
 import { QuizResult } from "./QuizResult";
-import { QuizState, QuizSettings, Topic } from "@/types/quiz";
+import { QuizState, QuizSettings } from "@/types/quiz";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 interface QuizGameProps {
   quizState: QuizState;
   settings: QuizSettings;
-  topics: Topic[];
   onAnswerSelect: (answer: string) => void;
   onTypedSubmit: () => void;
   onNextQuestion: () => void;
@@ -22,7 +21,6 @@ interface QuizGameProps {
 export const QuizGame = ({
   quizState,
   settings,
-  topics,
   onAnswerSelect,
   onTypedSubmit,
   onNextQuestion,
@@ -118,10 +116,6 @@ export const QuizGame = ({
   return (
     <div className="max-w-4xl mx-auto">
       <QuizHeader
-        selectedTopic={settings.selectedTopic}
-        topics={topics}
-        totalQuestions={quizState.questions.length}
-        quizMode={settings.quizMode}
         onResetQuiz={onResetQuiz}
         isFoodQuiz={isFoodQuiz}
       />

@@ -233,7 +233,6 @@ const FrenchVocabularyQuiz = () => {
     <QuizGame
       quizState={quizState}
       settings={settings}
-      topics={topics}
       onAnswerSelect={handleAnswerSelect}
       onTypedSubmit={handleTypedSubmit}
       onNextQuestion={nextQuestion}

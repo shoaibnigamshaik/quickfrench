@@ -1,21 +1,12 @@
 import { ArrowLeft } from "lucide-react";
-import { Topic, QuizMode } from "@/types/quiz";
 import Link from "next/link";
 
 interface QuizHeaderProps {
-  selectedTopic: string;
-  topics: Topic[];
-  totalQuestions: number;
-  quizMode: QuizMode;
   onResetQuiz: () => void;
   isFoodQuiz?: boolean;
 }
 
 export const QuizHeader = ({
-  selectedTopic,
-  topics,
-  totalQuestions,
-  quizMode,
   onResetQuiz,
   isFoodQuiz = false,
 }: QuizHeaderProps) => {
