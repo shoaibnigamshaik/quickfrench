@@ -173,6 +173,14 @@ class VocabularyCacheService {
       config,
     );
   }
+  
+  async getCulture(config?: CacheConfig) {
+    return this.fetchWithCache<{ word: string; meaning: string }[]>(
+      "culture",
+      "/api/culture",
+      config,
+    );
+  }
 
   async getBuildings(config?: CacheConfig): Promise<BuildingItem[]> {
     return this.fetchWithCache<BuildingItem[]>(
@@ -476,6 +484,7 @@ class VocabularyCacheService {
         this.getColours(config),
         this.getHobbies(config),
         this.getWardrobe(config),
+  this.getCulture(config),
     this.getBuildings(config),
     this.getShopping(config),
   this.getEducation(config),

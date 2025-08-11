@@ -27,6 +27,7 @@ export const useVocabulary = () => {
           hobbies: () => vocabularyCacheService.getHobbies({ forceRefresh }) as Promise<VocabularyItem[]>,
           wardrobe: () => vocabularyCacheService.getWardrobe({ forceRefresh }) as Promise<VocabularyItem[]>,
           buildings: () => vocabularyCacheService.getBuildings({ forceRefresh }) as Promise<VocabularyItem[]>,
+          culture: () => vocabularyCacheService.getCulture({ forceRefresh }) as Promise<VocabularyItem[]>,
           home: () => vocabularyCacheService.getHome({ forceRefresh }) as Promise<VocabularyItem[]>,
           nature: () => vocabularyCacheService.getNature({ forceRefresh }) as Promise<VocabularyItem[]>,
           ict: () => vocabularyCacheService.getICT({ forceRefresh }) as Promise<VocabularyItem[]>,
