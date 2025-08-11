@@ -14,6 +14,7 @@ import {
   ICTItem,
   ShoppingItem,
   EducationItem,
+  WorkItem,
   TranslationDirection,
 } from "@/types/quiz";
 import {
@@ -27,6 +28,7 @@ import {
   generateICTQuestions,
   generateShoppingQuestions,
   generateEducationQuestions,
+  generateWorkQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -124,6 +126,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "education") {
         questions = generateEducationQuestions(
           vocabulary as EducationItem[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
+      } else if (topic === "work") {
+        questions = generateWorkQuestions(
+          vocabulary as WorkItem[],
           settings.questionCount,
           settings.translationDirection,
         );

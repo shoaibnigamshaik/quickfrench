@@ -107,6 +107,17 @@ export interface EducationCategory {
   name: string;
 }
 
+export interface WorkItem {
+  word: string;
+  meaning: string;
+  category: string | null;
+}
+
+export interface WorkCategory {
+  id: number;
+  name: string;
+}
+
 export interface Transportation {
   word: string;
   meaning: string;
@@ -188,6 +199,7 @@ export type VocabularyItem =
   | BuildingItem
   | ShoppingItem
   | EducationItem
+  | WorkItem
   | BodyItem
   | FamilyItem
   | HomeItem

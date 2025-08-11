@@ -12,6 +12,7 @@ import {
   BuildingItem,
   ShoppingItem,
   EducationItem,
+  WorkItem,
 } from "@/types/quiz";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
@@ -223,6 +224,13 @@ export const generateShoppingQuestions = (
 // Education: category-based
 export const generateEducationQuestions = (
   items: EducationItem[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+
+// Work: category-based
+export const generateWorkQuestions = (
+  items: WorkItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);

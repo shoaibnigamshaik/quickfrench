@@ -64,3 +64,9 @@ export const EDUCATION_SUBTOPICS = [
   "Studies",
   "Verbs and Expressions",
 ] as const;
+
+export const WORK_SUBTOPICS = [
+  "General",
+  "Professions",
+  "Verbs and Expressions",
+] as const;

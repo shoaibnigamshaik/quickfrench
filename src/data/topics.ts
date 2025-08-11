@@ -91,4 +91,9 @@ export const topics: Topic[] = [
     name: "Education",
     icon: "🎓",
   },
+  {
+    id: "work",
+    name: "Work",
+    icon: "💼",
+  },
 ];

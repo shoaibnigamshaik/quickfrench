@@ -11,6 +11,7 @@ import type {
   BuildingItem,
   ShoppingItem,
   EducationItem,
+  WorkItem,
   BodyItem,
   BodyCategory,
   FamilyItem,
@@ -21,6 +22,7 @@ import type {
   NatureCategory,
   ShoppingCategory,
   EducationCategory,
+  WorkCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -242,6 +244,31 @@ class VocabularyCacheService {
     return this.fetchWithCache<EducationItem[]>(cacheKey, apiUrl, config);
   }
 
+  async getWork(config?: CacheConfig): Promise<WorkItem[]> {
+    return this.fetchWithCache<WorkItem[]>(
+      "work",
+      "/api/work",
+      config,
+    );
+  }
+
+  async getWorkCategories(config?: CacheConfig): Promise<WorkCategory[]> {
+    return this.fetchWithCache<WorkCategory[]>(
+      "work-categories",
+      "/api/work-categories",
+      config,
+    );
+  }
+
+  async getWorkByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<WorkItem[]> {
+    const cacheKey = `work-${category}`;
+    const apiUrl = `/api/work/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<WorkItem[]>(cacheKey, apiUrl, config);
+  }
+
   async getFood(category: string, config?: CacheConfig): Promise<Food[]> {
     const cacheKey = `food-${category}`;
     const apiUrl = `/api/food/${encodeURIComponent(category)}`;
@@ -452,6 +479,7 @@ class VocabularyCacheService {
     this.getBuildings(config),
     this.getShopping(config),
   this.getEducation(config),
+  this.getWork(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
@@ -465,6 +493,7 @@ class VocabularyCacheService {
   this.getICTCategories(config),
     this.getShoppingCategories(config),
   this.getEducationCategories(config),
+  this.getWorkCategories(config),
       ];
 
       await Promise.all(promises);
@@ -524,6 +553,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(educationPromises);
+
+      // Preload Work categories and per-category items
+      const workCategories = await this.getWorkCategories(config);
+      const workPromises = workCategories.map((category) =>
+        this.getWorkByCategory(category.name, config),
+      );
+
+      await Promise.all(workPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {

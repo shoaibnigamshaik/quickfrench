@@ -12,6 +12,7 @@ import {
   ICT_SUBTOPICS,
   SHOPPING_SUBTOPICS,
   EDUCATION_SUBTOPICS,
+  WORK_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
@@ -76,6 +77,7 @@ export const TopicSelector = ({
     ict: ICT_SUBTOPICS,
   shopping: SHOPPING_SUBTOPICS,
   education: EDUCATION_SUBTOPICS,
+  work: WORK_SUBTOPICS,
   };
 
   const hasSubtopics = (id: string) => Boolean(SUBTOPIC_MAP[id]);
