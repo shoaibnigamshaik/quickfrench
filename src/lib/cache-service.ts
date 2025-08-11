@@ -8,6 +8,7 @@ import type {
   Food,
   FoodCategory,
   Transportation,
+  BuildingItem,
   BodyItem,
   BodyCategory,
   FamilyItem,
@@ -163,6 +164,14 @@ class VocabularyCacheService {
     return this.fetchWithCache<{ word: string; meaning: string }[]>(
       "wardrobe",
       "/api/wardrobe",
+      config,
+    );
+  }
+
+  async getBuildings(config?: CacheConfig): Promise<BuildingItem[]> {
+    return this.fetchWithCache<BuildingItem[]>(
+      "buildings",
+      "/api/buildings",
       config,
     );
   }
@@ -382,6 +391,7 @@ class VocabularyCacheService {
         this.getColours(config),
         this.getHobbies(config),
         this.getWardrobe(config),
+    this.getBuildings(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),

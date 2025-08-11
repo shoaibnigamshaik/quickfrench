@@ -105,6 +105,11 @@ export interface WardrobeItem {
   meaning: string;
 }
 
+export interface BuildingItem {
+  word: string;
+  meaning: string;
+}
+
 export interface BodyItem {
   word: string;
   meaning: string;
@@ -158,6 +163,7 @@ export type VocabularyItem =
   | Colour
   | Hobby
   | WardrobeItem
+  | BuildingItem
   | BodyItem
   | FamilyItem
   | HomeItem

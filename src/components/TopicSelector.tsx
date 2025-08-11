@@ -37,6 +37,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   colours: 17,
   hobbies: 87,
   wardrobe: 66,
+  buildings: 137,
 };
 
 export const TopicSelector = ({

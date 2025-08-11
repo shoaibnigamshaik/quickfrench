@@ -76,4 +76,9 @@ export const topics: Topic[] = [
     name: "ICT",
     icon: "💻",
   },
+  {
+    id: "buildings",
+    name: "Buildings",
+    icon: "🏢",
+  },
 ];

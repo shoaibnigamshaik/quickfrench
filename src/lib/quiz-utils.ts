@@ -9,6 +9,7 @@ import {
   NatureItem,
   TranslationDirection,
   ICTItem,
+  BuildingItem,
 } from "@/types/quiz";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
@@ -199,6 +200,13 @@ export const generateNatureQuestions = (
 // ICT: same pattern as nature (category-restricted options)
 export const generateICTQuestions = (
   items: ICTItem[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+
+// Buildings: simple (no category) so base generator works fine
+export const generateBuildingsQuestions = (
+  items: BuildingItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
