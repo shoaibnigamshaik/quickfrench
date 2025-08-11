@@ -21,6 +21,8 @@ const FrenchVocabularyQuiz = () => {
   const [selectedICTCategory, setSelectedICTCategory] = useState<string>("");
   const [selectedShoppingCategory, setSelectedShoppingCategory] =
     useState<string>("");
+  const [selectedEducationCategory, setSelectedEducationCategory] =
+    useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -61,6 +63,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -73,6 +76,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -85,6 +89,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
     } else if (topic === "home") {
@@ -97,6 +102,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("home");
       startQuiz("home");
     } else if (topic === "nature") {
@@ -109,6 +115,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("nature");
       startQuiz("nature");
     } else if (topic === "ict") {
@@ -121,6 +128,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
       setSelectedICTCategory("");
       setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       await fetchVocabulary("ict");
       startQuiz("ict");
     } else if (topic === "shopping") {
@@ -133,8 +141,22 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
       setSelectedICTCategory("");
       setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
       await fetchVocabulary("shopping");
       startQuiz("shopping");
+    } else if (topic === "education") {
+      // Entire Education topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      await fetchVocabulary("education");
+      startQuiz("education");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
@@ -144,6 +166,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
   setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -202,6 +225,13 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("shopping");
   };
 
+  // Handle Education subtopic selection
+  const handleEducationSubtopicSelect = async (category: string) => {
+    setSelectedEducationCategory(category);
+    await fetchVocabulary("education", category);
+    startQuiz("education");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
   setShowReview(false);
@@ -213,6 +243,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedNatureCategory("");
   setSelectedICTCategory("");
     setSelectedShoppingCategory("");
+  setSelectedEducationCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -233,6 +264,8 @@ const FrenchVocabularyQuiz = () => {
                 ? `${selectedICTCategory} (ICT)`
               : selectedTopic === "shopping" && selectedShoppingCategory
                 ? `${selectedShoppingCategory} (Shopping)`
+              : selectedTopic === "education" && selectedEducationCategory
+                ? `${selectedEducationCategory} (Education)`
               : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
@@ -279,6 +312,8 @@ const FrenchVocabularyQuiz = () => {
             await handleICTSubtopicSelect(sub);
           } else if (topic === "shopping") {
             await handleShoppingSubtopicSelect(sub);
+          } else if (topic === "education") {
+            await handleEducationSubtopicSelect(sub);
           }
         }}
       />
@@ -323,7 +358,8 @@ const FrenchVocabularyQuiz = () => {
         selectedTopic === "home" ||
   selectedTopic === "nature" ||
   selectedTopic === "ict" ||
-  selectedTopic === "shopping"
+  selectedTopic === "shopping" ||
+  selectedTopic === "education"
       }
     />
   );

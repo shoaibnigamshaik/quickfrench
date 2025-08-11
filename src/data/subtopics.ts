@@ -55,3 +55,12 @@ export const SHOPPING_SUBTOPICS = [
   "Weights and Measures",
   "Materials",
 ] as const;
+
+export const EDUCATION_SUBTOPICS = [
+  "Institutions",
+  "Education and Training",
+  "Classroom",
+  "Subjects",
+  "Studies",
+  "Verbs and Expressions",
+] as const;

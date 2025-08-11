@@ -13,6 +13,7 @@ import {
   NatureItem,
   ICTItem,
   ShoppingItem,
+  EducationItem,
   TranslationDirection,
 } from "@/types/quiz";
 import {
@@ -25,6 +26,7 @@ import {
   generateNatureQuestions,
   generateICTQuestions,
   generateShoppingQuestions,
+  generateEducationQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -116,6 +118,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "shopping") {
         questions = generateShoppingQuestions(
           vocabulary as ShoppingItem[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
+      } else if (topic === "education") {
+        questions = generateEducationQuestions(
+          vocabulary as EducationItem[],
           settings.questionCount,
           settings.translationDirection,
         );

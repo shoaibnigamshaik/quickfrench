@@ -10,6 +10,7 @@ import type {
   Transportation,
   BuildingItem,
   ShoppingItem,
+  EducationItem,
   BodyItem,
   BodyCategory,
   FamilyItem,
@@ -19,6 +20,7 @@ import type {
   NatureItem,
   NatureCategory,
   ShoppingCategory,
+  EducationCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -211,6 +213,33 @@ class VocabularyCacheService {
     const cacheKey = `shopping-${category}`;
     const apiUrl = `/api/shopping/${encodeURIComponent(category)}`;
     return this.fetchWithCache<ShoppingItem[]>(cacheKey, apiUrl, config);
+  }
+
+  async getEducation(config?: CacheConfig): Promise<EducationItem[]> {
+    return this.fetchWithCache<EducationItem[]>(
+      "education",
+      "/api/education",
+      config,
+    );
+  }
+
+  async getEducationCategories(
+    config?: CacheConfig,
+  ): Promise<EducationCategory[]> {
+    return this.fetchWithCache<EducationCategory[]>(
+      "education-categories",
+      "/api/education-categories",
+      config,
+    );
+  }
+
+  async getEducationByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<EducationItem[]> {
+    const cacheKey = `education-${category}`;
+    const apiUrl = `/api/education/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<EducationItem[]>(cacheKey, apiUrl, config);
   }
 
   async getFood(category: string, config?: CacheConfig): Promise<Food[]> {
@@ -422,6 +451,7 @@ class VocabularyCacheService {
         this.getWardrobe(config),
     this.getBuildings(config),
     this.getShopping(config),
+  this.getEducation(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
@@ -434,6 +464,7 @@ class VocabularyCacheService {
   this.getICT(config),
   this.getICTCategories(config),
     this.getShoppingCategories(config),
+  this.getEducationCategories(config),
       ];
 
       await Promise.all(promises);
@@ -485,6 +516,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(shoppingPromises);
+
+      // Preload Education categories and per-category items
+      const educationCategories = await this.getEducationCategories(config);
+      const educationPromises = educationCategories.map((category) =>
+        this.getEducationByCategory(category.name, config),
+      );
+
+      await Promise.all(educationPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {
