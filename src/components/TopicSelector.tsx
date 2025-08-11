@@ -62,22 +62,17 @@ export const TopicSelector = ({
     ? topics.find((t) => t.id === selectedId) || null
     : null;
 
-  const hasSubtopics = (id: string) =>
-    id === "food" ||
-    id === "body" ||
-    id === "family" ||
-    id === "home" ||
-  id === "nature" ||
-  id === "ict";
-  const subtopicsFor = (id: string): readonly string[] => {
-    if (id === "food") return FOOD_SUBTOPICS;
-    if (id === "body") return BODY_SUBTOPICS;
-    if (id === "family") return FAMILY_SUBTOPICS;
-    if (id === "home") return HOME_SUBTOPICS;
-  if (id === "nature") return NATURE_SUBTOPICS;
-  if (id === "ict") return ICT_SUBTOPICS;
-    return [];
+  const SUBTOPIC_MAP: Record<string, readonly string[]> = {
+    food: FOOD_SUBTOPICS,
+    body: BODY_SUBTOPICS,
+    family: FAMILY_SUBTOPICS,
+    home: HOME_SUBTOPICS,
+    nature: NATURE_SUBTOPICS,
+    ict: ICT_SUBTOPICS,
   };
+
+  const hasSubtopics = (id: string) => Boolean(SUBTOPIC_MAP[id]);
+  const subtopicsFor = (id: string): readonly string[] => SUBTOPIC_MAP[id] ?? [];
 
   return (
     <div className="max-w-2xl lg:max-w-5xl w-full mx-auto">

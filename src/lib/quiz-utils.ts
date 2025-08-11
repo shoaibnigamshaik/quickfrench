@@ -59,191 +59,77 @@ export const generateQuestions = (
   });
 };
 
+// DRY helper: category-aware MCQ generator for items shaped like { word, meaning, category? }
+type WithOptionalCategory = { word: string; meaning: string; category?: string | null };
+
+const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
+  items: T[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => {
+  const shuffled = shuffleArray(items);
+  const numQuestions =
+    questionCount === "all" ? items.length : Math.min(questionCount, items.length);
+
+  return shuffled.slice(0, numQuestions).map((item) => {
+    const isEnglishToFrench = translationDirection === "english-to-french";
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    // If category exists (including null), restrict to the same category; otherwise use full set
+    const pool =
+      "category" in item
+        ? items.filter((x) => x.category === item.category)
+        : (items as T[]);
+
+    const distractors = shuffleArray(
+      pool.filter((x) =>
+        isEnglishToFrench ? x.word !== item.word : x.meaning !== item.meaning,
+      ),
+    )
+      .slice(0, 3)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const options = shuffleArray([correctAnswer, ...distractors]);
+
+    return { word: questionWord, correct: correctAnswer, options };
+  });
+};
+
 // Special function for adverbs that includes category information
 export const generateAdverbQuestions = (
   adverbs: Adverb[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(adverbs);
-  const numQuestions =
-    questionCount === "all"
-      ? adverbs.length
-      : Math.min(questionCount, adverbs.length);
-
-  return shuffled.slice(0, numQuestions).map((adverb) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? adverb.meaning : adverb.word;
-    const correctAnswer = isEnglishToFrench ? adverb.word : adverb.meaning;
-
-    // Only use options from the same category as the current adverb
-    const sameCategoryOptions = shuffleArray(
-      adverbs.filter(
-        (a) =>
-          a.category === adverb.category &&
-          (isEnglishToFrench
-            ? a.word !== adverb.word
-            : a.meaning !== adverb.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((a) => (isEnglishToFrench ? a.word : a.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return {
-      word: questionWord,
-      correct: correctAnswer,
-      options: options,
-    };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(adverbs, questionCount, translationDirection);
 
 // Special function for food that includes category information (similar to adverbs)
 export const generateFoodQuestions = (
   foods: Food[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(foods);
-  const numQuestions =
-    questionCount === "all"
-      ? foods.length
-      : Math.min(questionCount, foods.length);
-
-  return shuffled.slice(0, numQuestions).map((food) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? food.meaning : food.word;
-    const correctAnswer = isEnglishToFrench ? food.word : food.meaning;
-
-    // Only use options from the same category as the current food
-    const sameCategoryOptions = shuffleArray(
-      foods.filter(
-        (f) =>
-          f.category === food.category &&
-          (isEnglishToFrench
-            ? f.word !== food.word
-            : f.meaning !== food.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((f) => (isEnglishToFrench ? f.word : f.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return {
-      word: questionWord,
-      correct: correctAnswer,
-      options: options,
-    };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(foods, questionCount, translationDirection);
 
 // Special function for family (similar shape as food/body)
 export const generateFamilyQuestions = (
   items: FamilyItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(items);
-  const numQuestions =
-    questionCount === "all"
-      ? items.length
-      : Math.min(questionCount, items.length);
-
-  return shuffled.slice(0, numQuestions).map((item) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? item.meaning : item.word;
-    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-    const sameCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category === item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return { word: questionWord, correct: correctAnswer, options };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Special function for home (category-based similar to family/food)
 export const generateHomeQuestions = (
   items: HomeItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(items);
-  const numQuestions =
-    questionCount === "all"
-      ? items.length
-      : Math.min(questionCount, items.length);
-
-  return shuffled.slice(0, numQuestions).map((item) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? item.meaning : item.word;
-    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-    const sameCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category === item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return { word: questionWord, correct: correctAnswer, options };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Special function for body that may include category information
 export const generateBodyQuestions = (
   items: BodyItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(items);
-  const numQuestions =
-    questionCount === "all"
-      ? items.length
-      : Math.min(questionCount, items.length);
-
-  return shuffled.slice(0, numQuestions).map((item) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? item.meaning : item.word;
-    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-    // Only use options from the same category as the current body item
-    const sameCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category === item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return { word: questionWord, correct: correctAnswer, options };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
@@ -308,70 +194,14 @@ export const generateNatureQuestions = (
   items: NatureItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(items);
-  const numQuestions =
-    questionCount === "all"
-      ? items.length
-      : Math.min(questionCount, items.length);
-
-  return shuffled.slice(0, numQuestions).map((item) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? item.meaning : item.word;
-    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-    const sameCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category === item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return { word: questionWord, correct: correctAnswer, options };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // ICT: same pattern as nature (category-restricted options)
 export const generateICTQuestions = (
   items: ICTItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => {
-  const shuffled = shuffleArray(items);
-  const numQuestions =
-    questionCount === "all"
-      ? items.length
-      : Math.min(questionCount, items.length);
-
-  return shuffled.slice(0, numQuestions).map((item) => {
-    const isEnglishToFrench = translationDirection === "english-to-french";
-    const questionWord = isEnglishToFrench ? item.meaning : item.word;
-    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-    const sameCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category === item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
-
-    return { word: questionWord, correct: correctAnswer, options };
-  });
-};
+): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 export const getScoreColor = (
   score: number,
