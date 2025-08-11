@@ -19,6 +19,8 @@ const FrenchVocabularyQuiz = () => {
   const [selectedNatureCategory, setSelectedNatureCategory] =
     useState<string>("");
   const [selectedICTCategory, setSelectedICTCategory] = useState<string>("");
+  const [selectedShoppingCategory, setSelectedShoppingCategory] =
+    useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -58,6 +60,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -69,6 +72,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -80,6 +84,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
     } else if (topic === "home") {
@@ -91,6 +96,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
   setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       await fetchVocabulary("home");
       startQuiz("home");
     } else if (topic === "nature") {
@@ -101,7 +107,8 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-      setSelectedICTCategory("");
+  setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       await fetchVocabulary("nature");
       startQuiz("nature");
     } else if (topic === "ict") {
@@ -113,9 +120,11 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
       setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
       await fetchVocabulary("ict");
       startQuiz("ict");
-    } else {
+    } else if (topic === "shopping") {
+      // Entire Shopping topic requested
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
       setSelectedBodyCategory("");
@@ -123,6 +132,18 @@ const FrenchVocabularyQuiz = () => {
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
       setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      await fetchVocabulary("shopping");
+      startQuiz("shopping");
+    } else {
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
+  setSelectedICTCategory("");
+  setSelectedShoppingCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -174,6 +195,13 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("ict");
   };
 
+  // Handle Shopping subtopic selection
+  const handleShoppingSubtopicSelect = async (category: string) => {
+    setSelectedShoppingCategory(category);
+    await fetchVocabulary("shopping", category);
+    startQuiz("shopping");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
   setShowReview(false);
@@ -184,6 +212,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedHomeCategory("");
     setSelectedNatureCategory("");
   setSelectedICTCategory("");
+    setSelectedShoppingCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -202,6 +231,8 @@ const FrenchVocabularyQuiz = () => {
                 ? `${selectedNatureCategory} (Nature)`
               : selectedTopic === "ict" && selectedICTCategory
                 ? `${selectedICTCategory} (ICT)`
+              : selectedTopic === "shopping" && selectedShoppingCategory
+                ? `${selectedShoppingCategory} (Shopping)`
               : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
@@ -246,6 +277,8 @@ const FrenchVocabularyQuiz = () => {
             await handleNatureSubtopicSelect(sub);
           } else if (topic === "ict") {
             await handleICTSubtopicSelect(sub);
+          } else if (topic === "shopping") {
+            await handleShoppingSubtopicSelect(sub);
           }
         }}
       />
@@ -289,7 +322,8 @@ const FrenchVocabularyQuiz = () => {
         selectedTopic === "family" ||
         selectedTopic === "home" ||
   selectedTopic === "nature" ||
-  selectedTopic === "ict"
+  selectedTopic === "ict" ||
+  selectedTopic === "shopping"
       }
     />
   );

@@ -85,6 +85,17 @@ export interface ICTCategory {
   name: string;
 }
 
+export interface ShoppingItem {
+  word: string;
+  meaning: string;
+  category: string | null;
+}
+
+export interface ShoppingCategory {
+  id: number;
+  name: string;
+}
+
 export interface Transportation {
   word: string;
   meaning: string;
@@ -164,6 +175,7 @@ export type VocabularyItem =
   | Hobby
   | WardrobeItem
   | BuildingItem
+  | ShoppingItem
   | BodyItem
   | FamilyItem
   | HomeItem

@@ -30,6 +30,7 @@ export const useVocabulary = () => {
           home: () => vocabularyCacheService.getHome({ forceRefresh }) as Promise<VocabularyItem[]>,
           nature: () => vocabularyCacheService.getNature({ forceRefresh }) as Promise<VocabularyItem[]>,
           ict: () => vocabularyCacheService.getICT({ forceRefresh }) as Promise<VocabularyItem[]>,
+          shopping: () => vocabularyCacheService.getShopping({ forceRefresh }) as Promise<VocabularyItem[]>,
           family: () => vocabularyCacheService.getFamily({ forceRefresh }) as Promise<VocabularyItem[]>,
           body: () => vocabularyCacheService.getBody({ forceRefresh }) as Promise<VocabularyItem[]>,
         };
@@ -41,6 +42,7 @@ export const useVocabulary = () => {
           home: (c) => vocabularyCacheService.getHomeByCategory(c, { forceRefresh }) as Promise<VocabularyItem[]>,
           nature: (c) => vocabularyCacheService.getNatureByCategory(c, { forceRefresh }) as Promise<VocabularyItem[]>,
           ict: (c) => vocabularyCacheService.getICTByCategory(c, { forceRefresh }) as Promise<VocabularyItem[]>,
+          shopping: (c) => vocabularyCacheService.getShoppingByCategory(c, { forceRefresh }) as Promise<VocabularyItem[]>,
         };
 
         if (topic === "food") {

@@ -9,6 +9,7 @@ import type {
   FoodCategory,
   Transportation,
   BuildingItem,
+  ShoppingItem,
   BodyItem,
   BodyCategory,
   FamilyItem,
@@ -17,6 +18,7 @@ import type {
   HomeCategory,
   NatureItem,
   NatureCategory,
+  ShoppingCategory,
 } from "@/types/quiz";
 
 export interface CacheConfig {
@@ -182,6 +184,33 @@ class VocabularyCacheService {
       "/api/food-categories",
       config,
     );
+  }
+
+  async getShopping(config?: CacheConfig): Promise<ShoppingItem[]> {
+    return this.fetchWithCache<ShoppingItem[]>(
+      "shopping",
+      "/api/shopping",
+      config,
+    );
+  }
+
+  async getShoppingCategories(
+    config?: CacheConfig,
+  ): Promise<ShoppingCategory[]> {
+    return this.fetchWithCache<ShoppingCategory[]>(
+      "shopping-categories",
+      "/api/shopping-categories",
+      config,
+    );
+  }
+
+  async getShoppingByCategory(
+    category: string,
+    config?: CacheConfig,
+  ): Promise<ShoppingItem[]> {
+    const cacheKey = `shopping-${category}`;
+    const apiUrl = `/api/shopping/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<ShoppingItem[]>(cacheKey, apiUrl, config);
   }
 
   async getFood(category: string, config?: CacheConfig): Promise<Food[]> {
@@ -392,6 +421,7 @@ class VocabularyCacheService {
         this.getHobbies(config),
         this.getWardrobe(config),
     this.getBuildings(config),
+    this.getShopping(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
@@ -403,6 +433,7 @@ class VocabularyCacheService {
         this.getNatureCategories(config),
   this.getICT(config),
   this.getICTCategories(config),
+    this.getShoppingCategories(config),
       ];
 
       await Promise.all(promises);
@@ -446,6 +477,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(ictPromises);
+
+      // Preload Shopping categories and per-category items
+      const shoppingCategories = await this.getShoppingCategories(config);
+      const shoppingPromises = shoppingCategories.map((category) =>
+        this.getShoppingByCategory(category.name, config),
+      );
+
+      await Promise.all(shoppingPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {

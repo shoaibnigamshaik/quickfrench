@@ -10,6 +10,7 @@ import {
   HOME_SUBTOPICS,
   NATURE_SUBTOPICS,
   ICT_SUBTOPICS,
+  SHOPPING_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
@@ -38,6 +39,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   hobbies: 87,
   wardrobe: 66,
   buildings: 137,
+  shopping: 137,
 };
 
 export const TopicSelector = ({
@@ -70,6 +72,7 @@ export const TopicSelector = ({
     home: HOME_SUBTOPICS,
     nature: NATURE_SUBTOPICS,
     ict: ICT_SUBTOPICS,
+  shopping: SHOPPING_SUBTOPICS,
   };
 
   const hasSubtopics = (id: string) => Boolean(SUBTOPIC_MAP[id]);

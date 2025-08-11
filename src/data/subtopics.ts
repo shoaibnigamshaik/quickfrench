@@ -48,3 +48,10 @@ export const ICT_SUBTOPICS = [
   "Verbs and Expressions",
   "Texts",
 ] as const;
+
+export const SHOPPING_SUBTOPICS = [
+  "General",
+  "Verbs and Expressions",
+  "Weights and Measures",
+  "Materials",
+] as const;
