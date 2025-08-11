@@ -10,6 +10,7 @@ import {
   BodyItem,
   FamilyItem,
   HomeItem,
+  NatureItem,
   TranslationDirection,
 } from "@/types/quiz";
 import {
@@ -19,6 +20,7 @@ import {
   generateBodyQuestions,
   generateFamilyQuestions,
   generateHomeQuestions,
+  generateNatureQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -91,6 +93,12 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "home") {
         questions = generateHomeQuestions(
           vocabulary as HomeItem[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
+    } else if (topic === "nature") {
+        questions = generateNatureQuestions(
+      vocabulary as NatureItem[],
           settings.questionCount,
           settings.translationDirection,
         );

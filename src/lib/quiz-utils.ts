@@ -6,6 +6,7 @@ import {
   FamilyItem,
   BodyItem,
   HomeItem,
+  NatureItem,
   TranslationDirection,
 } from "@/types/quiz";
 
@@ -74,7 +75,7 @@ export const generateAdverbQuestions = (
     const questionWord = isEnglishToFrench ? adverb.meaning : adverb.word;
     const correctAnswer = isEnglishToFrench ? adverb.word : adverb.meaning;
 
-    // Try to get options from the same category first, then mix with others
+    // Only use options from the same category as the current adverb
     const sameCategoryOptions = shuffleArray(
       adverbs.filter(
         (a) =>
@@ -84,41 +85,10 @@ export const generateAdverbQuestions = (
             : a.meaning !== adverb.meaning),
       ),
     )
-      .slice(0, 2)
+      .slice(0, 3)
       .map((a) => (isEnglishToFrench ? a.word : a.meaning));
 
-    const otherCategoryOptions = shuffleArray(
-      adverbs.filter(
-        (a) =>
-          a.category !== adverb.category &&
-          (isEnglishToFrench
-            ? a.word !== adverb.word
-            : a.meaning !== adverb.meaning),
-      ),
-    )
-      .slice(0, 3 - sameCategoryOptions.length)
-      .map((a) => (isEnglishToFrench ? a.word : a.meaning));
-
-    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
-
-    // If we don't have enough options, fill with any remaining adverbs
-    if (allOptions.length < 3) {
-      const remainingOptions = shuffleArray(
-        adverbs.filter(
-          (a) =>
-            (isEnglishToFrench
-              ? a.word !== adverb.word
-              : a.meaning !== adverb.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? a.word : a.meaning),
-        ),
-      )
-        .slice(0, 3 - allOptions.length)
-        .map((a) => (isEnglishToFrench ? a.word : a.meaning));
-
-      allOptions.push(...remainingOptions);
-    }
-
-    const options = shuffleArray([correctAnswer, ...allOptions]);
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
 
     return {
       word: questionWord,
@@ -145,7 +115,7 @@ export const generateFoodQuestions = (
     const questionWord = isEnglishToFrench ? food.meaning : food.word;
     const correctAnswer = isEnglishToFrench ? food.word : food.meaning;
 
-    // Try to get options from the same category first, then mix with others
+    // Only use options from the same category as the current food
     const sameCategoryOptions = shuffleArray(
       foods.filter(
         (f) =>
@@ -155,41 +125,10 @@ export const generateFoodQuestions = (
             : f.meaning !== food.meaning),
       ),
     )
-      .slice(0, 2)
+      .slice(0, 3)
       .map((f) => (isEnglishToFrench ? f.word : f.meaning));
 
-    const otherCategoryOptions = shuffleArray(
-      foods.filter(
-        (f) =>
-          f.category !== food.category &&
-          (isEnglishToFrench
-            ? f.word !== food.word
-            : f.meaning !== food.meaning),
-      ),
-    )
-      .slice(0, 3 - sameCategoryOptions.length)
-      .map((f) => (isEnglishToFrench ? f.word : f.meaning));
-
-    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
-
-    // If we don't have enough options, fill with any remaining foods
-    if (allOptions.length < 3) {
-      const remainingOptions = shuffleArray(
-        foods.filter(
-          (f) =>
-            (isEnglishToFrench
-              ? f.word !== food.word
-              : f.meaning !== food.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? f.word : f.meaning),
-        ),
-      )
-        .slice(0, 3 - allOptions.length)
-        .map((f) => (isEnglishToFrench ? f.word : f.meaning));
-
-      allOptions.push(...remainingOptions);
-    }
-
-    const options = shuffleArray([correctAnswer, ...allOptions]);
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
 
     return {
       word: questionWord,
@@ -225,39 +164,10 @@ export const generateFamilyQuestions = (
             : x.meaning !== item.meaning),
       ),
     )
-      .slice(0, 2)
+      .slice(0, 3)
       .map((x) => (isEnglishToFrench ? x.word : x.meaning));
 
-    const otherCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category !== item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3 - sameCategoryOptions.length)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
-
-    if (allOptions.length < 3) {
-      const remaining = shuffleArray(
-        items.filter(
-          (x) =>
-            (isEnglishToFrench
-              ? x.word !== item.word
-              : x.meaning !== item.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? x.word : x.meaning),
-        ),
-      )
-        .slice(0, 3 - allOptions.length)
-        .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-      allOptions.push(...remaining);
-    }
-
-    const options = shuffleArray([correctAnswer, ...allOptions]);
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
 
     return { word: questionWord, correct: correctAnswer, options };
   });
@@ -289,39 +199,10 @@ export const generateHomeQuestions = (
             : x.meaning !== item.meaning),
       ),
     )
-      .slice(0, 2)
+      .slice(0, 3)
       .map((x) => (isEnglishToFrench ? x.word : x.meaning));
 
-    const otherCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category !== item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3 - sameCategoryOptions.length)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
-
-    if (allOptions.length < 3) {
-      const remaining = shuffleArray(
-        items.filter(
-          (x) =>
-            (isEnglishToFrench
-              ? x.word !== item.word
-              : x.meaning !== item.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? x.word : x.meaning),
-        ),
-      )
-        .slice(0, 3 - allOptions.length)
-        .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-      allOptions.push(...remaining);
-    }
-
-    const options = shuffleArray([correctAnswer, ...allOptions]);
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
 
     return { word: questionWord, correct: correctAnswer, options };
   });
@@ -344,7 +225,7 @@ export const generateBodyQuestions = (
     const questionWord = isEnglishToFrench ? item.meaning : item.word;
     const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-    // Prefer options within same category if available, otherwise mix
+    // Only use options from the same category as the current body item
     const sameCategoryOptions = shuffleArray(
       items.filter(
         (x) =>
@@ -354,39 +235,10 @@ export const generateBodyQuestions = (
             : x.meaning !== item.meaning),
       ),
     )
-      .slice(0, 2)
+      .slice(0, 3)
       .map((x) => (isEnglishToFrench ? x.word : x.meaning));
 
-    const otherCategoryOptions = shuffleArray(
-      items.filter(
-        (x) =>
-          x.category !== item.category &&
-          (isEnglishToFrench
-            ? x.word !== item.word
-            : x.meaning !== item.meaning),
-      ),
-    )
-      .slice(0, 3 - sameCategoryOptions.length)
-      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-    const allOptions = [...sameCategoryOptions, ...otherCategoryOptions];
-
-    if (allOptions.length < 3) {
-      const remaining = shuffleArray(
-        items.filter(
-          (x) =>
-            (isEnglishToFrench
-              ? x.word !== item.word
-              : x.meaning !== item.meaning) &&
-            !allOptions.includes(isEnglishToFrench ? x.word : x.meaning),
-        ),
-      )
-        .slice(0, 3 - allOptions.length)
-        .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-      allOptions.push(...remaining);
-    }
-
-    const options = shuffleArray([correctAnswer, ...allOptions]);
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
 
     return { word: questionWord, correct: correctAnswer, options };
   });
@@ -448,6 +300,41 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // allow 1 edit for medium (<=6), up to 2 for longer.
   const threshold = maxLen <= 3 ? 0 : maxLen <= 6 ? 1 : 2;
   return levenshtein(a, b) <= threshold;
+};
+
+// Nature: restrict options to the same category (including null category)
+export const generateNatureQuestions = (
+  items: NatureItem[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => {
+  const shuffled = shuffleArray(items);
+  const numQuestions =
+    questionCount === "all"
+      ? items.length
+      : Math.min(questionCount, items.length);
+
+  return shuffled.slice(0, numQuestions).map((item) => {
+    const isEnglishToFrench = translationDirection === "english-to-french";
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    const sameCategoryOptions = shuffleArray(
+      items.filter(
+        (x) =>
+          x.category === item.category &&
+          (isEnglishToFrench
+            ? x.word !== item.word
+            : x.meaning !== item.meaning),
+      ),
+    )
+      .slice(0, 3)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
+
+    return { word: questionWord, correct: correctAnswer, options };
+  });
 };
 
 export const getScoreColor = (
