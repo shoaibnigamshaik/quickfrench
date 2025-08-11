@@ -109,6 +109,16 @@ export const useVocabulary = () => {
               data = await vocabularyCacheService.getNature({ forceRefresh });
             }
             break;
+          case "ict":
+            if (subCategory) {
+              data = await vocabularyCacheService.getICTByCategory(
+                subCategory,
+                { forceRefresh },
+              );
+            } else {
+              data = await vocabularyCacheService.getICT({ forceRefresh });
+            }
+            break;
           case "family":
             if (subCategory) {
               data = await vocabularyCacheService.getFamilyByCategory(

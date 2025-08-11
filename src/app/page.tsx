@@ -18,6 +18,7 @@ const FrenchVocabularyQuiz = () => {
   const [selectedHomeCategory, setSelectedHomeCategory] = useState<string>("");
   const [selectedNatureCategory, setSelectedNatureCategory] =
     useState<string>("");
+  const [selectedICTCategory, setSelectedICTCategory] = useState<string>("");
 
   const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
     useVocabulary();
@@ -56,6 +57,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+  setSelectedICTCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -66,6 +68,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+  setSelectedICTCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -76,6 +79,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+  setSelectedICTCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
     } else if (topic === "home") {
@@ -86,6 +90,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+  setSelectedICTCategory("");
       await fetchVocabulary("home");
       startQuiz("home");
     } else if (topic === "nature") {
@@ -96,8 +101,20 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+      setSelectedICTCategory("");
       await fetchVocabulary("nature");
       startQuiz("nature");
+    } else if (topic === "ict") {
+      // Entire ICT topic requested
+      setSelectedTopic(topic);
+      setSelectedFoodCategory("");
+      setSelectedBodyCategory("");
+      setSelectedFamilyCategory("");
+      setSelectedHomeCategory("");
+      setSelectedNatureCategory("");
+      setSelectedICTCategory("");
+      await fetchVocabulary("ict");
+      startQuiz("ict");
     } else {
       setSelectedTopic(topic);
       setSelectedFoodCategory("");
@@ -105,6 +122,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
+      setSelectedICTCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -149,6 +167,13 @@ const FrenchVocabularyQuiz = () => {
     startQuiz("nature");
   };
 
+  // Handle ICT subtopic selection
+  const handleICTSubtopicSelect = async (category: string) => {
+    setSelectedICTCategory(category);
+    await fetchVocabulary("ict", category);
+    startQuiz("ict");
+  };
+
   // Handle back from food subtopics
   const handleResetQuiz = () => {
   setShowReview(false);
@@ -158,6 +183,7 @@ const FrenchVocabularyQuiz = () => {
     setSelectedFamilyCategory("");
     setSelectedHomeCategory("");
     setSelectedNatureCategory("");
+  setSelectedICTCategory("");
     clearVocabulary(); // Clear vocabulary data
     resetQuiz();
   };
@@ -174,6 +200,8 @@ const FrenchVocabularyQuiz = () => {
               ? `${selectedHomeCategory} (Home)`
               : selectedTopic === "nature" && selectedNatureCategory
                 ? `${selectedNatureCategory} (Nature)`
+              : selectedTopic === "ict" && selectedICTCategory
+                ? `${selectedICTCategory} (ICT)`
               : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
 
     return (
@@ -216,6 +244,8 @@ const FrenchVocabularyQuiz = () => {
             await handleHomeSubtopicSelect(sub);
           } else if (topic === "nature") {
             await handleNatureSubtopicSelect(sub);
+          } else if (topic === "ict") {
+            await handleICTSubtopicSelect(sub);
           }
         }}
       />
@@ -258,7 +288,8 @@ const FrenchVocabularyQuiz = () => {
         selectedTopic === "body" ||
         selectedTopic === "family" ||
         selectedTopic === "home" ||
-        selectedTopic === "nature"
+  selectedTopic === "nature" ||
+  selectedTopic === "ict"
       }
     />
   );

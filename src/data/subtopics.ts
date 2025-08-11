@@ -42,3 +42,9 @@ export const NATURE_SUBTOPICS = [
   "Animals",
   "Climate and Temperature",
 ] as const;
+
+export const ICT_SUBTOPICS = [
+  "The Digital World",
+  "Verbs and Expressions",
+  "Texts",
+] as const;

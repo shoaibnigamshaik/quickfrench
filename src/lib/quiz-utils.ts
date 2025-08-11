@@ -8,6 +8,7 @@ import {
   HomeItem,
   NatureItem,
   TranslationDirection,
+  ICTItem,
 } from "@/types/quiz";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
@@ -305,6 +306,41 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
 // Nature: restrict options to the same category (including null category)
 export const generateNatureQuestions = (
   items: NatureItem[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+): Question[] => {
+  const shuffled = shuffleArray(items);
+  const numQuestions =
+    questionCount === "all"
+      ? items.length
+      : Math.min(questionCount, items.length);
+
+  return shuffled.slice(0, numQuestions).map((item) => {
+    const isEnglishToFrench = translationDirection === "english-to-french";
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    const sameCategoryOptions = shuffleArray(
+      items.filter(
+        (x) =>
+          x.category === item.category &&
+          (isEnglishToFrench
+            ? x.word !== item.word
+            : x.meaning !== item.meaning),
+      ),
+    )
+      .slice(0, 3)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const options = shuffleArray([correctAnswer, ...sameCategoryOptions]);
+
+    return { word: questionWord, correct: correctAnswer, options };
+  });
+};
+
+// ICT: same pattern as nature (category-restricted options)
+export const generateICTQuestions = (
+  items: ICTItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
 ): Question[] => {

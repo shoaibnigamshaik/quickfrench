@@ -11,6 +11,7 @@ import {
   FamilyItem,
   HomeItem,
   NatureItem,
+  ICTItem,
   TranslationDirection,
 } from "@/types/quiz";
 import {
@@ -21,6 +22,7 @@ import {
   generateFamilyQuestions,
   generateHomeQuestions,
   generateNatureQuestions,
+  generateICTQuestions,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -99,6 +101,13 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "nature") {
         questions = generateNatureQuestions(
       vocabulary as NatureItem[],
+          settings.questionCount,
+          settings.translationDirection,
+        );
+      } else if (topic === "ict") {
+        // ICT behaves like nature: category-based options
+        questions = generateICTQuestions(
+          vocabulary as ICTItem[],
           settings.questionCount,
           settings.translationDirection,
         );

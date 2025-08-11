@@ -9,6 +9,7 @@ import {
   FAMILY_SUBTOPICS,
   HOME_SUBTOPICS,
   NATURE_SUBTOPICS,
+  ICT_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 
@@ -32,6 +33,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   family: 194,
   home: 240,
   nature: 137,
+  ict: 90,
   colours: 17,
   hobbies: 87,
   wardrobe: 66,
@@ -65,13 +67,15 @@ export const TopicSelector = ({
     id === "body" ||
     id === "family" ||
     id === "home" ||
-    id === "nature";
+  id === "nature" ||
+  id === "ict";
   const subtopicsFor = (id: string): readonly string[] => {
     if (id === "food") return FOOD_SUBTOPICS;
     if (id === "body") return BODY_SUBTOPICS;
     if (id === "family") return FAMILY_SUBTOPICS;
     if (id === "home") return HOME_SUBTOPICS;
-    if (id === "nature") return NATURE_SUBTOPICS;
+  if (id === "nature") return NATURE_SUBTOPICS;
+  if (id === "ict") return ICT_SUBTOPICS;
     return [];
   };
 

@@ -74,6 +74,17 @@ export interface NatureCategory {
   name: string;
 }
 
+export interface ICTItem {
+  word: string;
+  meaning: string;
+  category: string | null;
+}
+
+export interface ICTCategory {
+  id: number;
+  name: string;
+}
+
 export interface Transportation {
   word: string;
   meaning: string;
@@ -150,7 +161,8 @@ export type VocabularyItem =
   | BodyItem
   | FamilyItem
   | HomeItem
-  | NatureItem;
+  | NatureItem
+  | ICTItem;
 
 export interface WrongAnswer {
   question: Question;

@@ -269,6 +269,32 @@ class VocabularyCacheService {
     return this.fetchWithCache<NatureItem[]>(cacheKey, apiUrl, config);
   }
 
+  async getICT(config?: CacheConfig) {
+    return this.fetchWithCache<{ word: string; meaning: string; category: string | null }[]>(
+      "ict",
+      "/api/ict",
+      config,
+    );
+  }
+
+  async getICTCategories(config?: CacheConfig) {
+    return this.fetchWithCache<{ id: number; name: string }[]>(
+      "ict-categories",
+      "/api/ict-categories",
+      config,
+    );
+  }
+
+  async getICTByCategory(category: string, config?: CacheConfig) {
+    const cacheKey = `ict-${category}`;
+    const apiUrl = `/api/ict/${encodeURIComponent(category)}`;
+    return this.fetchWithCache<{ word: string; meaning: string; category: string }[]>(
+      cacheKey,
+      apiUrl,
+      config,
+    );
+  }
+
   async clearAllCache(): Promise<void> {
     try {
       await indexedDBCache.clear();
@@ -365,6 +391,8 @@ class VocabularyCacheService {
         this.getHomeCategories(config),
         this.getNature(config),
         this.getNatureCategories(config),
+  this.getICT(config),
+  this.getICTCategories(config),
       ];
 
       await Promise.all(promises);
@@ -400,6 +428,14 @@ class VocabularyCacheService {
       );
 
       await Promise.all(naturePromises);
+
+      // Preload ICT categories and per-category items
+      const ictCategories = await this.getICTCategories(config);
+      const ictPromises = ictCategories.map((category) =>
+        this.getICTByCategory(category.name, config),
+      );
+
+      await Promise.all(ictPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {
