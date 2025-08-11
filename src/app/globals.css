@@ -112,3 +112,34 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+/* Sleek scrollbar utility: minimal, rounded, on-brand */
+.scrollbar-sleek {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scrollbar-sleek::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px; /* pill */
+  border: 2px solid transparent; /* padding effect */
+  background-clip: padding-box;
+  min-height: 32px;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+}
+
+.scrollbar-sleek::-webkit-scrollbar-corner {
+  background: transparent;
+}

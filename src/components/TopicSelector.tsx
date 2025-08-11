@@ -44,6 +44,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   shopping: 72,
   education: 115,
   culture: 30,
+  work: 73
 };
 
 export const TopicSelector = ({
@@ -167,11 +168,17 @@ export const TopicSelector = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
           {/* List column */}
           <div className="lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
-            <ul
-              role="list"
-              className="divide-y rounded-xl border overflow-hidden"
-              style={{ borderColor: "var(--border)" }}
+            {/* Scroll only within the topic list on desktop to keep actions in view */}
+            <div
+              className="lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek"
+              aria-label="Topics list (scrollable)"
+              tabIndex={0}
             >
+              <ul
+                role="list"
+                className="divide-y rounded-xl border overflow-hidden"
+                style={{ borderColor: "var(--border)" }}
+              >
               {topics.map((topic) => {
                 const itemCount = TOPIC_COUNTS[topic.id];
                 const isSelected = selectedId === topic.id;
@@ -227,11 +234,12 @@ export const TopicSelector = ({
                   </li>
                 );
               })}
-            </ul>
+              </ul>
+            </div>
           </div>
 
           {/* Details column */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
             {selectedTopic ? (
               <div
                 className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"}`}
