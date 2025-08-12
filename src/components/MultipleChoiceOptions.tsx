@@ -15,10 +15,10 @@ export const MultipleChoiceOptions = ({
   onAnswerSelect,
 }: MultipleChoiceOptionsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       {question.options.map((option: string, index: number) => {
         let buttonClass =
-          "w-full p-6 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
+          "w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
         let inlineStyle: React.CSSProperties | undefined = undefined;
 
         if (showResult) {

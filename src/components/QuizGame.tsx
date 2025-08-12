@@ -114,7 +114,7 @@ export const QuizGame = ({
   const currentQuestion = quizState.questions[quizState.currentQuestion];
 
   return (
-    <div className="max-w-4xl mx-auto">
+  <div className="max-w-4xl mx-auto">
       <QuizHeader
         onResetQuiz={onResetQuiz}
         isFoodQuiz={isFoodQuiz}
@@ -137,14 +137,14 @@ export const QuizGame = ({
       >
         {/* Question */}
         <div
-          className="p-6 sm:p-8 text-center"
+          className="p-5 sm:p-6 text-center"
           style={{
             background:
               "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
           }}
         >
           <div
-            className="text-4xl sm:text-5xl font-bold text-white rounded-2xl py-4 sm:py-6 px-6 sm:px-8 inline-block"
+            className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-block"
             style={{
               background:
                 "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
@@ -155,7 +155,7 @@ export const QuizGame = ({
         </div>
 
         {/* Options */}
-        <div className="p-8">
+        <div className="p-6">
           {settings.quizMode === "multiple-choice" ? (
             <MultipleChoiceOptions
               question={currentQuestion}

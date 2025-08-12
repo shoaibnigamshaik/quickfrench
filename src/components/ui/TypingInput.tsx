@@ -20,7 +20,7 @@ export const TypingInput = ({
   inputRef,
 }: TypingInputProps) => {
   return (
-    <div className="mb-8">
+    <div className="mb-6">
       <div className="max-w-md mx-auto">
         <input
           ref={inputRef}
@@ -34,7 +34,7 @@ export const TypingInput = ({
           }
           disabled={showResult}
           placeholder="Type the English meaning..."
-          className="w-full p-6 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
+          className="w-full p-5 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
           style={{
             color: "var(--foreground)",
             backgroundColor: "var(--card)",
@@ -42,7 +42,7 @@ export const TypingInput = ({
           }}
         />
         {!showResult && (
-          <div className="mt-4 text-center">
+          <div className="mt-3 text-center">
             <button
               onClick={onSubmit}
               disabled={!typedAnswer.trim()}
@@ -55,7 +55,7 @@ export const TypingInput = ({
       </div>
 
       {showResult && (
-        <div className="mt-6 text-center">
+        <div className="mt-5 text-center">
           <div
             className="max-w-md mx-auto p-4 rounded-xl border"
             style={{

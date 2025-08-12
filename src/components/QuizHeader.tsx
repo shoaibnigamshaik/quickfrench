@@ -13,11 +13,11 @@ export const QuizHeader = ({
   const handleBackClick = () => onResetQuiz();
 
   return (
-    <div className="text-center mb-8 relative">
+  <div className="text-center mb-5 relative">
       {isFoodQuiz ? (
         <button
           onClick={handleBackClick}
-          className="absolute top-4 left-0 flex items-center transition-colors duration-200 hover:underline"
+          className="absolute top-2 left-0 flex items-center transition-colors duration-200 hover:underline"
           style={{ color: "var(--muted-foreground)" }}
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
@@ -27,7 +27,7 @@ export const QuizHeader = ({
         <Link
           href="/"
           onClick={onResetQuiz}
-          className="absolute top-4 left-0 flex items-center transition-colors duration-200"
+          className="absolute top-2 left-0 flex items-center transition-colors duration-200"
           style={{ color: "var(--muted-foreground)" }}
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
@@ -35,9 +35,9 @@ export const QuizHeader = ({
         </Link>
       )}
 
-      <div className="pt-10">
+    <div className="pt-6">
         <h1
-          className="text-3xl font-bold"
+      className="text-2xl md:text-[28px] font-bold"
           style={{ color: "var(--foreground)" }}
         >
           Translate the Word

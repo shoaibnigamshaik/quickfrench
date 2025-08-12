@@ -12,8 +12,8 @@ export const ProgressBar = ({
   score,
 }: ProgressBarProps) => {
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-2">
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-1">
         <span
           className="text-sm font-medium"
           style={{ color: "var(--muted-foreground)" }}
@@ -35,9 +35,9 @@ export const ProgressBar = ({
           </span>
         </div>
       </div>
-  <div className="w-full rounded-full h-3 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-[var(--border)]">
+    <div className="w-full rounded-full h-2.5 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-[var(--border)]">
         <div
-          className="h-3 rounded-full"
+      className="h-2.5 rounded-full"
           style={{
             width: `${((currentQuestion + 1) / totalQuestions) * 100}%`,
             background:
