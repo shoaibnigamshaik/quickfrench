@@ -86,7 +86,7 @@ export const TopicSelector = ({
   const subtopicsFor = (id: string): readonly string[] => SUBTOPIC_MAP[id] ?? [];
 
   return (
-    <div className="max-w-2xl lg:max-w-5xl w-full mx-auto">
+    <div className="max-w-2xl lg:max-w-5xl w-full mx-auto min-h-[100dvh]">
       <div
         className="rounded-3xl p-6 md:p-7"
         style={{
@@ -165,7 +165,7 @@ export const TopicSelector = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
           {/* List column */}
           <div className="lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
             {/* Scroll only within the topic list on desktop to keep actions in view */}
@@ -238,11 +238,11 @@ export const TopicSelector = ({
             </div>
           </div>
 
-          {/* Details column */}
-          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
+      {/* Details column */}
+      <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
             {selectedTopic ? (
               <div
-                className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"}`}
+        className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"} lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek`}
                 style={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",
@@ -356,7 +356,7 @@ export const TopicSelector = ({
         </div>
 
         <div
-          className="mt-6 p-3 rounded-xl"
+          className="mt-6 p-3 rounded-xl lg:hidden"
           style={{ backgroundColor: "var(--muted)" }}
         >
           <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>

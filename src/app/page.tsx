@@ -42,6 +42,21 @@ const FrenchVocabularyQuiz = () => {
 
   const [showReview, setShowReview] = useState(false);
 
+  // Prevent page scroll while selecting topics (desktop UX)
+  React.useEffect(() => {
+    if (!showTopicSelector) return;
+    const isDesktop =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(min-width: 1024px)").matches;
+    if (!isDesktop) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [showTopicSelector]);
+
   // Load translation direction from localStorage and update settings
   React.useEffect(() => {
     const savedDirection = localStorage.getItem("translationDirection") as
