@@ -178,9 +178,6 @@ export const QuizGame = ({
           {/* Next Button */}
           {quizState.showResult && (
             <QuizResult
-              quizMode={settings.quizMode}
-              selectedAnswer={quizState.selectedAnswer}
-              question={currentQuestion}
               currentQuestion={quizState.currentQuestion}
               totalQuestions={quizState.questions.length}
               onNextQuestion={onNextQuestion}

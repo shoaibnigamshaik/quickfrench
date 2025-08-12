@@ -1,18 +1,10 @@
-import { Question, QuizMode } from "@/types/quiz";
-
 interface QuizResultProps {
-  quizMode: QuizMode;
-  selectedAnswer: string;
-  question: Question;
   currentQuestion: number;
   totalQuestions: number;
   onNextQuestion: () => void;
 }
 
 export const QuizResult = ({
-  quizMode,
-  selectedAnswer,
-  question,
   currentQuestion,
   totalQuestions,
   onNextQuestion,
