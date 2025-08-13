@@ -150,15 +150,56 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
       .trim();
   };
 
-  const a = normalizeText(correct);
-  const b = normalizeText(typed);
+  // Extract possible alternatives from the correct answer. Supports:
+  // - Entire string separated by '/', ',', '|', or ' or '
+  // - Parenthetical alternatives like "(corridor / hallway)"
+  const extractAlternatives = (text: string): string[] => {
+    const alts: string[] = [];
 
-  if (!a || !b) return false;
+    // Collect parenthetical content
+    const parenMatches = Array.from(text.matchAll(/\(([^)]*)\)/g));
+    for (const match of parenMatches) {
+      const inside = match[1];
+      if (inside) alts.push(inside);
+    }
 
-  // Fast path: exact normalized equality.
-  if (a === b) return true;
+    // Base text with parentheticals removed (could itself be a candidate)
+    const base = text.replace(/\([^)]*\)/g, " ");
+    if (base.trim()) alts.push(base);
 
-  // Small Levenshtein distance allowance for minor typos.
+    // If no parentheses at all, use original text as candidate
+    if (alts.length === 0) alts.push(text);
+
+    // Split all candidates by common separators to yield final atomic options
+    const splitOn = /\s*(?:\/|,|\||;|\bor\b)\s*/i;
+    const expanded = alts
+      .flatMap((s) => s.split(splitOn))
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    // Deduplicate while preserving order
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const s of expanded) {
+      const n = normalizeText(s);
+      if (!n) continue;
+      if (!seen.has(n)) {
+        seen.add(n);
+        unique.push(n);
+      }
+    }
+    return unique.length ? unique : [normalizeText(text)];
+  };
+
+  const typedNorm = normalizeText(typed);
+  if (!typedNorm) return false;
+
+  const candidates = extractAlternatives(correct);
+
+  // Fast path: exact match to any candidate
+  if (candidates.some((c) => c === typedNorm)) return true;
+
+  // Small Levenshtein distance allowance for minor typos against any candidate.
   const levenshtein = (s: string, t: string): number => {
     if (s === t) return 0;
     const n = s.length;
@@ -186,11 +227,13 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
     return v0[m];
   };
 
-  const maxLen = Math.max(a.length, b.length);
-  // Threshold tuned to be strict: no typos for very short strings,
-  // allow 1 edit for medium (<=6), up to 2 for longer.
-  const threshold = maxLen <= 3 ? 0 : maxLen <= 6 ? 1 : 2;
-  return levenshtein(a, b) <= threshold;
+  // Determine threshold against the closest candidate length
+  const closestLen = candidates.reduce(
+    (min, c) => Math.min(min, Math.max(c.length, typedNorm.length)),
+    Infinity,
+  );
+  const threshold = closestLen <= 3 ? 0 : closestLen <= 6 ? 1 : 2;
+  return candidates.some((c) => levenshtein(c, typedNorm) <= threshold);
 };
 
 // Nature: restrict options to the same category (including null category)
