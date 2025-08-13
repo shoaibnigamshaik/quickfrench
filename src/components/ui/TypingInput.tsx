@@ -29,9 +29,16 @@ export const TypingInput = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onTypedAnswerChange(e.target.value)
           }
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
-            e.key === "Enter" && onSubmit()
-          }
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              // Only submit when enabled and no result is shown
+              if (!showResult && typedAnswer.trim()) {
+                onSubmit();
+              } else {
+                e.preventDefault();
+              }
+            }
+          }}
           disabled={showResult}
           placeholder="Type the English meaning..."
           className="w-full p-5 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
@@ -46,7 +53,11 @@ export const TypingInput = ({
             <button
               onClick={onSubmit}
               disabled={!typedAnswer.trim()}
-              className="px-8 py-3 bg-gradient-to-r from-[var(--primary-600)] to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="inline-flex items-center px-5 py-2.5 text-sm md:text-base text-white rounded-lg font-semibold transition-all duration-200 hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed shadow focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+              }}
             >
               Submit (Enter)
             </button>

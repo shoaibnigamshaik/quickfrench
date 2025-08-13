@@ -226,20 +226,93 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   };
 
   const resetQuiz = () => {
-    setQuizState({
+    // Keep current topic and settings; regenerate questions and reset state
+    setQuizState((prev) => ({
+      ...prev,
       currentQuestion: 0,
       score: 0,
       selectedAnswer: "",
       showResult: false,
       quizComplete: false,
-      questions: [],
       streak: 0,
       maxStreak: 0,
       typedAnswer: "",
-  wrongAnswers: [],
-    });
-    setSettings((prev) => ({ ...prev, selectedTopic: "" }));
-    setShowTopicSelector(true);
+      wrongAnswers: [],
+    }));
+    // Trigger regeneration by toggling selectedTopic (noop) to same value, or recompute directly
+    // Recompute questions immediately based on current vocabulary, topic, and settings
+    // Note: This relies on the latest `vocabulary` and `topic` from hook scope
+    let questions;
+    if (topic === "adverbs") {
+      questions = generateAdverbQuestions(
+        (vocabulary as unknown) as Adverb[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "food") {
+      questions = generateFoodQuestions(
+        (vocabulary as unknown) as Food[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "body") {
+      questions = generateBodyQuestions(
+        (vocabulary as unknown) as BodyItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "family") {
+      questions = generateFamilyQuestions(
+        (vocabulary as unknown) as FamilyItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "home") {
+      questions = generateHomeQuestions(
+        (vocabulary as unknown) as HomeItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "nature") {
+      questions = generateNatureQuestions(
+        (vocabulary as unknown) as NatureItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "ict") {
+      questions = generateICTQuestions(
+        (vocabulary as unknown) as ICTItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "shopping") {
+      questions = generateShoppingQuestions(
+        (vocabulary as unknown) as ShoppingItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "education") {
+      questions = generateEducationQuestions(
+        (vocabulary as unknown) as EducationItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else if (topic === "work") {
+      questions = generateWorkQuestions(
+        (vocabulary as unknown) as WorkItem[],
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    } else {
+      questions = generateQuestions(
+        vocabulary,
+        settings.questionCount,
+        settings.translationDirection,
+      );
+    }
+    setQuizState((prev) => ({ ...prev, questions }));
+    // Stay in the quiz view
+    setShowTopicSelector(false);
   };
 
   const startQuiz = (topic: string) => {

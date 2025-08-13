@@ -30,8 +30,23 @@ export const useKeyboardShortcuts = ({
 }: UseKeyboardShortcutsProps) => {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isEditable =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          (target as HTMLElement).isContentEditable);
+
+      // Space or Enter to go to next question (when result is shown)
+      if ((e.key === " " || e.key === "Enter") && showResult) {
+        e.preventDefault();
+        onNextQuestion();
+        return;
+      }
+
       // R to restart quiz (allow restart anytime except topic selector)
-      if (e.key.toLowerCase() === "r" && !showTopicSelector) {
+      // Ignore when typing in an input/textarea/contentEditable
+      if (e.key.toLowerCase() === "r" && !showTopicSelector && !isEditable) {
         onResetQuiz();
         return;
       }
@@ -40,23 +55,12 @@ export const useKeyboardShortcuts = ({
 
       if (quizMode === "multiple-choice") {
         // Number keys 1-4 for multiple choice
-        if (["1", "2", "3", "4"].includes(e.key) && !showResult) {
+        if (["1", "2", "3", "4"].includes(e.key) && !showResult && !isEditable) {
           const index = parseInt(e.key) - 1;
           if (questions[currentQuestion]?.options[index]) {
             onAnswerSelect(questions[currentQuestion].options[index]);
           }
         }
-      } else if (quizMode === "typing") {
-        // Enter to submit typed answer
-        if (e.key === "Enter" && typedAnswer.trim() && !showResult) {
-          onTypedSubmit();
-        }
-      }
-
-      // Space or Enter to go to next question (when result is shown)
-      if ((e.key === " " || e.key === "Enter") && showResult) {
-        e.preventDefault();
-        onNextQuestion();
       }
     };
 
