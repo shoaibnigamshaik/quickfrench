@@ -8,7 +8,6 @@ interface QuizCompleteProps {
   onReturnHome: () => void;
   onRestartQuiz: () => void;
   wrongCount?: number;
-  onReviewWrongAnswers?: () => void;
   onRetryWrongOnly?: () => void;
 }
 
@@ -19,7 +18,6 @@ export const QuizComplete = ({
   onReturnHome,
   onRestartQuiz,
   wrongCount = 0,
-  onReviewWrongAnswers,
   onRetryWrongOnly,
 }: QuizCompleteProps) => {
   return (
@@ -112,22 +110,6 @@ export const QuizComplete = ({
             {getScoreMessage(score, totalQuestions)}
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            {wrongCount > 0 && onReviewWrongAnswers && (
-              <button
-                type="button"
-                onClick={onReviewWrongAnswers}
-                className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
-                style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
-              >
-                Review Wrong Answers
-                <span
-                  className="ml-2 inline-flex items-center justify-center text-xs font-bold rounded-full px-2 py-1"
-                  style={{ backgroundColor: "var(--danger-600)", color: "white" }}
-                >
-                  {wrongCount}
-                </span>
-              </button>
-            )}
             {wrongCount > 0 && onRetryWrongOnly && (
               <button
                 type="button"

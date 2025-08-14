@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { TopicSelector } from "@/components/TopicSelector";
 import { QuizGame } from "@/components/QuizGame";
 import { QuizComplete } from "@/components/QuizComplete";
-import { WrongAnswersReview } from "@/components/WrongAnswersReview";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useQuizState } from "@/hooks/useQuizState";
 import { topics } from "@/data/topics";
@@ -42,7 +41,6 @@ const FrenchVocabularyQuiz = () => {
     updateTranslationDirection,
   } = useQuizState(vocabulary, selectedTopic);
 
-  const [showReview, setShowReview] = useState(false);
 
   // Prevent page scroll while selecting topics (desktop UX)
   React.useEffect(() => {
@@ -282,7 +280,6 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle back from food subtopics
   const handleResetQuiz = () => {
-    setShowReview(false);
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
@@ -399,15 +396,6 @@ const FrenchVocabularyQuiz = () => {
   }
 
   if (quizState.quizComplete) {
-    if (showReview) {
-      return (
-        <WrongAnswersReview
-          wrongAnswers={quizState.wrongAnswers}
-          onBackToSummary={() => setShowReview(false)}
-          onResetQuiz={handleResetQuiz}
-        />
-      );
-    }
     return (
       <QuizComplete
         score={quizState.score}
@@ -422,7 +410,6 @@ const FrenchVocabularyQuiz = () => {
           resetQuiz();
         }}
         wrongCount={quizState.wrongAnswers.length}
-        onReviewWrongAnswers={() => setShowReview(true)}
         onRetryWrongOnly={() => {
           if (quizState.wrongAnswers.length === 0) return;
           const questions = quizState.wrongAnswers.map((wa) => wa.question);
