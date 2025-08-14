@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Trash2,
   HardDrive,
+  Sliders,
 } from "lucide-react";
 import { useCacheManagement } from "@/hooks/useCacheManagement";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
@@ -28,7 +29,8 @@ interface SettingItem {
     | "auto-advance"
     | "cache-refresh"
     | "cache-clear"
-    | "cache-info";
+  | "cache-info"
+  | "speech";
   value?: boolean | string;
   options?: string[];
 }
@@ -51,6 +53,15 @@ const SettingsPage = () => {
   const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] =
     React.useState<number>(1000);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
+  const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
+
+  // Speech settings
+  const [availableVoices, setAvailableVoices] = React.useState<SpeechSynthesisVoice[]>([]);
+  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(null);
+  const [speechVolume, setSpeechVolume] = React.useState<number>(1);
+  const [speechPitch, setSpeechPitch] = React.useState<number>(1);
+  const [speechRate, setSpeechRate] = React.useState<number>(1);
+  const [voiceListOpen, setVoiceListOpen] = React.useState<boolean>(false);
 
   // Cache management
   const {
@@ -94,6 +105,10 @@ const SettingsPage = () => {
     const savedCount = localStorage.getItem("questionCount");
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
     const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
+  const savedVoiceURI = localStorage.getItem("speechVoiceURI");
+  const savedVol = localStorage.getItem("speechVolume");
+  const savedPitch = localStorage.getItem("speechPitch");
+  const savedRate = localStorage.getItem("speechRate");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -119,7 +134,42 @@ const SettingsPage = () => {
       );
       setAutoAdvanceDelayMs(ms);
     }
+
+    if (savedVoiceURI) setSpeechVoiceURI(savedVoiceURI);
+    if (savedVol) setSpeechVolume(Math.min(Math.max(parseFloat(savedVol), 0), 1));
+    if (savedPitch) setSpeechPitch(Math.min(Math.max(parseFloat(savedPitch), 0), 2));
+    if (savedRate) setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
   }, []);
+
+  // Load speech voices
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const synth = window.speechSynthesis;
+    const load = () => {
+      const voices = synth.getVoices?.() || [];
+      setAvailableVoices(voices);
+      // If no saved voice, try pick a French voice
+      if (!speechVoiceURI && voices.length) {
+  const preferred = voices.find((v) => v.lang?.toLowerCase() === "fr-fr");
+  const anyFr = voices.find((v) => v.lang?.toLowerCase().startsWith("fr"));
+        const chosen = preferred || anyFr || null;
+        if (chosen) {
+          setSpeechVoiceURI(chosen.voiceURI);
+        }
+      }
+    };
+    load();
+    if (!synth.getVoices?.().length) {
+      const handler = () => load();
+      synth.addEventListener?.("voiceschanged", handler);
+      return () => synth.removeEventListener?.("voiceschanged", handler);
+    }
+  }, [speechVoiceURI]);
+
+  const frenchVoices = React.useMemo(
+    () => availableVoices.filter((v) => v.lang?.toLowerCase().startsWith("fr")),
+    [availableVoices]
+  );
 
   // Keep theme in sync with system when in Auto mode
   React.useEffect(() => {
@@ -220,6 +270,12 @@ const SettingsPage = () => {
             "Automatically move to next question after correct answer",
           type: "auto-advance" as const,
           value: autoAdvance,
+        },
+        {
+          icon: Sliders,
+          label: "Speech",
+          description: "Choose voice and fine‑tune volume, pitch, speed",
+          type: "speech" as const,
         },
         // Delay slider/input rendered alongside toggle
       ],
@@ -753,7 +809,19 @@ const SettingsPage = () => {
                         </button>
                       )}
 
-                      {/* link-type removed along with non-functional sections */}
+                      {item.type === "speech" && (
+                        <button
+                          onClick={() => setIsSpeechOpen(true)}
+                          className="px-4 py-2 rounded-lg font-medium transition-all duration-200 border"
+                          style={{
+                            backgroundColor: "var(--card)",
+                            color: "var(--foreground)",
+                            borderColor: "var(--border)",
+                          }}
+                        >
+                          Open
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -779,6 +847,226 @@ const SettingsPage = () => {
           </Link>
         </div>
       </div>
+
+      {/* Speech Settings Modal */}
+      {isSpeechOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          aria-modal
+          role="dialog"
+        >
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+            onClick={() => setIsSpeechOpen(false)}
+          />
+
+          <div
+            className="relative w-full max-w-lg rounded-2xl shadow-2xl border"
+            style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+              <div className="flex items-center gap-2">
+                <Sliders className="h-5 w-5" style={{ color: "var(--primary-600)" }} />
+                <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Speech Settings</h3>
+              </div>
+              <button
+                onClick={() => setIsSpeechOpen(false)}
+                className="px-3 py-1.5 rounded-lg text-sm border"
+                style={{ backgroundColor: "var(--muted)", color: "var(--muted-foreground)", borderColor: "var(--border)" }}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-5">
+              {/* Voice picker */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Voice (French only)</label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <button
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-expanded={voiceListOpen}
+                      onClick={() => setVoiceListOpen((o) => !o)}
+                      className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm border"
+                      style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                    >
+                      <span className="truncate text-left">
+                        {(() => {
+                          const v = frenchVoices.find(v => v.voiceURI === speechVoiceURI);
+                          return v ? `${v.name} (${v.lang})` : (frenchVoices.length ? "Choose a French voice" : "No French voices available");
+                        })()}
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={voiceListOpen ? "rotate-180 transition-transform" : "transition-transform"}><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    {voiceListOpen && (
+                      <div
+                        className="absolute z-10 mt-2 w-full max-h-56 overflow-auto rounded-lg border shadow-lg scrollbar-sleek"
+                        style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+                        role="listbox"
+                      >
+                        {frenchVoices.map((v) => {
+                          const selected = v.voiceURI === speechVoiceURI;
+                          return (
+                            <button
+                              key={v.voiceURI}
+                              role="option"
+                              aria-selected={selected}
+                              onClick={() => {
+                                setSpeechVoiceURI(v.voiceURI);
+                                localStorage.setItem("speechVoiceURI", v.voiceURI);
+                                setVoiceListOpen(false);
+                                window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm ${selected ? "bg-[var(--muted)]" : ""}`}
+                              style={{ color: "var(--foreground)" }}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="truncate">{v.name}</span>
+                                <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{v.lang}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                        {frenchVoices.length === 0 && (
+                          <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                            No French voices found.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+                      const synth = window.speechSynthesis;
+                      const utter = new SpeechSynthesisUtterance("Bonjour !");
+                      const voice = frenchVoices.find(v => v.voiceURI === speechVoiceURI) || null;
+                      if (voice) utter.voice = voice;
+                      else utter.lang = "fr-FR";
+                      utter.volume = speechVolume;
+                      utter.pitch = speechPitch;
+                      utter.rate = speechRate;
+                      if (synth.speaking) synth.cancel();
+                      synth.speak(utter);
+                    }}
+                    disabled={frenchVoices.length === 0}
+                    className={`px-3 py-2 rounded-lg text-sm border ${frenchVoices.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
+                    style={{ backgroundColor: "var(--primary-100)", color: "var(--primary-700)", borderColor: "var(--border)" }}
+                  >
+                    Test
+                  </button>
+                </div>
+                {availableVoices.length === 0 && (
+                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    Loading voices… If none appear, your browser may not support the Speech Synthesis API.
+                  </p>
+                )}
+              </div>
+
+              {/* Volume */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Volume</label>
+                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechVolume.toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={speechVolume}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    setSpeechVolume(v);
+                    localStorage.setItem("speechVolume", String(v));
+                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                  }}
+                  className="w-full h-2 rounded-lg appearance-none"
+                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + (speechVolume*100) + "%, var(--border) " + (speechVolume*100) + "%)" }}
+                  aria-label="Speech volume"
+                />
+              </div>
+
+              {/* Pitch */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Pitch</label>
+                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechPitch.toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={2}
+                  step={0.01}
+                  value={speechPitch}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    setSpeechPitch(v);
+                    localStorage.setItem("speechPitch", String(v));
+                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                  }}
+                  className="w-full h-2 rounded-lg appearance-none"
+                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + ((speechPitch/2)*100) + "%, var(--border) " + ((speechPitch/2)*100) + "%)" }}
+                  aria-label="Speech pitch"
+                />
+              </div>
+
+              {/* Speed */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Speed</label>
+                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechRate.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.5}
+                  max={2}
+                  step={0.01}
+                  value={speechRate}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    setSpeechRate(v);
+                    localStorage.setItem("speechRate", String(v));
+                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                  }}
+                  className="w-full h-2 rounded-lg appearance-none"
+                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + (((speechRate-0.5)/1.5)*100) + "%, var(--border) " + (((speechRate-0.5)/1.5)*100) + "%)" }}
+                  aria-label="Speech speed"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    // Reset to sensible defaults
+                    setSpeechVolume(1);
+                    setSpeechPitch(1);
+                    setSpeechRate(1);
+                    localStorage.setItem("speechVolume", "1");
+                    localStorage.setItem("speechPitch", "1");
+                    localStorage.setItem("speechRate", "1");
+                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                  }}
+                  className="px-4 py-2 rounded-lg text-sm border"
+                  style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => setIsSpeechOpen(false)}
+                  className="px-4 py-2 rounded-lg text-sm"
+                  style={{ background: "linear-gradient(to right, var(--cta-grad-from), var(--cta-grad-to))", color: "#fff" }}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
