@@ -16,7 +16,6 @@ export async function GET(
         FROM work w
         LEFT JOIN work_categories wc ON w.category_id = wc.id
         WHERE wc.name = ?
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

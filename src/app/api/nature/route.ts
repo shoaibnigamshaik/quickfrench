@@ -9,7 +9,6 @@ export async function GET() {
         SELECT n.word, n.meaning, nc.name as category
         FROM nature n
         LEFT JOIN nature_categories nc ON n.category_id = nc.id
-        ORDER BY RANDOM()
       `,
     });
     return Response.json(result.rows);

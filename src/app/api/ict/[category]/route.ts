@@ -16,7 +16,6 @@ export async function GET(
         FROM ict i 
         JOIN ict_categories ic ON i.category_id = ic.id 
         WHERE ic.name = ? 
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

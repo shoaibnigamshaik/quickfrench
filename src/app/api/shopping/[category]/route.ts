@@ -16,7 +16,6 @@ export async function GET(
         FROM shopping s
         LEFT JOIN shopping_categories sc ON s.category_id = sc.id
         WHERE sc.name = ?
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

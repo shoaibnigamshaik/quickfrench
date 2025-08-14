@@ -9,7 +9,6 @@ export async function GET() {
         SELECT e.word, e.meaning, ec.name as category
         FROM education e
         LEFT JOIN education_categories ec ON e.category_id = ec.id
-        ORDER BY RANDOM()
       `,
     });
     return Response.json(result.rows);

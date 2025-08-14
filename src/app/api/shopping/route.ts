@@ -9,7 +9,6 @@ export async function GET() {
         SELECT s.word, s.meaning, sc.name as category
         FROM shopping s
         LEFT JOIN shopping_categories sc ON s.category_id = sc.id
-        ORDER BY RANDOM()
       `,
     });
     return Response.json(result.rows);

@@ -16,7 +16,6 @@ export async function GET(
         FROM food f 
         JOIN food_categories fc ON f.category_id = fc.id 
         WHERE fc.name = ? 
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

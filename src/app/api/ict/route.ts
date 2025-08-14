@@ -9,7 +9,6 @@ export async function GET() {
         SELECT i.word, i.meaning, ic.name as category
         FROM ict i
         LEFT JOIN ict_categories ic ON i.category_id = ic.id
-        ORDER BY RANDOM()
       `,
     });
     return Response.json(result.rows);

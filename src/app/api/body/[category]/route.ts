@@ -16,7 +16,6 @@ export async function GET(
         FROM body b 
         JOIN body_categories bc ON b.category_id = bc.id 
         WHERE bc.name = ? 
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

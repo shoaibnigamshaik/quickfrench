@@ -16,7 +16,6 @@ export async function GET(
         FROM nature n 
         JOIN nature_categories nc ON n.category_id = nc.id 
         WHERE nc.name = ? 
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

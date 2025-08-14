@@ -16,7 +16,6 @@ export async function GET(
         FROM family f 
         JOIN family_categories fc ON f.category_id = fc.id 
         WHERE fc.name = ? 
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });

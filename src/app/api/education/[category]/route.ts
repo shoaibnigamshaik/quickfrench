@@ -16,7 +16,6 @@ export async function GET(
         FROM education e
         LEFT JOIN education_categories ec ON e.category_id = ec.id
         WHERE ec.name = ?
-        ORDER BY RANDOM()
       `,
       args: [categoryName],
     });
