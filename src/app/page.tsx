@@ -386,7 +386,14 @@ const FrenchVocabularyQuiz = () => {
         score={quizState.score}
         totalQuestions={quizState.questions.length}
         maxStreak={quizState.maxStreak}
-        onResetQuiz={handleResetQuiz}
+        onReturnHome={handleResetQuiz}
+        onRestartQuiz={() => {
+          // Restart in place: regenerate questions and reset progress
+          // Use the reset function from hook but preserve selectedTopic and fetched vocabulary
+          // We can call next handlers to re-start the same topic: use startQuiz with current selectedTopic
+          // Easiest: toggle quizComplete false and rely on useQuizState.resetQuiz which now restarts in place
+          resetQuiz();
+        }}
         wrongCount={quizState.wrongAnswers.length}
         onReviewWrongAnswers={() => setShowReview(true)}
       />

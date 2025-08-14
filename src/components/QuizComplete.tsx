@@ -1,11 +1,12 @@
-import { Trophy, Home } from "lucide-react";
+import { Trophy, Home, RotateCcw } from "lucide-react";
 import { getScoreColor, getScoreMessage } from "@/lib/quiz-utils";
 
 interface QuizCompleteProps {
   score: number;
   totalQuestions: number;
   maxStreak: number;
-  onResetQuiz: () => void;
+  onReturnHome: () => void;
+  onRestartQuiz: () => void;
   wrongCount?: number;
   onReviewWrongAnswers?: () => void;
 }
@@ -14,7 +15,8 @@ export const QuizComplete = ({
   score,
   totalQuestions,
   maxStreak,
-  onResetQuiz,
+  onReturnHome,
+  onRestartQuiz,
   wrongCount = 0,
   onReviewWrongAnswers,
 }: QuizCompleteProps) => {
@@ -126,7 +128,16 @@ export const QuizComplete = ({
             )}
             <button
               type="button"
-              onClick={onResetQuiz}
+              onClick={onRestartQuiz}
+              className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
+              style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
+            >
+              <RotateCcw className="mr-2 h-5 w-5" />
+              Restart Quiz
+            </button>
+            <button
+              type="button"
+              onClick={onReturnHome}
               className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg text-white bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)]"
             >
               <Home className="mr-2 h-5 w-5" />

@@ -1,4 +1,5 @@
 import React from "react";
+import { checkTypedAnswer } from "@/lib/quiz-utils";
 
 interface TypingInputProps {
   typedAnswer: string;
@@ -67,6 +68,31 @@ export const TypingInput = ({
 
       {showResult && (
         <div className="mt-5 text-center">
+          {(() => {
+            const isCorrect = checkTypedAnswer(correctAnswer, selectedAnswer);
+            return (
+              <div
+                className="max-w-md mx-auto p-4 rounded-xl border mb-3"
+                style={{
+                  backgroundColor: "var(--muted)",
+                  borderColor: isCorrect
+                    ? "var(--success-600)"
+                    : "var(--danger-600)",
+                }}
+              >
+                <div
+                  className="font-semibold"
+                  style={{
+                    color: isCorrect
+                      ? "var(--success-600)"
+                      : "var(--danger-600)",
+                  }}
+                >
+                  {isCorrect ? "Correct!" : "Incorrect"}
+                </div>
+              </div>
+            );
+          })()}
           <div
             className="max-w-md mx-auto p-4 rounded-xl border"
             style={{
@@ -80,12 +106,24 @@ export const TypingInput = ({
             >
               Your answer:
             </div>
-            <div
-              className="font-semibold mb-3"
-              style={{ color: "var(--foreground)" }}
-            >
-              {selectedAnswer}
-            </div>
+            {(() => {
+              const isCorrect = checkTypedAnswer(
+                correctAnswer,
+                selectedAnswer,
+              );
+              return (
+                <div
+                  className="font-semibold mb-3"
+                  style={{
+                    color: isCorrect
+                      ? "var(--success-600)"
+                      : "var(--danger-600)",
+                  }}
+                >
+                  {selectedAnswer}
+                </div>
+              );
+            })()}
             <div
               className="text-sm mb-2"
               style={{ color: "var(--muted-foreground)" }}
