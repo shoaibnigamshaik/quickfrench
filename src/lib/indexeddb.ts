@@ -61,6 +61,30 @@ class IndexedDBCache {
       return null;
     }
   }
+
+  // Return cached data with metadata, even if expired (for SWR decisions). Does not delete.
+  async getWithMeta<T>(key: string): Promise<CachedData<T> | null> {
+    try {
+      const entry = await this.db.vocabulary.get(key);
+      if (!entry) return null;
+      return entry.value as CachedData<T>;
+    } catch (error) {
+      console.error(`Dexie getWithMeta error for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  // Return data regardless of expiry (for network error fallback). Does not delete.
+  async getAllowStale<T>(key: string): Promise<T | null> {
+    try {
+      const entry = await this.db.vocabulary.get(key);
+      if (!entry) return null;
+      return entry.value.data as T;
+    } catch (error) {
+      console.error(`Dexie getAllowStale error for key ${key}:`, error);
+      return null;
+    }
+  }
   async set<T>(
     key: string,
     data: T,

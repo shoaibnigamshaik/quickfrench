@@ -41,77 +41,64 @@ class VocabularyCacheService {
   ): Promise<T> {
     const { ttl = this.defaultTTL, forceRefresh = false } = config;
 
-    // Check if there's already a pending request for this key
-    if (!forceRefresh && this.pendingRequests.has(cacheKey)) {
-      console.log(`Waiting for pending request: ${cacheKey}`);
-      return this.pendingRequests.get(cacheKey) as Promise<T>;
+    // If forcing refresh, bypass cache and fetch immediately
+    if (forceRefresh) {
+      return await this.fetchAndCache<T>(cacheKey, apiUrl, ttl);
     }
 
-    // Check cache first if not forcing refresh
-    if (!forceRefresh) {
-      try {
-        const cachedData = await indexedDBCache.get<T>(cacheKey);
-        if (cachedData) {
-          console.log(`Cache hit for ${cacheKey}`);
-          return cachedData;
-        }
-      } catch (error) {
-        console.warn(`Cache read error for ${cacheKey}:`, error);
+    // Try to read cache (regardless of expiry) to enable SWR semantics
+    const cached = await indexedDBCache.getWithMeta<T>(cacheKey);
+    const isFresh = cached ? Date.now() <= cached.expiresAt : false;
+
+    if (cached) {
+      // Return immediately, then kick off background revalidation if stale
+      if (!isFresh) {
+        this.revalidate<T>(cacheKey, apiUrl, ttl);
+      } else {
+        // Optionally still revalidate in background to keep hot data fresh
+        this.revalidate<T>(cacheKey, apiUrl, ttl);
       }
+      return cached.data as T;
     }
 
-    // Create and store the fetch promise to prevent duplicate requests
-    const fetchPromise = this.performFetch<T>(cacheKey, apiUrl, ttl);
-    this.pendingRequests.set(cacheKey, fetchPromise);
+    // No cache: fetch and cache before returning
+    return await this.fetchAndCache<T>(cacheKey, apiUrl, ttl);
+  }
+  private async fetchAndCache<T>(cacheKey: string, apiUrl: string, ttl: number): Promise<T> {
+    // Deduplicate outstanding requests
+    if (this.pendingRequests.has(cacheKey)) {
+      return (this.pendingRequests.get(cacheKey) as Promise<T>);
+    }
+    const p = this.performNetworkFetch<T>(apiUrl)
+      .then(async (data) => {
+        try {
+          await indexedDBCache.set(cacheKey, data, { ttl });
+          console.log(`Cached ${cacheKey} successfully`);
+        } catch (error) {
+          console.warn(`Cache write error for ${cacheKey}:`, error);
+        }
+        return data;
+      })
+      .finally(() => this.pendingRequests.delete(cacheKey));
+    this.pendingRequests.set(cacheKey, p);
+    return await p;
+  }
 
+  private async revalidate<T>(cacheKey: string, apiUrl: string, ttl: number): Promise<void> {
     try {
-      const result = await fetchPromise;
-      return result;
-    } finally {
-      // Clean up the pending request
-      this.pendingRequests.delete(cacheKey);
+      await this.fetchAndCache<T>(cacheKey, apiUrl, ttl);
+    } catch (error) {
+      console.warn(`Revalidate failed for ${cacheKey}:`, error);
     }
   }
-  private async performFetch<T>(
-    cacheKey: string,
-    apiUrl: string,
-    ttl: number,
-  ): Promise<T> {
-    // Fetch from API
-    console.log(`Fetching ${cacheKey} from API`);
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const data = await response.json();
-
-      // Cache the result
-      try {
-        await indexedDBCache.set(cacheKey, data, { ttl });
-        console.log(`Cached ${cacheKey} successfully`);
-      } catch (error) {
-        console.warn(`Cache write error for ${cacheKey}:`, error);
-      }
-
-      return data;
-    } catch (error) {
-      console.error(`API fetch error for ${cacheKey}:`, error);
-
-      // Try to return stale cache data as fallback
-      try {
-        const staleData = await indexedDBCache.get<T>(cacheKey);
-        if (staleData) {
-          console.log(`Returning stale cache data for ${cacheKey}`);
-          return staleData;
-        }
-      } catch (cacheError) {
-        console.warn(`Stale cache read error for ${cacheKey}:`, cacheError);
-      }
-
-      throw error;
+  private async performNetworkFetch<T>(apiUrl: string): Promise<T> {
+    console.log(`Fetching from API: ${apiUrl}`);
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return (await response.json()) as T;
   }
 
   async getAdjectives(config?: CacheConfig): Promise<Adjective[]> {

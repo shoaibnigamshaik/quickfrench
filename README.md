@@ -96,7 +96,7 @@ Your preferences (mode, count, direction, auto‑advance) are saved locally.
 ### Data & caching
 
 - Next.js API routes backed by Turso (@libsql)
-- Client‑side caching via IndexedDB (Dexie) with 24‑hour TTL; background refresh is planned
+- Client‑side caching via IndexedDB (Dexie) with 24‑hour TTL and stale‑while‑revalidate
 - Settings page lets you refresh from DB or clear the cache
 
 ### Expected tables
