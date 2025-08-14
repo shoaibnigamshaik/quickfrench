@@ -149,4 +149,4 @@ Private project. All rights reserved.
 
 — Made with ❤️ by Shoaib and Sarthak
 
-Note: A service worker for full offline shell is on the roadmap.
+Note: A service worker for full offline shell is available now!
