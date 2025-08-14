@@ -1,6 +1,5 @@
 import { Check, X } from "lucide-react";
 import { Question } from "@/types/quiz";
-import React from "react";
 
 interface MultipleChoiceOptionsProps {
   question: Question;
@@ -15,12 +14,6 @@ export const MultipleChoiceOptions = ({
   showResult,
   onAnswerSelect,
 }: MultipleChoiceOptionsProps) => {
-  const firstButtonRef = React.useRef<HTMLButtonElement | null>(null);
-
-  React.useEffect(() => {
-    if (firstButtonRef.current) firstButtonRef.current.focus();
-  }, [question]);
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       {question.options.map((option: string, index: number) => {
@@ -67,7 +60,6 @@ export const MultipleChoiceOptions = ({
         return (
           <button
             key={index}
-            ref={index === 0 ? firstButtonRef : undefined}
             onClick={() => onAnswerSelect(option)}
             disabled={showResult}
             className={buttonClass}
