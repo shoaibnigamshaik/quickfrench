@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { Volume2 } from "lucide-react";
 import { QuizHeader } from "./QuizHeader";
 import { ProgressBar } from "./ui/ProgressBar";
 import { MultipleChoiceOptions } from "./MultipleChoiceOptions";
@@ -30,6 +31,7 @@ export const QuizGame = ({
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -45,6 +47,55 @@ export const QuizGame = ({
     onTypedSubmit,
     onNextQuestion,
   });
+
+  // Prepare a French voice if available
+  useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return;
+    }
+    const synth = window.speechSynthesis;
+
+    const pickVoice = () => {
+      const voices = synth.getVoices?.() || [];
+      // Prefer fr-FR, else any fr-*
+      const preferred = voices.find((v) => v.lang?.toLowerCase() === "fr-fr");
+      const anyFr = voices.find((v) => v.lang?.toLowerCase().startsWith("fr"));
+      voiceRef.current = preferred || anyFr || null;
+    };
+
+    // Some browsers populate voices asynchronously
+    pickVoice();
+    if (!voiceRef.current) {
+      const handler = () => pickVoice();
+      synth.addEventListener?.("voiceschanged", handler);
+      // Cleanup
+      return () => synth.removeEventListener?.("voiceschanged", handler);
+    }
+  }, []);
+
+  // Speak a French phrase using Web Speech API
+  const speakFrench = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return;
+    }
+    const synth = window.speechSynthesis;
+    try {
+      // Cancel any ongoing speech
+      if (synth.speaking) synth.cancel();
+
+      // Remove gender indicators like (m) or (f) to avoid reading them aloud
+      const cleaned = (text || "").replace(/\(\s*[mf]\s*\)/gi, "").replace(/\s{2,}/g, " ").trim();
+      const utter = new SpeechSynthesisUtterance(cleaned);
+      // Use a cached French voice if available; otherwise set lang
+      if (voiceRef.current) utter.voice = voiceRef.current;
+      utter.lang = "fr-FR";
+      utter.rate = 1;
+      utter.pitch = 1;
+      synth.speak(utter);
+    } catch {
+      // no-op
+    }
+  };
 
   // Focus input in typing mode
   useEffect(() => {
@@ -143,14 +194,28 @@ export const QuizGame = ({
               "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
           }}
         >
-          <div
-            className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-block"
-            style={{
-              background:
-                "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
-            }}
-          >
-            {currentQuestion?.word}
+          <div className="inline-flex items-center gap-2">
+            <div
+              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-block"
+              style={{
+                background:
+                  "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
+              }}
+            >
+              {currentQuestion?.word}
+            </div>
+            {settings.translationDirection === "french-to-english" && (
+              <button
+                type="button"
+                aria-label="Pronounce the French word"
+                title="Pronounce"
+                onClick={() => speakFrench(currentQuestion?.word || "")}
+                className="inline-flex items-center justify-center rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white/70"
+                style={{ color: "white" }}
+              >
+                <Volume2 className="h-6 w-6" />
+              </button>
+            )}
           </div>
         </div>
 
