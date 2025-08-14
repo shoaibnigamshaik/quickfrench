@@ -149,4 +149,4 @@ Private project. All rights reserved.
 
 — Made with ❤️ by Shoaib and Sarthak
 
-Note: A PWA manifest and service worker for full offline shell are on the roadmap.
+Note: A service worker for full offline shell is on the roadmap.

@@ -57,6 +57,7 @@ const SettingsPage = () => {
     cacheInfo,
     isRefreshing,
     isClearing,
+  isOnline,
     error: cacheError,
     getCacheInfo,
     refreshAllData,
@@ -68,6 +69,15 @@ const SettingsPage = () => {
   // Load cache info on component mount
   React.useEffect(() => {
     getCacheInfo();
+  }, [getCacheInfo]);
+
+  // Update cache info when background warmup completes
+  React.useEffect(() => {
+    const handler = () => getCacheInfo();
+    if (typeof window !== "undefined") {
+      window.addEventListener("quickfrench:cacheWarmupDone", handler as EventListener);
+      return () => window.removeEventListener("quickfrench:cacheWarmupDone", handler as EventListener);
+    }
   }, [getCacheInfo]);
 
   // Load saved settings from localStorage
@@ -313,6 +323,18 @@ const SettingsPage = () => {
                 >
                   {section.title}
                 </h2>
+                {section.title === "Data & Cache" && !isOnline && (
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs border"
+                    style={{
+                      backgroundColor: "var(--muted)",
+                      color: "var(--muted-foreground)",
+                      borderColor: "var(--border)",
+                    }}
+                  >
+                    <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                    Offline: refresh and clear are disabled
+                  </div>
+                )}
               </div>
 
               <div className="p-6 space-y-4">
@@ -680,10 +702,10 @@ const SettingsPage = () => {
                       {item.type === "cache-refresh" && (
                         <button
                           onClick={refreshAllData}
-                          disabled={isRefreshing}
+                          disabled={isRefreshing || !isOnline}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isRefreshing ? "cursor-not-allowed" : ""}`}
                           style={
-                            isRefreshing
+                            isRefreshing || !isOnline
                               ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
                               : {
                                   backgroundColor: "var(--primary-100)",
@@ -696,6 +718,8 @@ const SettingsPage = () => {
                               <RefreshCw className="h-4 w-4 animate-spin" />
                               <span>Refreshing...</span>
                             </div>
+                          ) : !isOnline ? (
+                            "Refresh (offline)"
                           ) : (
                             "Refresh"
                           )}
@@ -705,10 +729,10 @@ const SettingsPage = () => {
                       {item.type === "cache-clear" && (
                         <button
                           onClick={clearAllCache}
-                          disabled={isClearing}
+                          disabled={isClearing || !isOnline}
                           className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isClearing ? "cursor-not-allowed" : ""}`}
                           style={
-                            isClearing
+                            isClearing || !isOnline
                               ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
                               : {
                                   backgroundColor: "var(--danger-100)",
@@ -721,6 +745,8 @@ const SettingsPage = () => {
                               <Trash2 className="h-4 w-4 animate-pulse" />
                               <span>Clearing...</span>
                             </div>
+                          ) : !isOnline ? (
+                            "Clear (offline)"
                           ) : (
                             "Clear"
                           )}

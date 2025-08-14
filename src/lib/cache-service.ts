@@ -34,6 +34,28 @@ class VocabularyCacheService {
   private readonly defaultTTL = 24 * 60 * 60 * 1000; // 24 hours
   private readonly pendingRequests = new Map<string, Promise<unknown>>();
 
+  // Retry helper to make warmup resilient to transient failures
+  private async withRetry<T>(
+    op: () => Promise<T>,
+    label: string,
+    attempts = 2,
+  ): Promise<T> {
+    let lastErr: unknown;
+    for (let i = 0; i < Math.max(1, attempts); i++) {
+      try {
+        return await op();
+      } catch (err) {
+        lastErr = err;
+        const delay = 300 * Math.pow(1.6, i);
+        console.warn(`Retry ${i + 1}/${attempts} for ${label} after error:`, err);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+    throw lastErr instanceof Error
+      ? new Error(`${label} failed after ${attempts} attempts: ${lastErr.message}`)
+      : new Error(`${label} failed after ${attempts} attempts`);
+  }
+
   private async fetchWithCache<T>(
     cacheKey: string,
     apiUrl: string,
@@ -461,102 +483,167 @@ class VocabularyCacheService {
     console.log("Preloading all vocabulary data...");
 
     try {
-      const promises = [
-        this.getAdjectives(config),
-        this.getNumbers(config),
-        this.getPrepositions(config),
-        this.getVerbs(config),
-        this.getAdverbs(config),
-        this.getTransportation(config),
-        this.getColours(config),
-        this.getHobbies(config),
-        this.getWardrobe(config),
-        this.getCulture(config),
-        this.getBuildings(config),
-        this.getShopping(config),
-        this.getEducation(config),
-        this.getWork(config),
-        this.getFoodCategories(config),
-        this.getBody(config),
-        this.getBodyCategories(config),
-        this.getFamily(config),
-        this.getFamilyCategories(config),
-        this.getHome(config),
-        this.getHomeCategories(config),
-        this.getNature(config),
-        this.getNatureCategories(config),
-        this.getICT(config),
-        this.getICTCategories(config),
-        this.getShoppingCategories(config),
-        this.getEducationCategories(config),
-        this.getWorkCategories(config),
+      // Top-level endpoints with retry; do not fail fast
+      const topLevel: Array<() => Promise<unknown>> = [
+        () => this.getAdjectives(config) as Promise<unknown>,
+        () => this.getNumbers(config) as Promise<unknown>,
+        () => this.getPrepositions(config) as Promise<unknown>,
+        () => this.getVerbs(config) as Promise<unknown>,
+        () => this.getAdverbs(config) as Promise<unknown>,
+        () => this.getTransportation(config) as Promise<unknown>,
+        () => this.getColours(config) as Promise<unknown>,
+        () => this.getHobbies(config) as Promise<unknown>,
+        () => this.getWardrobe(config) as Promise<unknown>,
+        () => this.getCulture(config) as Promise<unknown>,
+        () => this.getBuildings(config) as Promise<unknown>,
+        () => this.getShopping(config) as Promise<unknown>,
+        () => this.getEducation(config) as Promise<unknown>,
+        () => this.getWork(config) as Promise<unknown>,
+        () => this.getFoodCategories(config) as Promise<unknown>,
+        () => this.getBody(config) as Promise<unknown>,
+        () => this.getBodyCategories(config) as Promise<unknown>,
+        () => this.getFamily(config) as Promise<unknown>,
+        () => this.getFamilyCategories(config) as Promise<unknown>,
+        () => this.getHome(config) as Promise<unknown>,
+        () => this.getHomeCategories(config) as Promise<unknown>,
+        () => this.getNature(config) as Promise<unknown>,
+        () => this.getNatureCategories(config) as Promise<unknown>,
+        () => this.getICT(config) as Promise<unknown>,
+        () => this.getICTCategories(config) as Promise<unknown>,
+        () => this.getShoppingCategories(config) as Promise<unknown>,
+        () => this.getEducationCategories(config) as Promise<unknown>,
+        () => this.getWorkCategories(config) as Promise<unknown>,
       ];
 
-      await Promise.all(promises);
+      const topResults = await Promise.allSettled(
+        topLevel.map((fn, i) =>
+          this.withRetry<unknown>(fn, `top-level-${i + 1}`, 2),
+        ),
+      );
+      const topFailed = topResults.filter((r) => r.status === "rejected");
+      if (topFailed.length) {
+        console.warn(`Top-level warmup had ${topFailed.length} failures; continuing`);
+      }
 
       // Also preload food data for all categories
-      const foodCategories = await this.getFoodCategories(config);
-      const foodPromises = foodCategories.map((category) =>
-        this.getFood(category.name, config),
+      const foodCategories = await this.withRetry(
+        () => this.getFoodCategories(config),
+        "food-categories",
+        2,
       );
-
-      await Promise.all(foodPromises);
+      const foodPromises = foodCategories.map((category) =>
+        this.withRetry(
+          () => this.getFood(category.name, config),
+          `food-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(foodPromises);
 
       // Preload family categories and per-category items
-      const familyCategories = await this.getFamilyCategories(config);
-      const familyPromises = familyCategories.map((category) =>
-        this.getFamilyByCategory(category.name, config),
+      const familyCategories = await this.withRetry(
+        () => this.getFamilyCategories(config),
+        "family-categories",
+        2,
       );
-
-      await Promise.all(familyPromises);
+      const familyPromises = familyCategories.map((category) =>
+        this.withRetry(
+          () => this.getFamilyByCategory(category.name, config),
+          `family-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(familyPromises);
 
       // Preload home categories and per-category items
-      const homeCategories = await this.getHomeCategories(config);
-      const homePromises = homeCategories.map((category) =>
-        this.getHomeByCategory(category.name, config),
+      const homeCategories = await this.withRetry(
+        () => this.getHomeCategories(config),
+        "home-categories",
+        2,
       );
-
-      await Promise.all(homePromises);
+      const homePromises = homeCategories.map((category) =>
+        this.withRetry(
+          () => this.getHomeByCategory(category.name, config),
+          `home-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(homePromises);
 
       // Preload nature categories and per-category items
-      const natureCategories = await this.getNatureCategories(config);
-      const naturePromises = natureCategories.map((category) =>
-        this.getNatureByCategory(category.name, config),
+      const natureCategories = await this.withRetry(
+        () => this.getNatureCategories(config),
+        "nature-categories",
+        2,
       );
-
-      await Promise.all(naturePromises);
+      const naturePromises = natureCategories.map((category) =>
+        this.withRetry(
+          () => this.getNatureByCategory(category.name, config),
+          `nature-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(naturePromises);
 
       // Preload ICT categories and per-category items
-      const ictCategories = await this.getICTCategories(config);
-      const ictPromises = ictCategories.map((category) =>
-        this.getICTByCategory(category.name, config),
+      const ictCategories = await this.withRetry(
+        () => this.getICTCategories(config),
+        "ict-categories",
+        2,
       );
-
-      await Promise.all(ictPromises);
+      const ictPromises = ictCategories.map((category) =>
+        this.withRetry(
+          () => this.getICTByCategory(category.name, config),
+          `ict-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(ictPromises);
 
       // Preload Shopping categories and per-category items
-      const shoppingCategories = await this.getShoppingCategories(config);
-      const shoppingPromises = shoppingCategories.map((category) =>
-        this.getShoppingByCategory(category.name, config),
+      const shoppingCategories = await this.withRetry(
+        () => this.getShoppingCategories(config),
+        "shopping-categories",
+        2,
       );
-
-      await Promise.all(shoppingPromises);
+      const shoppingPromises = shoppingCategories.map((category) =>
+        this.withRetry(
+          () => this.getShoppingByCategory(category.name, config),
+          `shopping-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(shoppingPromises);
 
       // Preload Education categories and per-category items
-      const educationCategories = await this.getEducationCategories(config);
-      const educationPromises = educationCategories.map((category) =>
-        this.getEducationByCategory(category.name, config),
+      const educationCategories = await this.withRetry(
+        () => this.getEducationCategories(config),
+        "education-categories",
+        2,
       );
-
-      await Promise.all(educationPromises);
+      const educationPromises = educationCategories.map((category) =>
+        this.withRetry(
+          () => this.getEducationByCategory(category.name, config),
+          `education-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(educationPromises);
 
       // Preload Work categories and per-category items
-      const workCategories = await this.getWorkCategories(config);
-      const workPromises = workCategories.map((category) =>
-        this.getWorkByCategory(category.name, config),
+      const workCategories = await this.withRetry(
+        () => this.getWorkCategories(config),
+        "work-categories",
+        2,
       );
-
-      await Promise.all(workPromises);
+      const workPromises = workCategories.map((category) =>
+        this.withRetry(
+          () => this.getWorkByCategory(category.name, config),
+          `work-${category.name}`,
+          2,
+        ),
+      );
+      await Promise.allSettled(workPromises);
 
       console.log("All vocabulary data preloaded successfully");
     } catch (error) {

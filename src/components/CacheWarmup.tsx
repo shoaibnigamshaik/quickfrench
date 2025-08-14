@@ -5,25 +5,10 @@ import { vocabularyCacheService } from "@/lib/cache-service";
 import { indexedDBCache } from "@/lib/indexeddb";
 
 // Increment this to force a one-time warmup again after deployments/schema/data changes
-const WARMUP_VERSION = "1";
+const WARMUP_VERSION = "2";
 const STORAGE_KEY = "quickfrench.cacheWarmupVersion";
 
-// Add an optional typing for requestIdleCallback on Window
-// Schedules a callback when the browser is idle enough; falls back to a timeout.
-function runWhenIdle(cb: () => void, timeout = 1500) {
-  if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-    const ric = (window as Window & {
-      requestIdleCallback?: Window["requestIdleCallback"];
-    }).requestIdleCallback;
-    if (typeof ric === "function") {
-      ric(() => cb(), { timeout });
-      return;
-    }
-  } else {
-    // no window (SSR) or method missing
-  }
-  setTimeout(cb, timeout);
-}
+// requestIdleCallback helper removed (warmup runs immediately now)
 
 export default function CacheWarmup() {
   const startedRef = useRef(false);
@@ -55,18 +40,19 @@ export default function CacheWarmup() {
           await indexedDBCache.init();
         } catch {}
 
-        // Defer heavy network work until after first paint/idle
-        runWhenIdle(async () => {
-          try {
-            // Do not force refresh; we only want to fill if missing
-            await vocabularyCacheService.preloadAllData({ forceRefresh: false });
-            localStorage.setItem(STORAGE_KEY, WARMUP_VERSION);
-            setDone(true);
-          } catch (e) {
-            // If offline or an error occurs, try again on next visit or when connection returns
-            console.warn("Cache warmup failed; will retry later:", e);
+        // Start warmup immediately to minimize partial cache counts
+        try {
+          await vocabularyCacheService.preloadAllData({ forceRefresh: false });
+          localStorage.setItem(STORAGE_KEY, WARMUP_VERSION);
+          setDone(true);
+          // Notify listeners (e.g., Settings page) that warmup finished
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("quickfrench:cacheWarmupDone"));
           }
-        });
+        } catch (e) {
+          // If offline or an error occurs, try again on next visit or when connection returns
+          console.warn("Cache warmup failed; will retry later:", e);
+        }
       } catch (e) {
         console.warn("Cache warmup init failed:", e);
       }
@@ -90,15 +76,16 @@ export default function CacheWarmup() {
         setTimeout(() => {
           if (!startedRef.current) {
             startedRef.current = true;
-            runWhenIdle(() => {
-              vocabularyCacheService
-                .preloadAllData({ forceRefresh: false })
-                .then(() => {
-                  localStorage.setItem(STORAGE_KEY, WARMUP_VERSION);
-                  setDone(true);
-                })
-                .catch(() => {});
-            });
+            vocabularyCacheService
+              .preloadAllData({ forceRefresh: false })
+              .then(() => {
+                localStorage.setItem(STORAGE_KEY, WARMUP_VERSION);
+                setDone(true);
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("quickfrench:cacheWarmupDone"));
+                }
+              })
+              .catch(() => {});
           }
         }, 1000);
       }

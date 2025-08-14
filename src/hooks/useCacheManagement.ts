@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { vocabularyCacheService } from "@/lib/cache-service";
 
 interface CacheInfo {
@@ -13,6 +13,23 @@ export const useCacheManagement = () => {
   const [isClearing, setIsClearing] = useState(false);
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator !== "undefined" ? navigator.onLine : true,
+  );
+
+  // Track online/offline status
+  useEffect(() => {
+    const update = () => setIsOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
+    update();
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", update);
+      window.addEventListener("offline", update);
+      return () => {
+        window.removeEventListener("online", update);
+        window.removeEventListener("offline", update);
+      };
+    }
+  }, []);
 
   const getCacheInfo = useCallback(async () => {
     try {
@@ -29,11 +46,19 @@ export const useCacheManagement = () => {
     setError(null);
 
     try {
+      // Prevent refresh while offline (server APIs unavailable)
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        throw new Error("offline");
+      }
       await vocabularyCacheService.preloadAllData({ forceRefresh: true });
       await getCacheInfo(); // Update cache info after refresh
     } catch (err) {
       console.error("Error refreshing data:", err);
-      setError("Failed to refresh data from database");
+      if ((err as Error)?.message === "offline") {
+        setError("You're offline. Connect to refresh from database.");
+      } else {
+        setError("Failed to refresh data from database");
+      }
     } finally {
       setIsRefreshing(false);
     }
@@ -44,6 +69,10 @@ export const useCacheManagement = () => {
     setError(null);
 
     try {
+      // UX: avoid clearing cache while offline to prevent data loss with no way to refetch
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        throw new Error("offline");
+      }
       await vocabularyCacheService.clearAllCache();
       setCacheInfo({
         totalEntries: 0,
@@ -53,7 +82,11 @@ export const useCacheManagement = () => {
       });
     } catch (err) {
       console.error("Error clearing cache:", err);
-      setError("Failed to clear cache");
+      if ((err as Error)?.message === "offline") {
+        setError("You're offline. Clearing cache is disabled to prevent data loss.");
+      } else {
+        setError("Failed to clear cache");
+      }
     } finally {
       setIsClearing(false);
     }
@@ -127,6 +160,7 @@ export const useCacheManagement = () => {
     cacheInfo,
     isRefreshing,
     isClearing,
+  isOnline,
     error,
     getCacheInfo,
     refreshAllData,
