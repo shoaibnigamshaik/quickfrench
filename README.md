@@ -32,7 +32,7 @@ Guiding principles
 - Focus: No feeds, no fluff. Clean UI, keyboard shortcuts, and optional auto‑advance to reduce friction.
 - Relevance: Topic packs and category‑aware distractors keep multiple‑choice options meaningful.
 - Flow: Bi‑directional translation, quick restarts (R), and tight feedback loops encourage repeat sessions.
-- Curriculum: This is taken right off of Cambridge's French as a Foreign Language Syallabus document.
+- Curriculum: This is taken right off of Cambridge's French as a Foreign Language Syllabus document.
 
 ## Quick start
 
@@ -96,7 +96,7 @@ Your preferences (mode, count, direction, auto‑advance) are saved locally.
 ### Data & caching
 
 - Next.js API routes backed by Turso (@libsql)
-- Client‑side caching via IndexedDB (Dexie) with 24‑hour TTL and stale‑while‑revalidate
+- Client‑side caching via IndexedDB (Dexie) with 24‑hour TTL; background refresh is planned
 - Settings page lets you refresh from DB or clear the cache
 
 ### Expected tables
@@ -148,3 +148,5 @@ Private project. All rights reserved.
 - Tailwind CSS — https://tailwindcss.com/
 
 — Made with ❤️ by Shoaib and Sarthak
+
+Note: A PWA manifest and service worker for full offline shell are on the roadmap.

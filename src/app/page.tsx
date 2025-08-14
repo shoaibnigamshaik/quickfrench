@@ -34,7 +34,8 @@ const FrenchVocabularyQuiz = () => {
     handleAnswerSelect,
     handleTypedSubmit,
     nextQuestion,
-    resetQuiz,
+  resetQuiz,
+  goHome,
     startQuiz,
     updateTypedAnswer,
     updateTranslationDirection,
@@ -280,19 +281,19 @@ const FrenchVocabularyQuiz = () => {
 
   // Handle back from food subtopics
   const handleResetQuiz = () => {
-  setShowReview(false);
+    setShowReview(false);
     setSelectedTopic("");
     setSelectedFoodCategory("");
     setSelectedBodyCategory("");
     setSelectedFamilyCategory("");
     setSelectedHomeCategory("");
     setSelectedNatureCategory("");
-  setSelectedICTCategory("");
+    setSelectedICTCategory("");
     setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
-    clearVocabulary(); // Clear vocabulary data
-    resetQuiz();
+    setSelectedEducationCategory("");
+    setSelectedWorkCategory("");
+    clearVocabulary();
+    goHome();
   };
 
   if (loading && selectedTopic) {
@@ -411,7 +412,7 @@ const FrenchVocabularyQuiz = () => {
         score={quizState.score}
         totalQuestions={quizState.questions.length}
         maxStreak={quizState.maxStreak}
-        onReturnHome={handleResetQuiz}
+  onReturnHome={handleResetQuiz}
         onRestartQuiz={() => {
           // Restart in place: regenerate questions and reset progress
           // Use the reset function from hook but preserve selectedTopic and fetched vocabulary

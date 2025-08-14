@@ -315,6 +315,25 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     setShowTopicSelector(false);
   };
 
+  // Navigate back to the Topic Selector and clear current quiz state
+  const goHome = () => {
+    setQuizState((prev) => ({
+      ...prev,
+      currentQuestion: 0,
+      score: 0,
+      selectedAnswer: "",
+      showResult: false,
+      quizComplete: false,
+      streak: 0,
+      maxStreak: 0,
+      typedAnswer: "",
+      wrongAnswers: [],
+      questions: [],
+    }));
+    setSettings((prev) => ({ ...prev, selectedTopic: "" }));
+    setShowTopicSelector(true);
+  };
+
   const startQuiz = (topic: string) => {
     setSettings((prev) => ({ ...prev, selectedTopic: topic }));
     setShowTopicSelector(false);
@@ -348,6 +367,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     handleTypedSubmit,
     nextQuestion,
     resetQuiz,
+  goHome,
     startQuiz,
     updateTypedAnswer,
     updateQuizMode,

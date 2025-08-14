@@ -37,6 +37,13 @@ export const useKeyboardShortcuts = ({
           target.tagName === "TEXTAREA" ||
           (target as HTMLElement).isContentEditable);
 
+      // ESC to return to topics (when not typing in an input)
+      if (e.key === "Escape" && !showTopicSelector && !isEditable) {
+        // Reuse reset behavior which parent wires to goHome
+        onResetQuiz();
+        return;
+      }
+
       // Space or Enter to go to next question (when result is shown)
       if ((e.key === " " || e.key === "Enter") && showResult) {
         e.preventDefault();
