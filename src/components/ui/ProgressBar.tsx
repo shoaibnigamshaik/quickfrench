@@ -35,9 +35,9 @@ export const ProgressBar = ({
           </span>
         </div>
       </div>
-    <div className="w-full rounded-full h-2.5 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-[var(--border)]">
+      <div className="w-full rounded-full h-2.5 bg-[var(--muted)] dark:bg-white/15 border border-[var(--border)] dark:border-[var(--border)]">
         <div
-      className="h-2.5 rounded-full"
+          className="h-2.5 rounded-full"
           style={{
             width: `${((currentQuestion + 1) / totalQuestions) * 100}%`,
             background:

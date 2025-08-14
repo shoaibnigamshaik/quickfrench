@@ -17,7 +17,6 @@ interface QuizGameProps {
   onResetQuiz: () => void;
   onRestartQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
-  isFoodQuiz?: boolean;
 }
 
 export const QuizGame = ({
@@ -29,7 +28,6 @@ export const QuizGame = ({
   onResetQuiz,
   onRestartQuiz,
   onUpdateTypedAnswer,
-  isFoodQuiz = false,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -45,7 +43,7 @@ export const QuizGame = ({
     currentQuestion: quizState.currentQuestion,
     questions: quizState.questions,
     onResetQuiz,
-  onRestartQuiz,
+    onRestartQuiz,
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,
@@ -87,7 +85,10 @@ export const QuizGame = ({
       if (synth.speaking) synth.cancel();
 
       // Remove gender indicators like (m) or (f) to avoid reading them aloud
-      const cleaned = (text || "").replace(/\(\s*[mf]\s*\)/gi, "").replace(/\s{2,}/g, " ").trim();
+      const cleaned = (text || "")
+        .replace(/\(\s*[mf]\s*\)/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
       const utter = new SpeechSynthesisUtterance(cleaned);
       // Use a cached French voice if available; otherwise set lang
       if (voiceRef.current) utter.voice = voiceRef.current;
@@ -127,11 +128,11 @@ export const QuizGame = ({
       quizState.selectedAnswer ===
         quizState.questions[quizState.currentQuestion]?.correct
     ) {
-  // Set timeout to auto-advance after configured delay
+      // Set timeout to auto-advance after configured delay
       autoAdvanceTimeoutRef.current = setTimeout(() => {
         onNextQuestion();
         autoAdvanceTimeoutRef.current = null;
-  }, settings.autoAdvanceDelayMs ?? 1000);
+      }, settings.autoAdvanceDelayMs ?? 1000);
     }
 
     // Cleanup function to clear timeout if component unmounts or dependencies change
@@ -143,6 +144,7 @@ export const QuizGame = ({
     };
   }, [
     settings.autoAdvance,
+    settings.autoAdvanceDelayMs,
     quizState.showResult,
     quizState.quizComplete,
     quizState.selectedAnswer,
@@ -168,11 +170,8 @@ export const QuizGame = ({
   const currentQuestion = quizState.questions[quizState.currentQuestion];
 
   return (
-  <div className="max-w-4xl mx-auto">
-      <QuizHeader
-        onResetQuiz={onResetQuiz}
-        isFoodQuiz={isFoodQuiz}
-      />
+    <div className="max-w-4xl mx-auto">
+      <QuizHeader onResetQuiz={onResetQuiz} />
 
       <ProgressBar
         currentQuestion={quizState.currentQuestion}

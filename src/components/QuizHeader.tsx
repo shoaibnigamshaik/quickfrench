@@ -3,15 +3,9 @@ import Link from "next/link";
 
 interface QuizHeaderProps {
   onResetQuiz: () => void;
-  isFoodQuiz?: boolean;
 }
 
-export const QuizHeader = ({
-  onResetQuiz,
-  isFoodQuiz = false,
-}: QuizHeaderProps) => {
-  const handleBackClick = () => onResetQuiz();
-
+export const QuizHeader = ({ onResetQuiz }: QuizHeaderProps) => {
   return (
     <div className="text-center mb-5 relative">
       <Link
@@ -24,9 +18,9 @@ export const QuizHeader = ({
         <span className="font-semibold">Back</span>
       </Link>
 
-    <div className="pt-6">
+      <div className="pt-6">
         <h1
-      className="text-2xl md:text-[28px] font-bold"
+          className="text-2xl md:text-[28px] font-bold"
           style={{ color: "var(--foreground)" }}
         >
           Translate the Word

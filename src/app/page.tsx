@@ -33,14 +33,13 @@ const FrenchVocabularyQuiz = () => {
     handleAnswerSelect,
     handleTypedSubmit,
     nextQuestion,
-  resetQuiz,
-  goHome,
-  startCustomQuiz,
+    resetQuiz,
+    goHome,
+    startCustomQuiz,
     startQuiz,
     updateTypedAnswer,
     updateTranslationDirection,
   } = useQuizState(vocabulary, selectedTopic);
-
 
   // Prevent page scroll while selecting topics (desktop UX)
   React.useEffect(() => {
@@ -77,10 +76,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("food");
       startQuiz("food");
     } else if (topic === "body") {
@@ -91,10 +90,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("body");
       startQuiz("body");
     } else if (topic === "family") {
@@ -105,10 +104,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("family");
       startQuiz("family");
     } else if (topic === "home") {
@@ -119,10 +118,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("home");
       startQuiz("home");
     } else if (topic === "nature") {
@@ -133,10 +132,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("nature");
       startQuiz("nature");
     } else if (topic === "ict") {
@@ -149,8 +148,8 @@ const FrenchVocabularyQuiz = () => {
       setSelectedNatureCategory("");
       setSelectedICTCategory("");
       setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("ict");
       startQuiz("ict");
     } else if (topic === "shopping") {
@@ -164,7 +163,7 @@ const FrenchVocabularyQuiz = () => {
       setSelectedICTCategory("");
       setSelectedShoppingCategory("");
       setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedWorkCategory("");
       await fetchVocabulary("shopping");
       startQuiz("shopping");
     } else if (topic === "education") {
@@ -202,10 +201,10 @@ const FrenchVocabularyQuiz = () => {
       setSelectedFamilyCategory("");
       setSelectedHomeCategory("");
       setSelectedNatureCategory("");
-  setSelectedICTCategory("");
-  setSelectedShoppingCategory("");
-  setSelectedEducationCategory("");
-  setSelectedWorkCategory("");
+      setSelectedICTCategory("");
+      setSelectedShoppingCategory("");
+      setSelectedEducationCategory("");
+      setSelectedWorkCategory("");
       // Fetch vocabulary data when starting quiz
       await fetchVocabulary(topic);
       startQuiz(topic);
@@ -306,15 +305,17 @@ const FrenchVocabularyQuiz = () => {
               ? `${selectedHomeCategory} (Home)`
               : selectedTopic === "nature" && selectedNatureCategory
                 ? `${selectedNatureCategory} (Nature)`
-              : selectedTopic === "ict" && selectedICTCategory
-                ? `${selectedICTCategory} (ICT)`
-              : selectedTopic === "shopping" && selectedShoppingCategory
-                ? `${selectedShoppingCategory} (Shopping)`
-              : selectedTopic === "education" && selectedEducationCategory
-                ? `${selectedEducationCategory} (Education)`
-              : selectedTopic === "work" && selectedWorkCategory
-                ? `${selectedWorkCategory} (Work)`
-              : topics.find((t) => t.id === selectedTopic)?.name.toLowerCase();
+                : selectedTopic === "ict" && selectedICTCategory
+                  ? `${selectedICTCategory} (ICT)`
+                  : selectedTopic === "shopping" && selectedShoppingCategory
+                    ? `${selectedShoppingCategory} (Shopping)`
+                    : selectedTopic === "education" && selectedEducationCategory
+                      ? `${selectedEducationCategory} (Education)`
+                      : selectedTopic === "work" && selectedWorkCategory
+                        ? `${selectedWorkCategory} (Work)`
+                        : topics
+                            .find((t) => t.id === selectedTopic)
+                            ?.name.toLowerCase();
 
     return (
       <div className="flex items-center justify-center py-16">
@@ -335,7 +336,10 @@ const FrenchVocabularyQuiz = () => {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-center max-w-md">
-          <div className="mb-3 text-lg font-semibold" style={{ color: "var(--danger-600)" }}>
+          <div
+            className="mb-3 text-lg font-semibold"
+            style={{ color: "var(--danger-600)" }}
+          >
             Failed to load {selectedTopic}.
           </div>
           <p className="mb-4" style={{ color: "var(--muted-foreground)" }}>
@@ -343,7 +347,11 @@ const FrenchVocabularyQuiz = () => {
           </p>
           <button
             className="inline-flex items-center px-5 py-2.5 rounded-lg border"
-            style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
+            style={{
+              backgroundColor: "var(--muted)",
+              borderColor: "var(--border)",
+              color: "var(--foreground)",
+            }}
             onClick={() => {
               // Try again with a forced refresh
               fetchVocabulary(selectedTopic, undefined, true);
@@ -401,7 +409,7 @@ const FrenchVocabularyQuiz = () => {
         score={quizState.score}
         totalQuestions={quizState.questions.length}
         maxStreak={quizState.maxStreak}
-  onReturnHome={handleResetQuiz}
+        onReturnHome={handleResetQuiz}
         onRestartQuiz={() => {
           // Restart in place: regenerate questions and reset progress
           // Use the reset function from hook but preserve selectedTopic and fetched vocabulary
@@ -427,19 +435,8 @@ const FrenchVocabularyQuiz = () => {
       onTypedSubmit={handleTypedSubmit}
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
-  onRestartQuiz={resetQuiz}
+      onRestartQuiz={resetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
-      isFoodQuiz={
-        selectedTopic === "food" ||
-        selectedTopic === "body" ||
-        selectedTopic === "family" ||
-        selectedTopic === "home" ||
-  selectedTopic === "nature" ||
-  selectedTopic === "ict" ||
-  selectedTopic === "shopping" ||
-  selectedTopic === "education" ||
-  selectedTopic === "work"
-      }
     />
   );
 };

@@ -44,7 +44,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   shopping: 72,
   education: 115,
   culture: 30,
-  work: 73
+  work: 73,
 };
 
 export const TopicSelector = ({
@@ -77,13 +77,14 @@ export const TopicSelector = ({
     home: HOME_SUBTOPICS,
     nature: NATURE_SUBTOPICS,
     ict: ICT_SUBTOPICS,
-  shopping: SHOPPING_SUBTOPICS,
-  education: EDUCATION_SUBTOPICS,
-  work: WORK_SUBTOPICS,
+    shopping: SHOPPING_SUBTOPICS,
+    education: EDUCATION_SUBTOPICS,
+    work: WORK_SUBTOPICS,
   };
 
   const hasSubtopics = (id: string) => Boolean(SUBTOPIC_MAP[id]);
-  const subtopicsFor = (id: string): readonly string[] => SUBTOPIC_MAP[id] ?? [];
+  const subtopicsFor = (id: string): readonly string[] =>
+    SUBTOPIC_MAP[id] ?? [];
 
   return (
     <div className="max-w-2xl lg:max-w-5xl w-full mx-auto min-h-[100dvh]">
@@ -165,7 +166,7 @@ export const TopicSelector = ({
           </div>
         </div>
 
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
           {/* List column */}
           <div className="lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
             {/* Scroll only within the topic list on desktop to keep actions in view */}
@@ -179,70 +180,70 @@ export const TopicSelector = ({
                 className="divide-y rounded-xl border overflow-hidden"
                 style={{ borderColor: "var(--border)" }}
               >
-              {topics.map((topic) => {
-                const itemCount = TOPIC_COUNTS[topic.id];
-                const isSelected = selectedId === topic.id;
-                const _hasSub = hasSubtopics(topic.id);
-                return (
-                  <li key={topic.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const isDesktop =
-                          typeof window !== "undefined" &&
-                          window.matchMedia &&
-                          window.matchMedia("(min-width: 1024px)").matches;
-                        if (isDesktop) setSelectedId(topic.id);
-                        else {
-                          if (_hasSub) setSelectedId(topic.id);
-                          else onStartQuiz(topic.id);
-                        }
-                      }}
-                      aria-label={`${topic.name}${_hasSub ? " (has subtopics)" : ""}`}
-                      className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] ${isSelected ? "bg-[var(--muted)]" : ""}`}
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      <span className="text-2xl" aria-hidden>
-                        {topic.icon}
-                      </span>
-                      {isSelected && (
-                        <span
-                          className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: "var(--accent-500)" }}
-                          aria-hidden
-                        />
-                      )}
-                      <span className="flex-1 font-medium text-balance">
-                        {topic.name}
-                      </span>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full border"
-                        style={{
-                          color: "var(--muted-foreground)",
-                          borderColor: "var(--border)",
+                {topics.map((topic) => {
+                  const itemCount = TOPIC_COUNTS[topic.id];
+                  const isSelected = selectedId === topic.id;
+                  const _hasSub = hasSubtopics(topic.id);
+                  return (
+                    <li key={topic.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const isDesktop =
+                            typeof window !== "undefined" &&
+                            window.matchMedia &&
+                            window.matchMedia("(min-width: 1024px)").matches;
+                          if (isDesktop) setSelectedId(topic.id);
+                          else {
+                            if (_hasSub) setSelectedId(topic.id);
+                            else onStartQuiz(topic.id);
+                          }
                         }}
+                        aria-label={`${topic.name}${_hasSub ? " (has subtopics)" : ""}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] ${isSelected ? "bg-[var(--muted)]" : ""}`}
+                        style={{ color: "var(--foreground)" }}
                       >
-                        {itemCount ?? "—"}
-                      </span>
-                      {_hasSub && (
-                        <ChevronRight
-                          className="h-4 w-4"
-                          style={{ color: "var(--muted-foreground)" }}
-                        />
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
+                        <span className="text-2xl" aria-hidden>
+                          {topic.icon}
+                        </span>
+                        {isSelected && (
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: "var(--accent-500)" }}
+                            aria-hidden
+                          />
+                        )}
+                        <span className="flex-1 font-medium text-balance">
+                          {topic.name}
+                        </span>
+                        <span
+                          className="text-xs px-2 py-0.5 rounded-full border"
+                          style={{
+                            color: "var(--muted-foreground)",
+                            borderColor: "var(--border)",
+                          }}
+                        >
+                          {itemCount ?? "—"}
+                        </span>
+                        {_hasSub && (
+                          <ChevronRight
+                            className="h-4 w-4"
+                            style={{ color: "var(--muted-foreground)" }}
+                          />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
 
-      {/* Details column */}
-      <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
+          {/* Details column */}
+          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
             {selectedTopic ? (
               <div
-        className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"} lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek`}
+                className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? "p-6" : "p-4"} lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek`}
                 style={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",

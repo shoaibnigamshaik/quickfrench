@@ -115,13 +115,20 @@ export const QuizComplete = ({
                 type="button"
                 onClick={onRetryWrongOnly}
                 className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
-                style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
+                style={{
+                  backgroundColor: "var(--muted)",
+                  borderColor: "var(--border)",
+                  color: "var(--foreground)",
+                }}
                 title="Start a new quiz with only your missed questions"
               >
                 Retry Wrong Only
                 <span
                   className="ml-2 inline-flex items-center justify-center text-xs font-bold rounded-full px-2 py-1"
-                  style={{ backgroundColor: "var(--danger-600)", color: "white" }}
+                  style={{
+                    backgroundColor: "var(--danger-600)",
+                    color: "white",
+                  }}
                 >
                   {wrongCount}
                 </span>
@@ -131,7 +138,11 @@ export const QuizComplete = ({
               type="button"
               onClick={onRestartQuiz}
               className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
-              style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
+              style={{
+                backgroundColor: "var(--muted)",
+                borderColor: "var(--border)",
+                color: "var(--foreground)",
+              }}
             >
               <RotateCcw className="mr-2 h-5 w-5" />
               Restart Quiz

@@ -64,10 +64,14 @@ class VocabularyCacheService {
     // No cache: fetch and cache before returning
     return await this.fetchAndCache<T>(cacheKey, apiUrl, ttl);
   }
-  private async fetchAndCache<T>(cacheKey: string, apiUrl: string, ttl: number): Promise<T> {
+  private async fetchAndCache<T>(
+    cacheKey: string,
+    apiUrl: string,
+    ttl: number,
+  ): Promise<T> {
     // Deduplicate outstanding requests
     if (this.pendingRequests.has(cacheKey)) {
-      return (this.pendingRequests.get(cacheKey) as Promise<T>);
+      return this.pendingRequests.get(cacheKey) as Promise<T>;
     }
     const p = this.performNetworkFetch<T>(apiUrl)
       .then(async (data) => {
@@ -84,7 +88,11 @@ class VocabularyCacheService {
     return await p;
   }
 
-  private async revalidate<T>(cacheKey: string, apiUrl: string, ttl: number): Promise<void> {
+  private async revalidate<T>(
+    cacheKey: string,
+    apiUrl: string,
+    ttl: number,
+  ): Promise<void> {
     try {
       await this.fetchAndCache<T>(cacheKey, apiUrl, ttl);
     } catch (error) {
@@ -160,7 +168,7 @@ class VocabularyCacheService {
       config,
     );
   }
-  
+
   async getCulture(config?: CacheConfig) {
     return this.fetchWithCache<{ word: string; meaning: string }[]>(
       "culture",
@@ -240,11 +248,7 @@ class VocabularyCacheService {
   }
 
   async getWork(config?: CacheConfig): Promise<WorkItem[]> {
-    return this.fetchWithCache<WorkItem[]>(
-      "work",
-      "/api/work",
-      config,
-    );
+    return this.fetchWithCache<WorkItem[]>("work", "/api/work", config);
   }
 
   async getWorkCategories(config?: CacheConfig): Promise<WorkCategory[]> {
@@ -359,11 +363,9 @@ class VocabularyCacheService {
   }
 
   async getICT(config?: CacheConfig) {
-    return this.fetchWithCache<{ word: string; meaning: string; category: string | null }[]>(
-      "ict",
-      "/api/ict",
-      config,
-    );
+    return this.fetchWithCache<
+      { word: string; meaning: string; category: string | null }[]
+    >("ict", "/api/ict", config);
   }
 
   async getICTCategories(config?: CacheConfig) {
@@ -377,11 +379,9 @@ class VocabularyCacheService {
   async getICTByCategory(category: string, config?: CacheConfig) {
     const cacheKey = `ict-${category}`;
     const apiUrl = `/api/ict/${encodeURIComponent(category)}`;
-    return this.fetchWithCache<{ word: string; meaning: string; category: string }[]>(
-      cacheKey,
-      apiUrl,
-      config,
-    );
+    return this.fetchWithCache<
+      { word: string; meaning: string; category: string }[]
+    >(cacheKey, apiUrl, config);
   }
 
   async clearAllCache(): Promise<void> {
@@ -471,11 +471,11 @@ class VocabularyCacheService {
         this.getColours(config),
         this.getHobbies(config),
         this.getWardrobe(config),
-  this.getCulture(config),
-    this.getBuildings(config),
-    this.getShopping(config),
-  this.getEducation(config),
-  this.getWork(config),
+        this.getCulture(config),
+        this.getBuildings(config),
+        this.getShopping(config),
+        this.getEducation(config),
+        this.getWork(config),
         this.getFoodCategories(config),
         this.getBody(config),
         this.getBodyCategories(config),
@@ -485,11 +485,11 @@ class VocabularyCacheService {
         this.getHomeCategories(config),
         this.getNature(config),
         this.getNatureCategories(config),
-  this.getICT(config),
-  this.getICTCategories(config),
-    this.getShoppingCategories(config),
-  this.getEducationCategories(config),
-  this.getWorkCategories(config),
+        this.getICT(config),
+        this.getICTCategories(config),
+        this.getShoppingCategories(config),
+        this.getEducationCategories(config),
+        this.getWorkCategories(config),
       ];
 
       await Promise.all(promises);

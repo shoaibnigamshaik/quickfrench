@@ -64,7 +64,11 @@ export const generateQuestions = (
 };
 
 // DRY helper: category-aware MCQ generator for items shaped like { word, meaning, category? }
-type WithOptionalCategory = { word: string; meaning: string; category?: string | null };
+type WithOptionalCategory = {
+  word: string;
+  meaning: string;
+  category?: string | null;
+};
 
 const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
   items: T[],
@@ -73,7 +77,9 @@ const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
 ): Question[] => {
   const shuffled = shuffleArray(items);
   const numQuestions =
-    questionCount === "all" ? items.length : Math.min(questionCount, items.length);
+    questionCount === "all"
+      ? items.length
+      : Math.min(questionCount, items.length);
 
   return shuffled.slice(0, numQuestions).map((item) => {
     const isEnglishToFrench = translationDirection === "english-to-french";
@@ -105,35 +111,40 @@ export const generateAdverbQuestions = (
   adverbs: Adverb[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(adverbs, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(adverbs, questionCount, translationDirection);
 
 // Special function for food that includes category information (similar to adverbs)
 export const generateFoodQuestions = (
   foods: Food[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(foods, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(foods, questionCount, translationDirection);
 
 // Special function for family (similar shape as food/body)
 export const generateFamilyQuestions = (
   items: FamilyItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Special function for home (category-based similar to family/food)
 export const generateHomeQuestions = (
   items: HomeItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Special function for body that may include category information
 export const generateBodyQuestions = (
   items: BodyItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
@@ -241,42 +252,48 @@ export const generateNatureQuestions = (
   items: NatureItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // ICT: same pattern as nature (category-restricted options)
 export const generateICTQuestions = (
   items: ICTItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Buildings: simple (no category) so base generator works fine
 export const generateBuildingsQuestions = (
   items: BuildingItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Shopping: category-based, like nature/ict/home/family
 export const generateShoppingQuestions = (
   items: ShoppingItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Education: category-based
 export const generateEducationQuestions = (
   items: EducationItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 // Work: category-based
 export const generateWorkQuestions = (
   items: WorkItem[],
   questionCount: number | "all",
   translationDirection: TranslationDirection = "french-to-english",
-): Question[] => generateCategoryAwareQuestions(items, questionCount, translationDirection);
+): Question[] =>
+  generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
 export const getScoreColor = (
   score: number,

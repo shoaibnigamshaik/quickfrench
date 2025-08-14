@@ -15,6 +15,9 @@ export async function GET() {
     return Response.json(result.rows);
   } catch (error) {
     console.error("Error fetching education:", error);
-    return Response.json({ error: "Failed to fetch education" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch education" },
+      { status: 500 },
+    );
   }
 }

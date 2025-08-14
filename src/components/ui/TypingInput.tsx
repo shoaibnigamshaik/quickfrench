@@ -43,9 +43,7 @@ export const TypingInput = ({
             }
           }}
           disabled={showResult}
-          placeholder={
-            placeholder ?? "Type your answer..."
-          }
+          placeholder={placeholder ?? "Type your answer..."}
           className="w-full p-5 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
           style={{
             color: "var(--foreground)",
@@ -111,10 +109,7 @@ export const TypingInput = ({
               Your answer:
             </div>
             {(() => {
-              const isCorrect = checkTypedAnswer(
-                correctAnswer,
-                selectedAnswer,
-              );
+              const isCorrect = checkTypedAnswer(correctAnswer, selectedAnswer);
               return (
                 <div
                   className="font-semibold mb-3"

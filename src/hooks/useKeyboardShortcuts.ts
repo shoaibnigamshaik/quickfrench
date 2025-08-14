@@ -56,7 +56,7 @@ export const useKeyboardShortcuts = ({
       // R to restart quiz (allow restart anytime except topic selector)
       // Ignore when typing in an input/textarea/contentEditable
       if (e.key.toLowerCase() === "r" && !showTopicSelector && !isEditable) {
-  onRestartQuiz();
+        onRestartQuiz();
         return;
       }
 
@@ -64,7 +64,11 @@ export const useKeyboardShortcuts = ({
 
       if (quizMode === "multiple-choice") {
         // Number keys 1-4 for multiple choice
-        if (["1", "2", "3", "4"].includes(e.key) && !showResult && !isEditable) {
+        if (
+          ["1", "2", "3", "4"].includes(e.key) &&
+          !showResult &&
+          !isEditable
+        ) {
           const index = parseInt(e.key) - 1;
           if (questions[currentQuestion]?.options[index]) {
             onAnswerSelect(questions[currentQuestion].options[index]);
@@ -84,7 +88,7 @@ export const useKeyboardShortcuts = ({
     showTopicSelector,
     quizMode,
     onResetQuiz,
-  onRestartQuiz,
+    onRestartQuiz,
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,

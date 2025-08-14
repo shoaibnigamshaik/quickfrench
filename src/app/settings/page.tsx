@@ -48,7 +48,8 @@ const SettingsPage = () => {
   );
   const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
   const [autoAdvance, setAutoAdvance] = React.useState(false);
-  const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] = React.useState<number>(1000);
+  const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] =
+    React.useState<number>(1000);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
 
   // Cache management
@@ -82,7 +83,7 @@ const SettingsPage = () => {
       | "typing";
     const savedCount = localStorage.getItem("questionCount");
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
-  const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
+    const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -98,8 +99,14 @@ const SettingsPage = () => {
     if (savedAutoAdvance !== null) {
       setAutoAdvance(savedAutoAdvance === "true");
     }
-    if (savedAutoAdvanceDelay && !Number.isNaN(parseInt(savedAutoAdvanceDelay))) {
-      const ms = Math.min(Math.max(parseInt(savedAutoAdvanceDelay, 10), 300), 5000);
+    if (
+      savedAutoAdvanceDelay &&
+      !Number.isNaN(parseInt(savedAutoAdvanceDelay))
+    ) {
+      const ms = Math.min(
+        Math.max(parseInt(savedAutoAdvanceDelay, 10), 300),
+        5000,
+      );
       setAutoAdvanceDelayMs(ms);
     }
   }, []);
@@ -204,7 +211,7 @@ const SettingsPage = () => {
           type: "auto-advance" as const,
           value: autoAdvance,
         },
-  // Delay slider/input rendered alongside toggle
+        // Delay slider/input rendered alongside toggle
       ],
     },
     {
@@ -598,7 +605,10 @@ const SettingsPage = () => {
                             />
                           </button>
                           <div className="flex items-center gap-2">
-                            <label className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                            <label
+                              className="text-sm"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
                               Delay:
                             </label>
                             <input
@@ -607,13 +617,26 @@ const SettingsPage = () => {
                               max={5000}
                               step={100}
                               value={autoAdvanceDelayMs}
-                              onChange={(e) => handleAutoAdvanceDelayChange(parseInt(e.target.value || "1000", 10))}
+                              onChange={(e) =>
+                                handleAutoAdvanceDelayChange(
+                                  parseInt(e.target.value || "1000", 10),
+                                )
+                              }
                               disabled={!autoAdvance}
                               className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
-                              style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                              style={{
+                                backgroundColor: "var(--card)",
+                                color: "var(--foreground)",
+                                borderColor: "var(--border)",
+                              }}
                               aria-label="Auto-advance delay in milliseconds"
                             />
-                            <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>ms</span>
+                            <span
+                              className="text-sm"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
+                              ms
+                            </span>
                           </div>
                         </div>
                       )}
