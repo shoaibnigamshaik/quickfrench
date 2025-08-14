@@ -15,6 +15,7 @@ interface QuizGameProps {
   onTypedSubmit: () => void;
   onNextQuestion: () => void;
   onResetQuiz: () => void;
+  onRestartQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
   isFoodQuiz?: boolean;
 }
@@ -26,6 +27,7 @@ export const QuizGame = ({
   onTypedSubmit,
   onNextQuestion,
   onResetQuiz,
+  onRestartQuiz,
   onUpdateTypedAnswer,
   isFoodQuiz = false,
 }: QuizGameProps) => {
@@ -43,6 +45,7 @@ export const QuizGame = ({
     currentQuestion: quizState.currentQuestion,
     questions: quizState.questions,
     onResetQuiz,
+  onRestartQuiz,
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,

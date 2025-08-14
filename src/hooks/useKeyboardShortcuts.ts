@@ -10,6 +10,7 @@ interface UseKeyboardShortcutsProps {
   currentQuestion: number;
   questions: Question[];
   onResetQuiz: () => void;
+  onRestartQuiz: () => void;
   onAnswerSelect: (answer: string) => void;
   onTypedSubmit: () => void;
   onNextQuestion: () => void;
@@ -24,6 +25,7 @@ export const useKeyboardShortcuts = ({
   currentQuestion,
   questions,
   onResetQuiz,
+  onRestartQuiz,
   onAnswerSelect,
   onTypedSubmit,
   onNextQuestion,
@@ -54,7 +56,7 @@ export const useKeyboardShortcuts = ({
       // R to restart quiz (allow restart anytime except topic selector)
       // Ignore when typing in an input/textarea/contentEditable
       if (e.key.toLowerCase() === "r" && !showTopicSelector && !isEditable) {
-        onResetQuiz();
+  onRestartQuiz();
         return;
       }
 
@@ -82,6 +84,7 @@ export const useKeyboardShortcuts = ({
     showTopicSelector,
     quizMode,
     onResetQuiz,
+  onRestartQuiz,
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,

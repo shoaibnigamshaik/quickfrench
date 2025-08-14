@@ -427,6 +427,7 @@ const FrenchVocabularyQuiz = () => {
       onTypedSubmit={handleTypedSubmit}
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
+  onRestartQuiz={resetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
       isFoodQuiz={
         selectedTopic === "food" ||
