@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 export async function GET() {
   try {
-  const result = await turso.execute("SELECT * FROM numbers");
+    const result = await turso.execute("SELECT * FROM numbers");
     return Response.json(result.rows);
   } catch (error) {
     console.error("Error fetching numbers:", error);

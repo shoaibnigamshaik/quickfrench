@@ -19,7 +19,8 @@ export const useCacheManagement = () => {
 
   // Track online/offline status
   useEffect(() => {
-    const update = () => setIsOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
+    const update = () =>
+      setIsOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
     update();
     if (typeof window !== "undefined") {
       window.addEventListener("online", update);
@@ -83,7 +84,9 @@ export const useCacheManagement = () => {
     } catch (err) {
       console.error("Error clearing cache:", err);
       if ((err as Error)?.message === "offline") {
-        setError("You're offline. Clearing cache is disabled to prevent data loss.");
+        setError(
+          "You're offline. Clearing cache is disabled to prevent data loss.",
+        );
       } else {
         setError("Failed to clear cache");
       }
@@ -160,7 +163,7 @@ export const useCacheManagement = () => {
     cacheInfo,
     isRefreshing,
     isClearing,
-  isOnline,
+    isOnline,
     error,
     getCacheInfo,
     refreshAllData,

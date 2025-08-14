@@ -35,7 +35,9 @@ export const QuizGame = ({
   const [speechVolume, setSpeechVolume] = React.useState<number>(1);
   const [speechPitch, setSpeechPitch] = React.useState<number>(1);
   const [speechRate, setSpeechRate] = React.useState<number>(1);
-  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(null);
+  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(
+    null,
+  );
 
   // Load speech settings from localStorage and listen for changes from Settings modal
   useEffect(() => {
@@ -46,8 +48,10 @@ export const QuizGame = ({
         const rate = parseFloat(localStorage.getItem("speechRate") || "1");
         const uri = localStorage.getItem("speechVoiceURI");
         if (!Number.isNaN(vol)) setSpeechVolume(Math.min(Math.max(vol, 0), 1));
-        if (!Number.isNaN(pitch)) setSpeechPitch(Math.min(Math.max(pitch, 0), 2));
-        if (!Number.isNaN(rate)) setSpeechRate(Math.min(Math.max(rate, 0.5), 2));
+        if (!Number.isNaN(pitch))
+          setSpeechPitch(Math.min(Math.max(pitch, 0), 2));
+        if (!Number.isNaN(rate))
+          setSpeechRate(Math.min(Math.max(rate, 0.5), 2));
         setSpeechVoiceURI(uri);
       } catch {
         // no-op
@@ -55,8 +59,15 @@ export const QuizGame = ({
     };
     load();
     const handler = () => load();
-    window.addEventListener("quickfrench:speechSettingsChanged", handler as EventListener);
-    return () => window.removeEventListener("quickfrench:speechSettingsChanged", handler as EventListener);
+    window.addEventListener(
+      "quickfrench:speechSettingsChanged",
+      handler as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        "quickfrench:speechSettingsChanged",
+        handler as EventListener,
+      );
   }, []);
 
   // Keyboard shortcuts
@@ -85,7 +96,9 @@ export const QuizGame = ({
     const pickVoice = () => {
       const voices = synth.getVoices?.() || [];
       // Only allow French voices
-      const frVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("fr"));
+      const frVoices = voices.filter((v) =>
+        v.lang?.toLowerCase().startsWith("fr"),
+      );
       // If a specific voice is saved, use it first (restricted to FR)
       const byURI = speechVoiceURI
         ? frVoices.find((v) => v.voiceURI === speechVoiceURI) || null
@@ -129,9 +142,9 @@ export const QuizGame = ({
       // Use a cached French voice if available; otherwise set lang
       if (voiceRef.current) utter.voice = voiceRef.current;
       utter.lang = "fr-FR";
-  utter.volume = speechVolume;
-  utter.rate = speechRate;
-  utter.pitch = speechPitch;
+      utter.volume = speechVolume;
+      utter.rate = speechRate;
+      utter.pitch = speechPitch;
       synth.speak(utter);
     } catch {
       // no-op

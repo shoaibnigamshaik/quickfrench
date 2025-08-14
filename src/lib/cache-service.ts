@@ -47,12 +47,17 @@ class VocabularyCacheService {
       } catch (err) {
         lastErr = err;
         const delay = 300 * Math.pow(1.6, i);
-        console.warn(`Retry ${i + 1}/${attempts} for ${label} after error:`, err);
+        console.warn(
+          `Retry ${i + 1}/${attempts} for ${label} after error:`,
+          err,
+        );
         await new Promise((r) => setTimeout(r, delay));
       }
     }
     throw lastErr instanceof Error
-      ? new Error(`${label} failed after ${attempts} attempts: ${lastErr.message}`)
+      ? new Error(
+          `${label} failed after ${attempts} attempts: ${lastErr.message}`,
+        )
       : new Error(`${label} failed after ${attempts} attempts`);
   }
 
@@ -522,7 +527,9 @@ class VocabularyCacheService {
       );
       const topFailed = topResults.filter((r) => r.status === "rejected");
       if (topFailed.length) {
-        console.warn(`Top-level warmup had ${topFailed.length} failures; continuing`);
+        console.warn(
+          `Top-level warmup had ${topFailed.length} failures; continuing`,
+        );
       }
 
       // Also preload food data for all categories

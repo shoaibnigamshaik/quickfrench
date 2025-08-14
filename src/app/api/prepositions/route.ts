@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 export async function GET() {
   try {
-  const result = await turso.execute("SELECT * FROM prepositions");
+    const result = await turso.execute("SELECT * FROM prepositions");
     return Response.json(result.rows);
   } catch (error) {
     console.error("Error fetching prepositions:", error);

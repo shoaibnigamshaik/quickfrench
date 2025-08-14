@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 export async function GET() {
   try {
-  const result = await turso.execute("SELECT * FROM wardrobe");
+    const result = await turso.execute("SELECT * FROM wardrobe");
     return Response.json(result.rows);
   } catch (error) {
     console.error("Error fetching wardrobe:", error);

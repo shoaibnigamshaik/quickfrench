@@ -29,8 +29,8 @@ interface SettingItem {
     | "auto-advance"
     | "cache-refresh"
     | "cache-clear"
-  | "cache-info"
-  | "speech";
+    | "cache-info"
+    | "speech";
   value?: boolean | string;
   options?: string[];
 }
@@ -41,6 +41,12 @@ interface SettingSection {
 }
 
 const SettingsPage = () => {
+  // Constants/helpers
+  const SPEECH_EVENT = "quickfrench:speechSettingsChanged" as const;
+  const dispatchSpeechChanged = () =>
+    window.dispatchEvent?.(new CustomEvent(SPEECH_EVENT));
+  const setLS = (k: string, v: string) => localStorage.setItem(k, v);
+
   // Theme mode state: Light | Dark | Auto
   const [themeMode, setThemeMode] = React.useState<"Light" | "Dark" | "Auto">(
     "Auto",
@@ -56,19 +62,52 @@ const SettingsPage = () => {
   const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
 
   // Speech settings
-  const [availableVoices, setAvailableVoices] = React.useState<SpeechSynthesisVoice[]>([]);
-  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(null);
+  const [availableVoices, setAvailableVoices] = React.useState<
+    SpeechSynthesisVoice[]
+  >([]);
+  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(
+    null,
+  );
   const [speechVolume, setSpeechVolume] = React.useState<number>(1);
   const [speechPitch, setSpeechPitch] = React.useState<number>(1);
   const [speechRate, setSpeechRate] = React.useState<number>(1);
   const [voiceListOpen, setVoiceListOpen] = React.useState<boolean>(false);
+
+  // Speech helpers
+  const selectedVoice = React.useMemo(
+    () => availableVoices.find((v) => v.voiceURI === speechVoiceURI) || null,
+    [availableVoices, speechVoiceURI],
+  );
+  const updateSpeechSetting = (
+    key: "speechVolume" | "speechPitch" | "speechRate",
+    value: number,
+  ) => {
+    if (key === "speechVolume") setSpeechVolume(value);
+    if (key === "speechPitch") setSpeechPitch(value);
+    if (key === "speechRate") setSpeechRate(value);
+    setLS(key, String(value));
+    dispatchSpeechChanged();
+  };
+  const testSpeak = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance("Bonjour !");
+    const voice = selectedVoice;
+    if (voice) utter.voice = voice;
+    else utter.lang = "fr-FR";
+    utter.volume = speechVolume;
+    utter.pitch = speechPitch;
+    utter.rate = speechRate;
+    if (synth.speaking) synth.cancel();
+    synth.speak(utter);
+  };
 
   // Cache management
   const {
     cacheInfo,
     isRefreshing,
     isClearing,
-  isOnline,
+    isOnline,
     error: cacheError,
     getCacheInfo,
     refreshAllData,
@@ -86,8 +125,15 @@ const SettingsPage = () => {
   React.useEffect(() => {
     const handler = () => getCacheInfo();
     if (typeof window !== "undefined") {
-      window.addEventListener("quickfrench:cacheWarmupDone", handler as EventListener);
-      return () => window.removeEventListener("quickfrench:cacheWarmupDone", handler as EventListener);
+      window.addEventListener(
+        "quickfrench:cacheWarmupDone",
+        handler as EventListener,
+      );
+      return () =>
+        window.removeEventListener(
+          "quickfrench:cacheWarmupDone",
+          handler as EventListener,
+        );
     }
   }, [getCacheInfo]);
 
@@ -105,10 +151,10 @@ const SettingsPage = () => {
     const savedCount = localStorage.getItem("questionCount");
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
     const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
-  const savedVoiceURI = localStorage.getItem("speechVoiceURI");
-  const savedVol = localStorage.getItem("speechVolume");
-  const savedPitch = localStorage.getItem("speechPitch");
-  const savedRate = localStorage.getItem("speechRate");
+    const savedVoiceURI = localStorage.getItem("speechVoiceURI");
+    const savedVol = localStorage.getItem("speechVolume");
+    const savedPitch = localStorage.getItem("speechPitch");
+    const savedRate = localStorage.getItem("speechRate");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -136,9 +182,12 @@ const SettingsPage = () => {
     }
 
     if (savedVoiceURI) setSpeechVoiceURI(savedVoiceURI);
-    if (savedVol) setSpeechVolume(Math.min(Math.max(parseFloat(savedVol), 0), 1));
-    if (savedPitch) setSpeechPitch(Math.min(Math.max(parseFloat(savedPitch), 0), 2));
-    if (savedRate) setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
+    if (savedVol)
+      setSpeechVolume(Math.min(Math.max(parseFloat(savedVol), 0), 1));
+    if (savedPitch)
+      setSpeechPitch(Math.min(Math.max(parseFloat(savedPitch), 0), 2));
+    if (savedRate)
+      setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
   }, []);
 
   // Load speech voices
@@ -150,8 +199,10 @@ const SettingsPage = () => {
       setAvailableVoices(voices);
       // If no saved voice, try pick a French voice
       if (!speechVoiceURI && voices.length) {
-  const preferred = voices.find((v) => v.lang?.toLowerCase() === "fr-fr");
-  const anyFr = voices.find((v) => v.lang?.toLowerCase().startsWith("fr"));
+        const preferred = voices.find((v) => v.lang?.toLowerCase() === "fr-fr");
+        const anyFr = voices.find((v) =>
+          v.lang?.toLowerCase().startsWith("fr"),
+        );
         const chosen = preferred || anyFr || null;
         if (chosen) {
           setSpeechVoiceURI(chosen.voiceURI);
@@ -168,7 +219,7 @@ const SettingsPage = () => {
 
   const frenchVoices = React.useMemo(
     () => availableVoices.filter((v) => v.lang?.toLowerCase().startsWith("fr")),
-    [availableVoices]
+    [availableVoices],
   );
 
   // Keep theme in sync with system when in Auto mode
@@ -242,7 +293,6 @@ const SettingsPage = () => {
           label: "Theme",
           description: "Choose your preferred theme",
           type: "select",
-          value: "Light",
           options: ["Light", "Dark", "Auto"],
         },
       ],
@@ -274,7 +324,7 @@ const SettingsPage = () => {
         {
           icon: Sliders,
           label: "Speech",
-          description: "Choose voice and fine‑tune volume, pitch, speed",
+          description: "Choose voice and fine-tune volume, pitch, speed",
           type: "speech" as const,
         },
         // Delay slider/input rendered alongside toggle
@@ -286,7 +336,13 @@ const SettingsPage = () => {
         {
           icon: HardDrive,
           label: "Cache Information",
-          description: `${cacheInfo ? cacheInfo.totalEntries : 0} items cached • ${cacheInfo ? formatCacheSize(cacheInfo.totalSize) : "0 B"} • Last updated: ${cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : "Never"}`,
+          description: `${
+            cacheInfo ? cacheInfo.totalEntries : 0
+          } items cached • ${
+            cacheInfo ? formatCacheSize(cacheInfo.totalSize) : "0 B"
+          } • Last updated: ${
+            cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : "Never"
+          }`,
           type: "cache-info" as const,
         },
         {
@@ -324,6 +380,81 @@ const SettingsPage = () => {
       root.classList.toggle("dark", t === "dark");
     }
   };
+
+  // Small UI helpers (in-file only)
+  const InfoTip: React.FC<{ title: string; lines: string[] }> = ({
+    title,
+    lines,
+  }) => (
+    <div className="relative group">
+      <Info
+        className="h-4 w-4 cursor-help"
+        style={{ color: "var(--muted-foreground)" }}
+      />
+      <div
+        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
+        style={{
+          backgroundColor: "var(--card)",
+          color: "var(--foreground)",
+          borderColor: "var(--border)",
+          maxWidth: "min(18rem, calc(100vw - 2rem))",
+        }}
+      >
+        <div
+          className="mb-2 font-semibold"
+          style={{ color: "var(--foreground)" }}
+        >
+          {title}
+        </div>
+        <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
+          {lines.map((l) => (
+            <div key={l}>• {l}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const SliderRow: React.FC<{
+    label: string;
+    value: number;
+    min: number;
+    max: number;
+    step: number;
+    format: (v: number) => string;
+    fillPct: (v: number) => number;
+    onChange: (v: number) => void;
+    aria: string;
+  }> = ({ label, value, min, max, step, format, fillPct, onChange, aria }) => (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label
+          className="text-sm font-medium"
+          style={{ color: "var(--foreground)" }}
+        >
+          {label}
+        </label>
+        <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+          {format(value)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-2 rounded-lg appearance-none"
+        style={{
+          background: `linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) ${fillPct(
+            value,
+          )}%, var(--border) ${fillPct(value)}%)`,
+        }}
+        aria-label={aria}
+      />
+    </div>
+  );
 
   return (
     <div
@@ -380,14 +511,18 @@ const SettingsPage = () => {
                   {section.title}
                 </h2>
                 {section.title === "Data & Cache" && !isOnline && (
-                  <div className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs border"
+                  <div
+                    className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs border"
                     style={{
                       backgroundColor: "var(--muted)",
                       color: "var(--muted-foreground)",
                       borderColor: "var(--border)",
                     }}
                   >
-                    <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ backgroundColor: "#ef4444" }}
+                    />
                     Offline: refresh and clear are disabled
                   </div>
                 )}
@@ -429,114 +564,61 @@ const SettingsPage = () => {
                     <div className="flex items-center">
                       {item.type === "quiz-mode" && (
                         <div className="space-y-3">
-                          <div className="flex items-center space-x-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="quiz-mode"
-                                value="multiple-choice"
-                                checked={quizMode === "multiple-choice"}
-                                onChange={(e) =>
-                                  handleQuizModeChange(
-                                    e.target.value as "multiple-choice",
-                                  )
-                                }
-                                className="w-4 h-4"
-                                style={{ accentColor: "var(--primary-600)" }}
-                              />
-                              <span
-                                className="text-sm font-medium"
-                                style={{ color: "var(--foreground)" }}
-                              >
-                                Multiple Choice
-                              </span>
-                              <div className="relative group">
-                                <Info
-                                  className="h-4 w-4 cursor-help"
-                                  style={{ color: "var(--muted-foreground)" }}
+                          {[
+                            {
+                              value: "multiple-choice" as const,
+                              label: "Multiple Choice",
+                              tipTitle: "Multiple Choice Mode:",
+                              tips: [
+                                "Select from 4 options",
+                                "Use keys 1-4 to select",
+                                "Space/Enter for next",
+                                "R to restart",
+                              ],
+                            },
+                            {
+                              value: "typing" as const,
+                              label: "Fill in the Blank",
+                              tipTitle: "Fill in the Blank Mode:",
+                              tips: [
+                                "Type the English meaning",
+                                "Type your answer",
+                                "Enter to submit",
+                                "Space for next question",
+                              ],
+                            },
+                          ].map((opt) => (
+                            <div
+                              className="flex items-center space-x-4"
+                              key={opt.value}
+                            >
+                              <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="quiz-mode"
+                                  value={opt.value}
+                                  checked={quizMode === opt.value}
+                                  onChange={(e) =>
+                                    handleQuizModeChange(
+                                      e.target.value as typeof opt.value,
+                                    )
+                                  }
+                                  className="w-4 h-4"
+                                  style={{ accentColor: "var(--primary-600)" }}
                                 />
-                                <div
-                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
-                                  style={{
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    borderColor: "var(--border)",
-                                    maxWidth: "min(18rem, calc(100vw - 2rem))",
-                                  }}
+                                <span
+                                  className="text-sm font-medium"
+                                  style={{ color: "var(--foreground)" }}
                                 >
-                                  <div
-                                    className="mb-2 font-semibold"
-                                    style={{ color: "var(--foreground)" }}
-                                  >
-                                    Multiple Choice Mode:
-                                  </div>
-                                  <div
-                                    className="space-y-1"
-                                    style={{ color: "var(--muted-foreground)" }}
-                                  >
-                                    <div>• Select from 4 options</div>
-                                    <div>• Use keys 1-4 to select</div>
-                                    <div>• Space/Enter for next</div>
-                                    <div>• R to restart</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-4">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="quiz-mode"
-                                value="typing"
-                                checked={quizMode === "typing"}
-                                onChange={(e) =>
-                                  handleQuizModeChange(
-                                    e.target.value as "typing",
-                                  )
-                                }
-                                className="w-4 h-4"
-                                style={{ accentColor: "var(--primary-600)" }}
-                              />
-                              <span
-                                className="text-sm font-medium"
-                                style={{ color: "var(--foreground)" }}
-                              >
-                                Fill in the Blank
-                              </span>
-                              <div className="relative group">
-                                <Info
-                                  className="h-4 w-4 cursor-help"
-                                  style={{ color: "var(--muted-foreground)" }}
+                                  {opt.label}
+                                </span>
+                                <InfoTip
+                                  title={opt.tipTitle}
+                                  lines={opt.tips}
                                 />
-                                <div
-                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
-                                  style={{
-                                    backgroundColor: "var(--card)",
-                                    color: "var(--foreground)",
-                                    borderColor: "var(--border)",
-                                    maxWidth: "min(18rem, calc(100vw - 2rem))",
-                                  }}
-                                >
-                                  <div
-                                    className="mb-2 font-semibold"
-                                    style={{ color: "var(--foreground)" }}
-                                  >
-                                    Fill in the Blank Mode:
-                                  </div>
-                                  <div
-                                    className="space-y-1"
-                                    style={{ color: "var(--muted-foreground)" }}
-                                  >
-                                    <div>• Type the English meaning</div>
-                                    <div>• Type your answer</div>
-                                    <div>• Enter to submit</div>
-                                    <div>• Space for next question</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </label>
-                          </div>
+                              </label>
+                            </div>
+                          ))}
                         </div>
                       )}
 
@@ -548,7 +630,11 @@ const SettingsPage = () => {
                               <button
                                 key={count}
                                 onClick={() => handleQuestionCountChange(count)}
-                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${questionCount === count ? "shadow-lg" : "border"}`}
+                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                  questionCount === count
+                                    ? "shadow-lg"
+                                    : "border"
+                                }`}
                                 style={
                                   questionCount === count
                                     ? {
@@ -567,7 +653,9 @@ const SettingsPage = () => {
                             ))}
                             <button
                               onClick={() => handleQuestionCountChange("all")}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${questionCount === "all" ? "shadow-lg" : "border"}`}
+                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                questionCount === "all" ? "shadow-lg" : "border"
+                              }`}
                               style={
                                 questionCount === "all"
                                   ? {
@@ -585,7 +673,13 @@ const SettingsPage = () => {
                             </button>
                             <button
                               onClick={handleCustomClick}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${showCustomInput && typeof questionCount === "number" && ![5, 10, 15, 20].includes(questionCount) ? "shadow-lg" : "border"}`}
+                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                showCustomInput &&
+                                typeof questionCount === "number" &&
+                                ![5, 10, 15, 20].includes(questionCount)
+                                  ? "shadow-lg"
+                                  : "border"
+                              }`}
                               style={
                                 showCustomInput &&
                                 typeof questionCount === "number" &&
@@ -759,7 +853,9 @@ const SettingsPage = () => {
                         <button
                           onClick={refreshAllData}
                           disabled={isRefreshing || !isOnline}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isRefreshing ? "cursor-not-allowed" : ""}`}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            isRefreshing ? "cursor-not-allowed" : ""
+                          }`}
                           style={
                             isRefreshing || !isOnline
                               ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
@@ -786,7 +882,9 @@ const SettingsPage = () => {
                         <button
                           onClick={clearAllCache}
                           disabled={isClearing || !isOnline}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isClearing ? "cursor-not-allowed" : ""}`}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            isClearing ? "cursor-not-allowed" : ""
+                          }`}
                           style={
                             isClearing || !isOnline
                               ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
@@ -863,17 +961,35 @@ const SettingsPage = () => {
 
           <div
             className="relative w-full max-w-lg rounded-2xl shadow-2xl border"
-            style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border)",
+            }}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <div
+              className="flex items-center justify-between px-6 py-4 border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
               <div className="flex items-center gap-2">
-                <Sliders className="h-5 w-5" style={{ color: "var(--primary-600)" }} />
-                <h3 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>Speech Settings</h3>
+                <Sliders
+                  className="h-5 w-5"
+                  style={{ color: "var(--primary-600)" }}
+                />
+                <h3
+                  className="text-lg font-semibold"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  Speech Settings
+                </h3>
               </div>
               <button
                 onClick={() => setIsSpeechOpen(false)}
                 className="px-3 py-1.5 rounded-lg text-sm border"
-                style={{ backgroundColor: "var(--muted)", color: "var(--muted-foreground)", borderColor: "var(--border)" }}
+                style={{
+                  backgroundColor: "var(--muted)",
+                  color: "var(--muted-foreground)",
+                  borderColor: "var(--border)",
+                }}
               >
                 Close
               </button>
@@ -882,7 +998,12 @@ const SettingsPage = () => {
             <div className="px-6 py-5 space-y-5">
               {/* Voice picker */}
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Voice (French only)</label>
+                <label
+                  className="text-sm font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  Voice (French only)
+                </label>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
                     <button
@@ -891,20 +1012,44 @@ const SettingsPage = () => {
                       aria-expanded={voiceListOpen}
                       onClick={() => setVoiceListOpen((o) => !o)}
                       className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm border"
-                      style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                      style={{
+                        backgroundColor: "var(--muted)",
+                        color: "var(--foreground)",
+                        borderColor: "var(--border)",
+                      }}
                     >
                       <span className="truncate text-left">
-                        {(() => {
-                          const v = frenchVoices.find(v => v.voiceURI === speechVoiceURI);
-                          return v ? `${v.name} (${v.lang})` : (frenchVoices.length ? "Choose a French voice" : "No French voices available");
-                        })()}
+                        {selectedVoice
+                          ? `${selectedVoice.name} (${selectedVoice.lang})`
+                          : frenchVoices.length
+                            ? "Choose a French voice"
+                            : "No French voices available"}
                       </span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={voiceListOpen ? "rotate-180 transition-transform" : "transition-transform"}><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={
+                          voiceListOpen
+                            ? "rotate-180 transition-transform"
+                            : "transition-transform"
+                        }
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                     </button>
                     {voiceListOpen && (
                       <div
                         className="absolute z-10 mt-2 w-full max-h-56 overflow-auto rounded-lg border shadow-lg scrollbar-sleek"
-                        style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+                        style={{
+                          backgroundColor: "var(--card)",
+                          borderColor: "var(--border)",
+                        }}
                         role="listbox"
                       >
                         {frenchVoices.map((v) => {
@@ -916,22 +1061,32 @@ const SettingsPage = () => {
                               aria-selected={selected}
                               onClick={() => {
                                 setSpeechVoiceURI(v.voiceURI);
-                                localStorage.setItem("speechVoiceURI", v.voiceURI);
+                                setLS("speechVoiceURI", v.voiceURI);
                                 setVoiceListOpen(false);
-                                window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                                dispatchSpeechChanged();
                               }}
-                              className={`w-full text-left px-3 py-2 text-sm ${selected ? "bg-[var(--muted)]" : ""}`}
+                              className={`w-full text-left px-3 py-2 text-sm ${
+                                selected ? "bg-[var(--muted)]" : ""
+                              }`}
                               style={{ color: "var(--foreground)" }}
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <span className="truncate">{v.name}</span>
-                                <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{v.lang}</span>
+                                <span
+                                  className="text-xs"
+                                  style={{ color: "var(--muted-foreground)" }}
+                                >
+                                  {v.lang}
+                                </span>
                               </div>
                             </button>
                           );
                         })}
                         {frenchVoices.length === 0 && (
-                          <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
+                          <div
+                            className="px-3 py-2 text-sm"
+                            style={{ color: "var(--muted-foreground)" }}
+                          >
                             No French voices found.
                           </div>
                         )}
@@ -939,126 +1094,96 @@ const SettingsPage = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => {
-                      if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-                      const synth = window.speechSynthesis;
-                      const utter = new SpeechSynthesisUtterance("Bonjour !");
-                      const voice = frenchVoices.find(v => v.voiceURI === speechVoiceURI) || null;
-                      if (voice) utter.voice = voice;
-                      else utter.lang = "fr-FR";
-                      utter.volume = speechVolume;
-                      utter.pitch = speechPitch;
-                      utter.rate = speechRate;
-                      if (synth.speaking) synth.cancel();
-                      synth.speak(utter);
-                    }}
+                    onClick={testSpeak}
                     disabled={frenchVoices.length === 0}
-                    className={`px-3 py-2 rounded-lg text-sm border ${frenchVoices.length === 0 ? "opacity-60 cursor-not-allowed" : ""}`}
-                    style={{ backgroundColor: "var(--primary-100)", color: "var(--primary-700)", borderColor: "var(--border)" }}
+                    className={`px-3 py-2 rounded-lg text-sm border ${
+                      frenchVoices.length === 0
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
+                    }`}
+                    style={{
+                      backgroundColor: "var(--primary-100)",
+                      color: "var(--primary-700)",
+                      borderColor: "var(--border)",
+                    }}
                   >
                     Test
                   </button>
                 </div>
                 {availableVoices.length === 0 && (
-                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                    Loading voices… If none appear, your browser may not support the Speech Synthesis API.
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
+                    Loading voices… If none appear, your browser may not support
+                    the Speech Synthesis API.
                   </p>
                 )}
               </div>
 
-              {/* Volume */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Volume</label>
-                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechVolume.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={speechVolume}
-                  onChange={(e) => {
-                    const v = parseFloat(e.target.value);
-                    setSpeechVolume(v);
-                    localStorage.setItem("speechVolume", String(v));
-                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
-                  }}
-                  className="w-full h-2 rounded-lg appearance-none"
-                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + (speechVolume*100) + "%, var(--border) " + (speechVolume*100) + "%)" }}
-                  aria-label="Speech volume"
-                />
-              </div>
-
-              {/* Pitch */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Pitch</label>
-                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechPitch.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={2}
-                  step={0.01}
-                  value={speechPitch}
-                  onChange={(e) => {
-                    const v = parseFloat(e.target.value);
-                    setSpeechPitch(v);
-                    localStorage.setItem("speechPitch", String(v));
-                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
-                  }}
-                  className="w-full h-2 rounded-lg appearance-none"
-                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + ((speechPitch/2)*100) + "%, var(--border) " + ((speechPitch/2)*100) + "%)" }}
-                  aria-label="Speech pitch"
-                />
-              </div>
-
-              {/* Speed */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium" style={{ color: "var(--foreground)" }}>Speed</label>
-                  <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{speechRate.toFixed(2)}x</span>
-                </div>
-                <input
-                  type="range"
-                  min={0.5}
-                  max={2}
-                  step={0.01}
-                  value={speechRate}
-                  onChange={(e) => {
-                    const v = parseFloat(e.target.value);
-                    setSpeechRate(v);
-                    localStorage.setItem("speechRate", String(v));
-                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
-                  }}
-                  className="w-full h-2 rounded-lg appearance-none"
-                  style={{ background: "linear-gradient(90deg, var(--primary-600) 0%, var(--primary-600) " + (((speechRate-0.5)/1.5)*100) + "%, var(--border) " + (((speechRate-0.5)/1.5)*100) + "%)" }}
-                  aria-label="Speech speed"
-                />
-              </div>
+              {/* Sliders */}
+              <SliderRow
+                label="Volume"
+                value={speechVolume}
+                min={0}
+                max={1}
+                step={0.01}
+                format={(v) => v.toFixed(2)}
+                fillPct={(v) => v * 100}
+                onChange={(v) => updateSpeechSetting("speechVolume", v)}
+                aria="Speech volume"
+              />
+              <SliderRow
+                label="Pitch"
+                value={speechPitch}
+                min={0}
+                max={2}
+                step={0.01}
+                format={(v) => v.toFixed(2)}
+                fillPct={(v) => (v / 2) * 100}
+                onChange={(v) => updateSpeechSetting("speechPitch", v)}
+                aria="Speech pitch"
+              />
+              <SliderRow
+                label="Speed"
+                value={speechRate}
+                min={0.5}
+                max={2}
+                step={0.01}
+                format={(v) => `${v.toFixed(2)}x`}
+                fillPct={(v) => ((v - 0.5) / 1.5) * 100}
+                onChange={(v) => updateSpeechSetting("speechRate", v)}
+                aria="Speech speed"
+              />
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   onClick={() => {
-                    // Reset to sensible defaults
                     setSpeechVolume(1);
                     setSpeechPitch(1);
                     setSpeechRate(1);
-                    localStorage.setItem("speechVolume", "1");
-                    localStorage.setItem("speechPitch", "1");
-                    localStorage.setItem("speechRate", "1");
-                    window.dispatchEvent?.(new CustomEvent("quickfrench:speechSettingsChanged"));
+                    setLS("speechVolume", "1");
+                    setLS("speechPitch", "1");
+                    setLS("speechRate", "1");
+                    dispatchSpeechChanged();
                   }}
                   className="px-4 py-2 rounded-lg text-sm border"
-                  style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                  style={{
+                    backgroundColor: "var(--muted)",
+                    color: "var(--foreground)",
+                    borderColor: "var(--border)",
+                  }}
                 >
                   Reset
                 </button>
                 <button
                   onClick={() => setIsSpeechOpen(false)}
                   className="px-4 py-2 rounded-lg text-sm"
-                  style={{ background: "linear-gradient(to right, var(--cta-grad-from), var(--cta-grad-to))", color: "#fff" }}
+                  style={{
+                    background:
+                      "linear-gradient(to right, var(--cta-grad-from), var(--cta-grad-to))",
+                    color: "#fff",
+                  }}
                 >
                   Done
                 </button>

@@ -32,7 +32,10 @@ export default function ServiceWorkerRegister() {
           const newWorker = reg.installing;
           if (!newWorker) return;
           newWorker.addEventListener("statechange", () => {
-            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
               // New SW waiting; ask it to skip waiting so app updates quickly
               reg.waiting?.postMessage?.("SKIP_WAITING");
             }
@@ -49,7 +52,7 @@ export default function ServiceWorkerRegister() {
       }
     };
 
-  // Register after the page is loaded for reliability
+    // Register after the page is loaded for reliability
     if (document.readyState === "complete") register();
     else window.addEventListener("load", register, { once: true });
 

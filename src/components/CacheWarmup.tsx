@@ -47,7 +47,9 @@ export default function CacheWarmup() {
           setDone(true);
           // Notify listeners (e.g., Settings page) that warmup finished
           if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("quickfrench:cacheWarmupDone"));
+            window.dispatchEvent(
+              new CustomEvent("quickfrench:cacheWarmupDone"),
+            );
           }
         } catch (e) {
           // If offline or an error occurs, try again on next visit or when connection returns
@@ -82,7 +84,9 @@ export default function CacheWarmup() {
                 localStorage.setItem(STORAGE_KEY, WARMUP_VERSION);
                 setDone(true);
                 if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("quickfrench:cacheWarmupDone"));
+                  window.dispatchEvent(
+                    new CustomEvent("quickfrench:cacheWarmupDone"),
+                  );
                 }
               })
               .catch(() => {});
