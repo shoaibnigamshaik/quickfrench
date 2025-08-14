@@ -8,6 +8,16 @@ export default function ServiceWorkerRegister() {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
 
+    // In development, avoid registering a Service Worker to prevent shell caching
+    if (process.env.NODE_ENV !== "production") {
+      // Proactively unregister any existing SWs from prior runs
+      navigator.serviceWorker
+        .getRegistrations?.()
+        .then((regs) => regs.forEach((r) => r.unregister()))
+        .catch(() => {});
+      return;
+    }
+
     const register = async () => {
       try {
         const reg = await navigator.serviceWorker.register("/sw.js", {
@@ -39,7 +49,7 @@ export default function ServiceWorkerRegister() {
       }
     };
 
-    // Register after the page is loaded for reliability
+  // Register after the page is loaded for reliability
     if (document.readyState === "complete") register();
     else window.addEventListener("load", register, { once: true });
 

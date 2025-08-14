@@ -5,7 +5,7 @@
   - Caches API GET responses (network-first, cache fallback)
 */
 
-const SW_VERSION = 'v1';
+const SW_VERSION = '2025-08-14';
 const STATIC_CACHE = `static-${SW_VERSION}`;
 const RUNTIME_CACHE = `runtime-${SW_VERSION}`;
 
@@ -21,8 +21,23 @@ const PRECACHE_URLS = [
   '/window.svg',
 ];
 
+// Detect local dev (avoid caching). Consider http://localhost, 127.0.0.1, and non-https origins.
+const isLocalDev = () => {
+  const { hostname, protocol } = self.location;
+  return (
+    protocol !== 'https:' ||
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.endsWith('.local')
+  );
+};
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
+  if (isLocalDev()) {
+    // Don't precache during development
+    return;
+  }
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS))
   );
@@ -34,13 +49,19 @@ self.addEventListener('activate', (event) => {
     if ('navigationPreload' in self.registration) {
       try { await self.registration.navigationPreload.enable(); } catch {}
     }
-    // Cleanup old caches
-    const keys = await caches.keys();
-    await Promise.all(
-      keys
-        .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE)
-        .map((k) => caches.delete(k))
-    );
+    // In dev, clear all caches to avoid any stale assets
+    if (isLocalDev()) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    } else {
+      // Cleanup old caches
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE)
+          .map((k) => caches.delete(k))
+      );
+    }
     await self.clients.claim();
   })());
 });
@@ -69,6 +90,12 @@ self.addEventListener('fetch', (event) => {
 
   // Only handle GET requests
   if (request.method !== 'GET') return;
+
+  // In local development, bypass all caching and just proxy network
+  if (isLocalDev()) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // Handle application navigations (App Shell pattern)
   if (isNavigation(request)) {
