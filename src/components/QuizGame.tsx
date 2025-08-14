@@ -73,11 +73,11 @@ export const QuizGame = ({
       quizState.selectedAnswer ===
         quizState.questions[quizState.currentQuestion]?.correct
     ) {
-      // Set timeout to auto-advance after 1 second
+  // Set timeout to auto-advance after configured delay
       autoAdvanceTimeoutRef.current = setTimeout(() => {
         onNextQuestion();
         autoAdvanceTimeoutRef.current = null;
-      }, 1000);
+  }, settings.autoAdvanceDelayMs ?? 1000);
     }
 
     // Cleanup function to clear timeout if component unmounts or dependencies change

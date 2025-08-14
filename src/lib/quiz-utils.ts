@@ -303,11 +303,15 @@ export const saveQuizSettings = (
   questionCount: number | "all",
   translationDirection: TranslationDirection,
   autoAdvance: boolean = false,
+  autoAdvanceDelayMs?: number,
 ) => {
   localStorage.setItem("quizMode", quizMode);
   localStorage.setItem("questionCount", questionCount.toString());
   localStorage.setItem("translationDirection", translationDirection);
   localStorage.setItem("autoAdvance", autoAdvance.toString());
+  if (typeof autoAdvanceDelayMs === "number") {
+    localStorage.setItem("autoAdvanceDelayMs", String(autoAdvanceDelayMs));
+  }
 };
 
 export const loadQuizSettings = () => {
@@ -320,6 +324,7 @@ export const loadQuizSettings = () => {
     "translationDirection",
   ) as TranslationDirection | null;
   const savedAutoAdvance = localStorage.getItem("autoAdvance");
+  const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
 
   const parseCount = (val: string | null): number | "all" => {
     if (val === "all") return "all";
@@ -335,5 +340,9 @@ export const loadQuizSettings = () => {
     questionCount: parseCount(savedCount),
     translationDirection: savedDirection || "french-to-english",
     autoAdvance: savedAutoAdvance === "true",
+    autoAdvanceDelayMs:
+      savedAutoAdvanceDelay && !Number.isNaN(parseInt(savedAutoAdvanceDelay))
+        ? Math.min(Math.max(parseInt(savedAutoAdvanceDelay, 10), 300), 5000)
+        : 1000,
   };
 };

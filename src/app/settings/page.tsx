@@ -48,6 +48,7 @@ const SettingsPage = () => {
   );
   const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
   const [autoAdvance, setAutoAdvance] = React.useState(false);
+  const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] = React.useState<number>(1000);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
 
   // Cache management
@@ -81,6 +82,7 @@ const SettingsPage = () => {
       | "typing";
     const savedCount = localStorage.getItem("questionCount");
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
+  const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -95,6 +97,10 @@ const SettingsPage = () => {
     }
     if (savedAutoAdvance !== null) {
       setAutoAdvance(savedAutoAdvance === "true");
+    }
+    if (savedAutoAdvanceDelay && !Number.isNaN(parseInt(savedAutoAdvanceDelay))) {
+      const ms = Math.min(Math.max(parseInt(savedAutoAdvanceDelay, 10), 300), 5000);
+      setAutoAdvanceDelayMs(ms);
     }
   }, []);
 
@@ -153,6 +159,12 @@ const SettingsPage = () => {
     localStorage.setItem("autoAdvance", newAutoAdvance.toString());
   };
 
+  const handleAutoAdvanceDelayChange = (ms: number) => {
+    const clamped = Math.min(Math.max(ms, 300), 5000);
+    setAutoAdvanceDelayMs(clamped);
+    localStorage.setItem("autoAdvanceDelayMs", String(clamped));
+  };
+
   const settingsSections: SettingSection[] = [
     // Moved Appearance above Quiz Settings
     {
@@ -192,6 +204,7 @@ const SettingsPage = () => {
           type: "auto-advance" as const,
           value: autoAdvance,
         },
+  // Delay slider/input rendered alongside toggle
       ],
     },
     {
@@ -566,21 +579,43 @@ const SettingsPage = () => {
                       {/* translation-direction removed; handled elsewhere */}
 
                       {item.type === "auto-advance" && (
-                        <button
-                          onClick={handleAutoAdvanceChange}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
-                          style={{
-                            backgroundColor: autoAdvance
-                              ? "var(--primary-600)"
-                              : "#d1d5db",
-                          }}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              autoAdvance ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={handleAutoAdvanceChange}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                            style={{
+                              backgroundColor: autoAdvance
+                                ? "var(--primary-600)"
+                                : "#d1d5db",
+                            }}
+                            aria-pressed={autoAdvance}
+                            aria-label="Toggle auto advance"
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                autoAdvance ? "translate-x-6" : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <label className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                              Delay:
+                            </label>
+                            <input
+                              type="number"
+                              min={300}
+                              max={5000}
+                              step={100}
+                              value={autoAdvanceDelayMs}
+                              onChange={(e) => handleAutoAdvanceDelayChange(parseInt(e.target.value || "1000", 10))}
+                              disabled={!autoAdvance}
+                              className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
+                              style={{ backgroundColor: "var(--card)", color: "var(--foreground)", borderColor: "var(--border)" }}
+                              aria-label="Auto-advance delay in milliseconds"
+                            />
+                            <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>ms</span>
+                          </div>
+                        </div>
                       )}
 
                       {/* Removed generic select; Theme uses ThemeSwitcher below */}

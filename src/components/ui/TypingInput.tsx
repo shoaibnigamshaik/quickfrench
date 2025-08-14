@@ -71,7 +71,7 @@ export const TypingInput = ({
       </div>
 
       {showResult && (
-        <div className="mt-5 text-center">
+        <div className="mt-5 text-center" aria-live="polite" aria-atomic="true">
           {(() => {
             const isCorrect = checkTypedAnswer(correctAnswer, selectedAnswer);
             return (

@@ -53,6 +53,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     selectedTopic: "",
     translationDirection: "french-to-english",
     autoAdvance: false,
+  autoAdvanceDelayMs: 1000,
   });
 
   const [showTopicSelector, setShowTopicSelector] = useState(true);
@@ -67,6 +68,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       translationDirection:
         savedSettings.translationDirection as TranslationDirection,
       autoAdvance: savedSettings.autoAdvance,
+  autoAdvanceDelayMs: savedSettings.autoAdvanceDelayMs ?? 1000,
     }));
   }, []);
 
@@ -359,6 +361,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     setSettings((prev) => ({ ...prev, autoAdvance }));
   };
 
+  const updateAutoAdvanceDelay = (ms: number) => {
+    setSettings((prev) => ({
+      ...prev,
+      autoAdvanceDelayMs: Math.min(Math.max(ms, 300), 5000),
+    }));
+    localStorage.setItem("autoAdvanceDelayMs", String(ms));
+  };
+
   return {
     quizState,
     settings,
@@ -374,5 +384,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateQuestionCount,
     updateTranslationDirection,
     updateAutoAdvance,
+  updateAutoAdvanceDelay,
   };
 };

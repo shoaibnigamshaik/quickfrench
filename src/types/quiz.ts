@@ -188,6 +188,7 @@ export interface QuizSettings {
   selectedTopic: string;
   translationDirection: TranslationDirection;
   autoAdvance: boolean;
+  autoAdvanceDelayMs?: number;
 }
 
 export type VocabularyItem =
