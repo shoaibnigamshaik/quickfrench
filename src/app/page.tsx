@@ -36,6 +36,7 @@ const FrenchVocabularyQuiz = () => {
     nextQuestion,
   resetQuiz,
   goHome,
+  startCustomQuiz,
     startQuiz,
     updateTypedAnswer,
     updateTranslationDirection,
@@ -422,6 +423,11 @@ const FrenchVocabularyQuiz = () => {
         }}
         wrongCount={quizState.wrongAnswers.length}
         onReviewWrongAnswers={() => setShowReview(true)}
+        onRetryWrongOnly={() => {
+          if (quizState.wrongAnswers.length === 0) return;
+          const questions = quizState.wrongAnswers.map((wa) => wa.question);
+          startCustomQuiz(questions);
+        }}
       />
     );
   }

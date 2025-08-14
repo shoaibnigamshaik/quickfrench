@@ -17,6 +17,7 @@ import {
   WorkItem,
   TranslationDirection,
 } from "@/types/quiz";
+import type { Question } from "@/types/quiz";
 import {
   generateQuestions,
   generateAdverbQuestions,
@@ -341,6 +342,23 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     setShowTopicSelector(false);
   };
 
+  const startCustomQuiz = (questions: Question[]) => {
+    setQuizState((prev) => ({
+      ...prev,
+      currentQuestion: 0,
+      score: 0,
+      selectedAnswer: "",
+      showResult: false,
+      quizComplete: false,
+      streak: 0,
+      maxStreak: 0,
+      typedAnswer: "",
+      wrongAnswers: [],
+      questions,
+    }));
+    setShowTopicSelector(false);
+  };
+
   const updateTypedAnswer = (answer: string) => {
     setQuizState((prev) => ({ ...prev, typedAnswer: answer }));
   };
@@ -379,6 +397,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     resetQuiz,
   goHome,
     startQuiz,
+  startCustomQuiz,
     updateTypedAnswer,
     updateQuizMode,
     updateQuestionCount,
