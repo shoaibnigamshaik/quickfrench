@@ -143,6 +143,11 @@ export interface BuildingItem {
   meaning: string;
 }
 
+export interface Culture {
+  word: string;
+  meaning: string;
+}
+
 export interface BodyItem {
   word: string;
   meaning: string;
@@ -197,6 +202,7 @@ export type VocabularyItem =
   | Hobby
   | WardrobeItem
   | BuildingItem
+  | Culture
   | ShoppingItem
   | EducationItem
   | WorkItem

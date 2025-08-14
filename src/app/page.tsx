@@ -25,7 +25,7 @@ const FrenchVocabularyQuiz = () => {
     useState<string>("");
   const [selectedWorkCategory, setSelectedWorkCategory] = useState<string>("");
 
-  const { vocabulary, loading, fetchVocabulary, clearVocabulary } =
+  const { vocabulary, loading, error, fetchVocabulary, clearVocabulary } =
     useVocabulary();
   const {
     quizState,
@@ -327,6 +327,31 @@ const FrenchVocabularyQuiz = () => {
           <p style={{ color: "var(--muted-foreground)" }}>
             Loading {topicName}...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && selectedTopic) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center max-w-md">
+          <div className="mb-3 text-lg font-semibold" style={{ color: "var(--danger-600)" }}>
+            Failed to load {selectedTopic}.
+          </div>
+          <p className="mb-4" style={{ color: "var(--muted-foreground)" }}>
+            {error}
+          </p>
+          <button
+            className="inline-flex items-center px-5 py-2.5 rounded-lg border"
+            style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--foreground)" }}
+            onClick={() => {
+              // Try again with a forced refresh
+              fetchVocabulary(selectedTopic, undefined, true);
+            }}
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

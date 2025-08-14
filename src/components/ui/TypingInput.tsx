@@ -9,6 +9,7 @@ interface TypingInputProps {
   onTypedAnswerChange: (answer: string) => void;
   onSubmit: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  placeholder?: string;
 }
 
 export const TypingInput = ({
@@ -19,6 +20,7 @@ export const TypingInput = ({
   onTypedAnswerChange,
   onSubmit,
   inputRef,
+  placeholder,
 }: TypingInputProps) => {
   return (
     <div className="mb-6">
@@ -41,7 +43,9 @@ export const TypingInput = ({
             }
           }}
           disabled={showResult}
-          placeholder="Type the English meaning..."
+          placeholder={
+            placeholder ?? "Type your answer..."
+          }
           className="w-full p-5 text-lg rounded-2xl focus:outline-none transition-colors duration-200"
           style={{
             color: "var(--foreground)",

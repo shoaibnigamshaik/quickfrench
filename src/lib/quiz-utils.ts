@@ -321,10 +321,18 @@ export const loadQuizSettings = () => {
   ) as TranslationDirection | null;
   const savedAutoAdvance = localStorage.getItem("autoAdvance");
 
+  const parseCount = (val: string | null): number | "all" => {
+    if (val === "all") return "all";
+    if (!val) return 10;
+    const n = parseInt(val, 10);
+    if (Number.isNaN(n)) return 10;
+    // Clamp to reasonable bounds
+    return Math.min(Math.max(n, 1), 50);
+  };
+
   return {
     quizMode: savedMode || "multiple-choice",
-    questionCount:
-      savedCount === "all" ? "all" : savedCount ? parseInt(savedCount) : 10,
+    questionCount: parseCount(savedCount),
     translationDirection: savedDirection || "french-to-english",
     autoAdvance: savedAutoAdvance === "true",
   };

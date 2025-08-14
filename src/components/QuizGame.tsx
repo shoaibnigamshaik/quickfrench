@@ -172,6 +172,11 @@ export const QuizGame = ({
               onTypedAnswerChange={onUpdateTypedAnswer}
               onSubmit={onTypedSubmit}
               inputRef={inputRef}
+              placeholder={
+                settings.translationDirection === "french-to-english"
+                  ? "Type the English meaning..."
+                  : "Tape le mot en français..."
+              }
             />
           )}
 
