@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import CacheWarmup from "@/components/CacheWarmup";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,8 @@ export default function RootLayout({
           <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
             {/* Background cache warmup for first visit */}
             <CacheWarmup />
+            {/* Service worker for offline shell */}
+            <ServiceWorkerRegister />
             {children}
           </main>
         </div>
