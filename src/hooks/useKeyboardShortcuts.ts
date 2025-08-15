@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { QuizMode, Question } from "@/types/quiz";
 
 interface UseKeyboardShortcutsProps {
+  enabled?: boolean;
   showTopicSelector: boolean;
   quizComplete: boolean;
   showResult: boolean;
@@ -17,6 +18,7 @@ interface UseKeyboardShortcutsProps {
 }
 
 export const useKeyboardShortcuts = ({
+  enabled = true,
   showTopicSelector,
   quizComplete,
   showResult,
@@ -31,6 +33,9 @@ export const useKeyboardShortcuts = ({
   onNextQuestion,
 }: UseKeyboardShortcutsProps) => {
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     const getOptionIndexFromEvent = (e: KeyboardEvent): number => {
       // Ignore when using system modifiers; allow Shift for layouts that need it for digits
       if (e.metaKey || e.ctrlKey || e.altKey) return -1;
@@ -137,6 +142,7 @@ export const useKeyboardShortcuts = ({
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [
+  enabled,
     showResult,
     quizComplete,
     currentQuestion,

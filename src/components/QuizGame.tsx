@@ -72,6 +72,7 @@ export const QuizGame = ({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
+  enabled: process.env.NEXT_PUBLIC_ENABLE_SHORTCUTS !== "false",
     showTopicSelector: false,
     quizComplete: quizState.quizComplete,
     showResult: quizState.showResult,
