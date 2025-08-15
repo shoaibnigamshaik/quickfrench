@@ -66,13 +66,13 @@ export const useKeyboardShortcuts = ({
         Numpad3: 2,
         Numpad4: 3,
       };
-      const code = (e as any).code as string | undefined;
+      const code = e.code;
       if (code && code in codeToIndex) {
         return codeToIndex[code];
       }
 
       // Legacy fallback for older/mobile browsers
-      const kc = (e as any).keyCode as number | undefined;
+  const kc = e.keyCode;
       if (kc === 49) return 0; // '1'
       if (kc === 50) return 1; // '2'
       if (kc === 51) return 2; // '3'
