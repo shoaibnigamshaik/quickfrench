@@ -76,7 +76,9 @@ const SettingsPage = () => {
     if (typeof navigator === "undefined") return false;
     const ua = navigator.userAgent || "";
     // Basic detection for Firefox/Gecko and Zen-like variants
-    return /firefox|gecko|zen\//i.test(ua) && !/chrome|chromium|edg\//i.test(ua);
+    return (
+      /firefox|gecko|zen\//i.test(ua) && !/chrome|chromium|edg\//i.test(ua)
+    );
   }, []);
 
   // Speech helpers
@@ -204,8 +206,12 @@ const SettingsPage = () => {
     const pickInitialFrench = (voices: SpeechSynthesisVoice[]) => {
       if (speechVoiceURI || !voices.length) return;
       // Prefer exact fr-FR, then any fr-*
-      const preferred = voices.find((v) => (v.lang || "").toLowerCase() === "fr-fr");
-      const anyFr = voices.find((v) => (v.lang || "").toLowerCase().startsWith("fr"));
+      const preferred = voices.find(
+        (v) => (v.lang || "").toLowerCase() === "fr-fr",
+      );
+      const anyFr = voices.find((v) =>
+        (v.lang || "").toLowerCase().startsWith("fr"),
+      );
       const chosen = preferred || anyFr || null;
       if (chosen) {
         setSpeechVoiceURI(chosen.voiceURI);
@@ -1167,19 +1173,37 @@ const SettingsPage = () => {
                     className="text-xs"
                     style={{ color: "var(--muted-foreground)" }}
                   >
-          Loading voices… If none appear, your browser may block or not fully support
-          the Speech Synthesis API (e.g., some Firefox-based browsers require system voices).
+                    Loading voices… If none appear, your browser may block or
+                    not fully support the Speech Synthesis API (e.g., some
+                    Firefox-based browsers require system voices).
                   </p>
                 )}
                 {availableVoices.length === 0 && isFirefoxLike && (
-                  <div className="mt-2 text-xs space-y-1" style={{ color: "var(--muted-foreground)" }}>
+                  <div
+                    className="mt-2 text-xs space-y-1"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
                     <div>Tip for Firefox/Zen:</div>
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Install a French system TTS voice (required by Firefox).</li>
-                      <li>Linux: install speech-dispatcher + a French voice (e.g., espeak-ng + mbrola-fr) then restart Firefox.</li>
-                      <li>Windows: Settings → Time & Language → Speech → Manage voices → Add voices → French.</li>
-                      <li>macOS: System Settings → Accessibility → Spoken Content → System Voice → Add… → French.</li>
-                      <li>Android: Settings → System/Accessibility → Text-to-speech → Install French voice data.</li>
+                      <li>
+                        Install a French system TTS voice (required by Firefox).
+                      </li>
+                      <li>
+                        Linux: install speech-dispatcher + a French voice (e.g.,
+                        espeak-ng + mbrola-fr) then restart Firefox.
+                      </li>
+                      <li>
+                        Windows: Settings → Time & Language → Speech → Manage
+                        voices → Add voices → French.
+                      </li>
+                      <li>
+                        macOS: System Settings → Accessibility → Spoken Content
+                        → System Voice → Add… → French.
+                      </li>
+                      <li>
+                        Android: Settings → System/Accessibility →
+                        Text-to-speech → Install French voice data.
+                      </li>
                     </ul>
                   </div>
                 )}

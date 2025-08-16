@@ -73,7 +73,7 @@ export const QuizGame = ({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-  enabled: process.env.NEXT_PUBLIC_ENABLE_SHORTCUTS !== "false",
+    enabled: process.env.NEXT_PUBLIC_ENABLE_SHORTCUTS !== "false",
     showTopicSelector: false,
     quizComplete: quizState.quizComplete,
     showResult: quizState.showResult,
@@ -139,10 +139,7 @@ export const QuizGame = ({
       const frVoices = voices.filter((v) => {
         const lang = (v.lang || "").toLowerCase();
         const name = (v.name || "").toLowerCase();
-        return (
-          lang.startsWith("fr") ||
-          /fr(ancais|ançais)?|french/.test(name)
-        );
+        return lang.startsWith("fr") || /fr(ancais|ançais)?|french/.test(name);
       });
       setHasFrenchVoice(frVoices.length > 0);
 
@@ -186,6 +183,8 @@ export const QuizGame = ({
       // Remove gender indicators like (m) or (f) to avoid reading them aloud
       const cleaned = (text || "")
         .replace(/\(\s*[mf]\s*\)/gi, "")
+        // If a whole string with slashes is passed, don't speak the slash
+        .replace(/\s*\/\s*/g, " ")
         .replace(/\s{2,}/g, " ")
         .trim();
       const utter = new SpeechSynthesisUtterance(cleaned);
@@ -268,6 +267,11 @@ export const QuizGame = ({
   }
 
   const currentQuestion = quizState.questions[quizState.currentQuestion];
+  // Parts for display including original content (don't strip gender in UI)
+  const wordParts = (() => {
+    const raw = currentQuestion?.word || "";
+    return raw.includes("/") ? raw.split("/") : [raw];
+  })();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -298,31 +302,44 @@ export const QuizGame = ({
         >
           <div className="inline-flex items-center gap-2">
             <div
-              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-block"
+              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-flex items-center gap-2"
               style={{
                 background:
                   "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
               }}
             >
-              {currentQuestion?.word}
+              {wordParts.map((part, idx) => {
+                const trimmed = part.trim();
+                return (
+                  <React.Fragment key={`wp-${idx}-${trimmed}`}>
+                    <span className="inline-flex items-center gap-1">
+                      <span>{trimmed}</span>
+                      {settings.translationDirection ===
+                        "french-to-english" && (
+                        <button
+                          type="button"
+                          aria-label={`Pronounce: ${trimmed}`}
+                          title={
+                            hasFrenchVoice
+                              ? `Pronounce: ${trimmed}`
+                              : "Pronunciation unavailable: no French voice in this browser"
+                          }
+                          onClick={() => hasFrenchVoice && speakFrench(trimmed)}
+                          disabled={!hasFrenchVoice}
+                          className={`inline-flex items-center justify-center rounded-full p-1.5 focus:outline-none focus:ring-2 focus:ring-white/70 ${!hasFrenchVoice ? "opacity-60 cursor-not-allowed" : ""}`}
+                          style={{ color: "white" }}
+                        >
+                          <Volume2 className="h-5 w-5" />
+                        </button>
+                      )}
+                    </span>
+                    {idx < wordParts.length - 1 && (
+                      <span className="px-1">/</span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
-            {settings.translationDirection === "french-to-english" && (
-              <button
-                type="button"
-                aria-label="Pronounce the French word"
-                title={
-                  hasFrenchVoice
-                    ? "Pronounce"
-                    : "Pronunciation unavailable: no French voice in this browser"
-                }
-                onClick={() => hasFrenchVoice && speakFrench(currentQuestion?.word || "")}
-                disabled={!hasFrenchVoice}
-                className={`inline-flex items-center justify-center rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white/70 ${!hasFrenchVoice ? "opacity-60 cursor-not-allowed" : ""}`}
-                style={{ color: "white" }}
-              >
-                <Volume2 className="h-6 w-6" />
-              </button>
-            )}
           </div>
         </div>
 

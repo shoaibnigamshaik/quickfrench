@@ -48,13 +48,13 @@ export const useKeyboardShortcuts = ({
       // Common alternate glyphs on non-US layouts (e.g., AZERTY without Shift)
       const altGlyphToIndex: Record<string, number> = {
         "&": 0, // 1
-        "é": 1, // 2
+        é: 1, // 2
         '"': 2, // 3
         "'": 3, // 4
         "!": 0, // Shift+1 on some layouts
         "@": 1, // Shift+2 (rare fallback)
         "#": 2, // Shift+3
-        "$": 3, // Shift+4
+        $: 3, // Shift+4
       };
       if (e.key && e.key in altGlyphToIndex) {
         return altGlyphToIndex[e.key];
@@ -77,7 +77,7 @@ export const useKeyboardShortcuts = ({
       }
 
       // Legacy fallback for older/mobile browsers
-  const kc = e.keyCode;
+      const kc = e.keyCode;
       if (kc === 49) return 0; // '1'
       if (kc === 50) return 1; // '2'
       if (kc === 51) return 2; // '3'
@@ -142,7 +142,7 @@ export const useKeyboardShortcuts = ({
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [
-  enabled,
+    enabled,
     showResult,
     quizComplete,
     currentQuestion,
