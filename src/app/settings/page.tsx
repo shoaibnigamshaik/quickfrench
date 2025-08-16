@@ -72,6 +72,12 @@ const SettingsPage = () => {
   const [speechPitch, setSpeechPitch] = React.useState<number>(1);
   const [speechRate, setSpeechRate] = React.useState<number>(1);
   const [voiceListOpen, setVoiceListOpen] = React.useState<boolean>(false);
+  const isFirefoxLike = React.useMemo(() => {
+    if (typeof navigator === "undefined") return false;
+    const ua = navigator.userAgent || "";
+    // Basic detection for Firefox/Gecko and Zen-like variants
+    return /firefox|gecko|zen\//i.test(ua) && !/chrome|chromium|edg\//i.test(ua);
+  }, []);
 
   // Speech helpers
   const selectedVoice = React.useMemo(
@@ -190,35 +196,81 @@ const SettingsPage = () => {
       setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
   }, []);
 
-  // Load speech voices
+  // Load speech voices with robust cross-browser strategy
   React.useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     const synth = window.speechSynthesis;
-    const load = () => {
-      const voices = synth.getVoices?.() || [];
-      setAvailableVoices(voices);
-      // If no saved voice, try pick a French voice
-      if (!speechVoiceURI && voices.length) {
-        const preferred = voices.find((v) => v.lang?.toLowerCase() === "fr-fr");
-        const anyFr = voices.find((v) =>
-          v.lang?.toLowerCase().startsWith("fr"),
-        );
-        const chosen = preferred || anyFr || null;
-        if (chosen) {
-          setSpeechVoiceURI(chosen.voiceURI);
-        }
+
+    const pickInitialFrench = (voices: SpeechSynthesisVoice[]) => {
+      if (speechVoiceURI || !voices.length) return;
+      // Prefer exact fr-FR, then any fr-*
+      const preferred = voices.find((v) => (v.lang || "").toLowerCase() === "fr-fr");
+      const anyFr = voices.find((v) => (v.lang || "").toLowerCase().startsWith("fr"));
+      const chosen = preferred || anyFr || null;
+      if (chosen) {
+        setSpeechVoiceURI(chosen.voiceURI);
       }
     };
-    load();
-    if (!synth.getVoices?.().length) {
-      const handler = () => load();
-      synth.addEventListener?.("voiceschanged", handler);
-      return () => synth.removeEventListener?.("voiceschanged", handler);
-    }
+
+    const update = (voices: SpeechSynthesisVoice[]) => {
+      setAvailableVoices(voices);
+      pickInitialFrench(voices);
+    };
+
+    const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
+      return new Promise((resolve) => {
+        const existing = synth.getVoices?.() || [];
+        if (existing.length) return resolve(existing);
+
+        let resolved = false;
+        const tryResolve = () => {
+          if (resolved) return;
+          const arr = synth.getVoices?.() || [];
+          if (arr.length) {
+            resolved = true;
+            cleanup();
+            resolve(arr);
+          }
+        };
+
+        const onVoicesChanged = () => tryResolve();
+        const interval = setInterval(tryResolve, 250);
+        const timeout = setTimeout(() => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            resolve(synth.getVoices?.() || []);
+          }
+        }, 5000);
+        const cleanup = () => {
+          clearInterval(interval);
+          clearTimeout(timeout);
+          synth.removeEventListener?.("voiceschanged", onVoicesChanged);
+        };
+        synth.addEventListener?.("voiceschanged", onVoicesChanged);
+        tryResolve();
+      });
+    };
+
+    let disposed = false;
+    (async () => {
+      const voices = await waitForVoices();
+      if (disposed) return;
+      update(voices);
+    })();
+
+    return () => {
+      disposed = true;
+    };
   }, [speechVoiceURI]);
 
   const frenchVoices = React.useMemo(
-    () => availableVoices.filter((v) => v.lang?.toLowerCase().startsWith("fr")),
+    () =>
+      availableVoices.filter((v) => {
+        const lang = (v.lang || "").toLowerCase();
+        const name = (v.name || "").toLowerCase();
+        return lang.startsWith("fr") || /fr(ancais|ançais)?|french/.test(name);
+      }),
     [availableVoices],
   );
 
@@ -1115,9 +1167,21 @@ const SettingsPage = () => {
                     className="text-xs"
                     style={{ color: "var(--muted-foreground)" }}
                   >
-                    Loading voices… If none appear, your browser may not support
-                    the Speech Synthesis API.
+          Loading voices… If none appear, your browser may block or not fully support
+          the Speech Synthesis API (e.g., some Firefox-based browsers require system voices).
                   </p>
+                )}
+                {availableVoices.length === 0 && isFirefoxLike && (
+                  <div className="mt-2 text-xs space-y-1" style={{ color: "var(--muted-foreground)" }}>
+                    <div>Tip for Firefox/Zen:</div>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Install a French system TTS voice (required by Firefox).</li>
+                      <li>Linux: install speech-dispatcher + a French voice (e.g., espeak-ng + mbrola-fr) then restart Firefox.</li>
+                      <li>Windows: Settings → Time & Language → Speech → Manage voices → Add voices → French.</li>
+                      <li>macOS: System Settings → Accessibility → Spoken Content → System Voice → Add… → French.</li>
+                      <li>Android: Settings → System/Accessibility → Text-to-speech → Install French voice data.</li>
+                    </ul>
+                  </div>
                 )}
               </div>
 

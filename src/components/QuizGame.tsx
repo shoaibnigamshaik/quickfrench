@@ -32,6 +32,7 @@ export const QuizGame = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const [hasFrenchVoice, setHasFrenchVoice] = React.useState<boolean>(false);
   const [speechVolume, setSpeechVolume] = React.useState<number>(1);
   const [speechPitch, setSpeechPitch] = React.useState<number>(1);
   const [speechRate, setSpeechRate] = React.useState<number>(1);
@@ -94,13 +95,58 @@ export const QuizGame = ({
     }
     const synth = window.speechSynthesis;
 
-    const pickVoice = () => {
-      const voices = synth.getVoices?.() || [];
-      // Only allow French voices
-      const frVoices = voices.filter((v) =>
-        v.lang?.toLowerCase().startsWith("fr"),
-      );
-      // If a specific voice is saved, use it first (restricted to FR)
+    // Wait for voices to be loaded (cross-browser: event + polling)
+    const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
+      return new Promise((resolve) => {
+        const existing = synth.getVoices?.() || [];
+        if (existing.length) return resolve(existing);
+
+        let resolved = false;
+        const tryResolve = () => {
+          if (resolved) return;
+          const arr = synth.getVoices?.() || [];
+          if (arr.length) {
+            resolved = true;
+            cleanup();
+            resolve(arr);
+          }
+        };
+
+        const onVoicesChanged = () => tryResolve();
+        const interval = setInterval(tryResolve, 250);
+        const timeout = setTimeout(() => {
+          // Give up after 5s but return whatever we have (possibly empty)
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            resolve(synth.getVoices?.() || []);
+          }
+        }, 5000);
+        const cleanup = () => {
+          clearInterval(interval);
+          clearTimeout(timeout);
+          synth.removeEventListener?.("voiceschanged", onVoicesChanged);
+        };
+        synth.addEventListener?.("voiceschanged", onVoicesChanged);
+        // Kick off one attempt
+        tryResolve();
+      });
+    };
+
+    let cancelled = false;
+    const pickVoice = (voices: SpeechSynthesisVoice[]) => {
+      // Only allow French voices (fallback: also check name tokens)
+      const frVoices = voices.filter((v) => {
+        const lang = (v.lang || "").toLowerCase();
+        const name = (v.name || "").toLowerCase();
+        return (
+          lang.startsWith("fr") ||
+          /fr(ancais|ançais)?|french/.test(name)
+        );
+      });
+      setHasFrenchVoice(frVoices.length > 0);
+
+      // If a specific voice is saved, use it first (restricted to FR set)
       const byURI = speechVoiceURI
         ? frVoices.find((v) => v.voiceURI === speechVoiceURI) || null
         : null;
@@ -108,20 +154,23 @@ export const QuizGame = ({
         voiceRef.current = byURI;
         return;
       }
-      // Prefer fr-FR, else any fr-*
-      const preferred = frVoices.find((v) => v.lang?.toLowerCase() === "fr-fr");
-      const anyFr = frVoices[0];
-      voiceRef.current = preferred || anyFr || null;
+      // Prefer fr-FR (Google/Microsoft tend to tag this), else any fr-*
+      const preferred = frVoices.find(
+        (v) => (v.lang || "").toLowerCase() === "fr-fr",
+      );
+      const anyFr = frVoices[0] || null;
+      voiceRef.current = preferred || anyFr;
     };
 
-    // Some browsers populate voices asynchronously
-    pickVoice();
-    if (!voiceRef.current) {
-      const handler = () => pickVoice();
-      synth.addEventListener?.("voiceschanged", handler);
-      // Cleanup
-      return () => synth.removeEventListener?.("voiceschanged", handler);
-    }
+    (async () => {
+      const voices = await waitForVoices();
+      if (cancelled) return;
+      pickVoice(voices);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [speechVoiceURI]);
 
   // Speak a French phrase using Web Speech API
@@ -261,9 +310,14 @@ export const QuizGame = ({
               <button
                 type="button"
                 aria-label="Pronounce the French word"
-                title="Pronounce"
-                onClick={() => speakFrench(currentQuestion?.word || "")}
-                className="inline-flex items-center justify-center rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white/70"
+                title={
+                  hasFrenchVoice
+                    ? "Pronounce"
+                    : "Pronunciation unavailable: no French voice in this browser"
+                }
+                onClick={() => hasFrenchVoice && speakFrench(currentQuestion?.word || "")}
+                disabled={!hasFrenchVoice}
+                className={`inline-flex items-center justify-center rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white/70 ${!hasFrenchVoice ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ color: "white" }}
               >
                 <Volume2 className="h-6 w-6" />

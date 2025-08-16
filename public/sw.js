@@ -5,7 +5,7 @@
   - Caches API GET responses (network-first, cache fallback)
 */
 
-const SW_VERSION = "2025-08-14";
+const SW_VERSION = "2025-08-16";
 const STATIC_CACHE = `static-${SW_VERSION}`;
 const RUNTIME_CACHE = `runtime-${SW_VERSION}`;
 
