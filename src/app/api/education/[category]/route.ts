@@ -1,6 +1,5 @@
 import { turso } from "../../../../lib/turso";
-
-export const runtime = "edge";
+export const revalidate = 1296000;
 
 export async function GET(
   request: Request,

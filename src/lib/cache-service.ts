@@ -128,12 +128,36 @@ class VocabularyCacheService {
   }
 
   private async performNetworkFetch<T>(apiUrl: string): Promise<T> {
-    console.log(`Fetching from API: ${apiUrl}`);
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Prefer static JSON under /data if available, else fallback to API route
+    const staticUrl = this.toStaticUrl(apiUrl);
+    const tryUrls = staticUrl ? [staticUrl, apiUrl] : [apiUrl];
+    let lastErr: unknown;
+    for (const url of tryUrls) {
+      try {
+        console.log(`Fetching: ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return (await response.json()) as T;
+      } catch (e) {
+        lastErr = e;
+      }
     }
-    return (await response.json()) as T;
+    throw lastErr instanceof Error ? lastErr : new Error("Fetch failed");
+  }
+
+  private toStaticUrl(apiUrl: string): string | null {
+    // Map /api/foo -> /data/foo.json
+    // Map /api/foo/bar -> /data/foo/bar.json (bar may be encoded)
+    try {
+      if (!apiUrl.startsWith("/api/")) return null;
+      const path = apiUrl.replace(/^\/api\//, "");
+      const staticPath = path.endsWith(".json") ? path : `${path}.json`;
+      return `/data/${staticPath}`;
+    } catch {
+      return null;
+    }
   }
 
   async getAdjectives(config?: CacheConfig): Promise<Adjective[]> {

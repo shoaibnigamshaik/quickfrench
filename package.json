@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "generate:static": "node ./scripts/generate-static-data.mjs",
     "start": "next start",
+    "prebuild": "bun run scripts/generate-static-data.mjs",
+    "prestart": "bun run scripts/generate-static-data.mjs",
+    "generate:data": "bun run scripts/generate-static-data.mjs",
+    "postinstall": "bun run scripts/generate-static-data.mjs || echo 'skipping static data gen'",
     "lint": "next lint",
     "typecheck": "tsc --noEmit && echo TYPECHECK_OK || echo TYPECHECK_FAIL",
     "format": "prettier --write ."
