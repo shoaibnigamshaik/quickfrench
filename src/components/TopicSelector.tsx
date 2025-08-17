@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BookOpen, Settings, ChevronRight, Play } from "lucide-react";
+import { BookOpen, Settings, ChevronRight, Play, Flame } from "lucide-react";
 import {
   BODY_SUBTOPICS,
   FOOD_SUBTOPICS,
@@ -15,7 +15,9 @@ import {
   WORK_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
-import { getTopicSummary, PROGRESS_EVENT } from "@/lib/progress";
+import { getTopicSummary, PROGRESS_EVENT, getDailyStreakSummary, getCurrentStreakRange, getDailyCompletionDates } from "@/lib/progress";
+import { Calendar, RangeCalendar } from "@/components/ui/calendar-rac";
+import { parseDate as racParseDate } from "@internationalized/date";
 
 interface TopicSelectorProps {
   topics: Topic[];
@@ -57,6 +59,23 @@ export const TopicSelector = ({
 }: TopicSelectorProps) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [, setProgressTick] = React.useState(false);
+  const [daily, setDaily] = React.useState(() => getDailyStreakSummary());
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+  const [streakRange, setStreakRange] = React.useState<
+    | { start: string; end: string }
+    | undefined
+  >(() => getCurrentStreakRange());
+  const [markedDates, setMarkedDates] = React.useState<string[]>(() => getDailyCompletionDates());
+
+  // Close modal on Escape key
+  React.useEffect(() => {
+    if (!isCalendarOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsCalendarOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isCalendarOpen]);
 
   React.useEffect(() => {
     const saved = localStorage.getItem("topicSelector:selectedId");
@@ -65,7 +84,14 @@ export const TopicSelector = ({
 
   // Refresh when progress updates
   React.useEffect(() => {
-    const handler = () => setProgressTick((x) => !x);
+  const handler = () => {
+      setProgressTick((x) => !x);
+      try {
+        setDaily(getDailyStreakSummary());
+    setStreakRange(getCurrentStreakRange());
+  setMarkedDates(getDailyCompletionDates());
+      } catch {}
+    };
     window.addEventListener(PROGRESS_EVENT, handler as EventListener);
     return () =>
       window.removeEventListener(PROGRESS_EVENT, handler as EventListener);
@@ -130,7 +156,7 @@ export const TopicSelector = ({
               </h1>
             </div>
 
-            {/* Right: direction toggle + settings */}
+            {/* Right: direction toggle + daily streak + settings */}
             <div className="flex items-center gap-2 self-start md:self-auto">
               <button
                 type="button"
@@ -157,6 +183,24 @@ export const TopicSelector = ({
                     : "EN → FR"}
                 </span>
               </button>
+              {/* Daily streak pill (hidden when zero) */}
+        {daily.currentStreak > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsCalendarOpen(true)}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                  style={{
+                    backgroundColor: "var(--muted)",
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
+                  title="Consecutive days with at least one quiz completed (click to open calendar)"
+                  aria-label={`Daily streak ${daily.currentStreak}${daily.bestStreak ? `, best ${daily.bestStreak}` : ""}`}
+                >
+          <Flame className="h-4 w-4" style={{ color: "var(--primary-600)" }} />
+          <span className="text-sm font-semibold">Daily {daily.currentStreak}</span>
+                </button>
+              )}
               <Link
                 href="/settings"
                 aria-label="Settings"
@@ -404,6 +448,75 @@ export const TopicSelector = ({
           </p>
         </div>
       </div>
+      {/* Streak Calendar Modal */}
+      {isCalendarOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          aria-modal
+          role="dialog"
+          aria-label="Daily streak calendar"
+        >
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+            onClick={() => setIsCalendarOpen(false)}
+          />
+          <div
+            className="relative w-full max-w-md rounded-2xl shadow-2xl border"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <div
+              className="flex items-center justify-between px-5 py-3 border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <div className="flex items-center gap-2">
+                <Flame className="h-5 w-5" style={{ color: "var(--primary-600)" }} />
+                <h3 className="text-base font-semibold" style={{ color: "var(--foreground)" }}>
+                  Your Streak
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsCalendarOpen(false)}
+                className="px-3 py-1.5 rounded-lg text-sm border"
+                style={{
+                  backgroundColor: "var(--muted)",
+                  color: "var(--muted-foreground)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="px-5 py-4 flex flex-col items-center gap-3">
+              {streakRange ? (
+                <RangeCalendar
+                  aria-label="Streak range"
+                  value={{
+                    start: racParseDate(streakRange.start),
+                    end: racParseDate(streakRange.end),
+                  }}
+                  isReadOnly
+                  markedDates={markedDates}
+                />
+              ) : (
+                <Calendar aria-label="Calendar" markedDates={markedDates} />
+              )}
+              <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                Current: <strong>{daily.currentStreak}</strong>{" "}
+                {daily.bestStreak ? (
+                  <>
+                    • Best: <strong>{daily.bestStreak}</strong>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

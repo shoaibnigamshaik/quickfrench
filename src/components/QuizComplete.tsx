@@ -1,5 +1,6 @@
 import { Trophy, Home, RotateCcw } from "lucide-react";
 import { getScoreColor, getScoreMessage } from "@/lib/quiz-utils";
+import React from "react";
 
 interface QuizCompleteProps {
   score: number;

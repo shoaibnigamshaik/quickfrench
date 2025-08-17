@@ -39,6 +39,13 @@ export interface ProgressState {
   };
   topics: Record<string, TopicStats>;
   words: Record<string, WordStats>;
+  // Day-level streaks: number of consecutive days with >= 1 quiz completed
+  daily?: {
+    currentStreak: number; // current day streak in days
+    bestStreak: number; // best day streak
+    lastCompletionDate?: string; // YYYY-MM-DD (local)
+  completions?: string[]; // YYYY-MM-DD list of days with >= 1 completion
+  };
 }
 
 const LEARNED_CORRECTS = 3;
@@ -77,6 +84,7 @@ const load = (): ProgressState => {
       totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },
       topics: {},
       words: {},
+  daily: { currentStreak: 0, bestStreak: 0, completions: [] },
     };
   }
   try {
@@ -84,6 +92,9 @@ const load = (): ProgressState => {
     if (!raw) throw new Error("no progress");
     const parsed = JSON.parse(raw) as ProgressState;
     if (!parsed || parsed.version !== 1) throw new Error("bad version");
+    // Ensure new fields for older saves
+    parsed.daily ||= { currentStreak: 0, bestStreak: 0, completions: [] };
+    parsed.daily.completions ||= [];
     return parsed;
   } catch {
     return {
@@ -91,6 +102,7 @@ const load = (): ProgressState => {
       totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },
       topics: {},
       words: {},
+      daily: { currentStreak: 0, bestStreak: 0, completions: [] },
     };
   }
 };
@@ -198,6 +210,35 @@ export const recordSessionComplete = (args: { topicId: string }) => {
     learnedCount: 0,
     masteredCount: 0,
   };
+
+  // Update day-level streak
+  try {
+    state.daily ||= { currentStreak: 0, bestStreak: 0, completions: [] };
+    state.daily.completions ||= [];
+    const todayStr = formatLocalDate(new Date());
+    const last = state.daily.lastCompletionDate;
+    // Track unique completion days
+    if (!state.daily.completions.includes(todayStr)) {
+      state.daily.completions.push(todayStr);
+      state.daily.completions.sort();
+      if (state.daily.completions.length > 730) {
+        state.daily.completions = state.daily.completions.slice(-730);
+      }
+    }
+    if (last !== todayStr) {
+      if (last && isYesterday(last, todayStr)) {
+        state.daily.currentStreak = (state.daily.currentStreak || 0) + 1;
+      } else {
+        // First completion today or broken streak
+        state.daily.currentStreak = 1;
+      }
+      if ((state.daily.currentStreak || 0) > (state.daily.bestStreak || 0)) {
+        state.daily.bestStreak = state.daily.currentStreak;
+      }
+      state.daily.lastCompletionDate = todayStr;
+    }
+  } catch {}
+
   save(state);
   emitUpdate();
 };
@@ -227,4 +268,74 @@ export const getTopicSummary = (topicId: string) => {
     masteredCount: t.masteredCount,
     uniqueCorrect,
   } as const;
+};
+
+// Helpers for day streaks
+const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));
+const formatLocalDate = (d: Date): string => {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+};
+
+const parseDate = (yyyyMmDd: string): Date => {
+  const [y, m, d] = yyyyMmDd.split("-").map((s) => parseInt(s, 10));
+  const dt = new Date();
+  dt.setFullYear(y);
+  dt.setMonth((m || 1) - 1);
+  dt.setDate(d || 1);
+  dt.setHours(0, 0, 0, 0);
+  return dt;
+};
+
+const isYesterday = (lastDateStr: string, todayStr: string): boolean => {
+  try {
+    const last = parseDate(lastDateStr);
+    const today = parseDate(todayStr);
+    const diffMs = today.getTime() - last.getTime();
+    const oneDay = 24 * 60 * 60 * 1000;
+    return diffMs > 0 && diffMs <= oneDay + 1000 && last.getDate() !== today.getDate() &&
+      formatLocalDate(new Date(last.getTime() + oneDay)) === todayStr;
+  } catch {
+    return false;
+  }
+};
+
+export const getDailyStreakSummary = () => {
+  const p = load();
+  const todayStr = typeof window !== "undefined" ? formatLocalDate(new Date()) : undefined;
+  const last = p.daily?.lastCompletionDate;
+  return {
+    currentStreak: p.daily?.currentStreak || 0,
+    bestStreak: p.daily?.bestStreak || 0,
+    todayCompleted: !!todayStr && last === todayStr,
+    lastCompletionDate: last,
+  } as const;
+};
+
+export const getDailyCompletionDates = (): string[] => {
+  const p = load();
+  const list = (p.daily?.completions || []).slice();
+  list.sort();
+  return list;
+};
+
+export const getCurrentStreakRange = () => {
+  const p = load();
+  const last = p.daily?.lastCompletionDate;
+  if (!last) return undefined as undefined | { start: string; end: string };
+  const set = new Set(p.daily?.completions || []);
+  if (!set.has(last)) set.add(last);
+  let start = last;
+  let end = last;
+  while (true) {
+    const prev = previousDay(start);
+    if (!set.has(prev)) break;
+    start = prev;
+  }
+  return { start, end };
+};
+
+const previousDay = (yyyyMmDd: string): string => {
+  const d = parseDate(yyyyMmDd);
+  d.setDate(d.getDate() - 1);
+  return formatLocalDate(d);
 };
