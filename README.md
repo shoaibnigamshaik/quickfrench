@@ -1,6 +1,6 @@
 # QuickFrench 🇫🇷
 
-QuickFrench is a focused, interactive app for mastering French vocabulary through fast quiz loops. It offers multiple‑choice and typing modes, bi‑directional translation, and on‑device caching so practice feels instant—online or offline.
+QuickFrench is a focused, interactive app for mastering French vocabulary through fast quiz loops. It offers multiple‑choice and typing modes, bi‑directional translation, and fast on‑device caching for a snappy experience.
 
 ## Demo (Images)
 
@@ -10,7 +10,7 @@ QuickFrench is a focused, interactive app for mastering French vocabulary throug
 
 ## Examples
 
-QuickFrench — A lightning‑fast French vocabulary trainer with multiple‑choice and typing modes, bi‑directional translation, and offline‑friendly caching.
+QuickFrench — A lightning‑fast French vocabulary trainer with multiple‑choice and typing modes, bi‑directional translation, and responsive client‑side caching.
 
 ## What you get
 
@@ -28,7 +28,7 @@ I wanted short, high‑tempo vocab reps that didn’t fight me. The popular tool
 
 Guiding principles
 
-- Speed: Instant feel with offline‑friendly caching; minimal waits between questions.
+- Speed: Instant feel with local caching; minimal waits between questions.
 - Focus: No feeds, no fluff. Clean UI, keyboard shortcuts, and optional auto‑advance to reduce friction.
 - Relevance: Topic packs and category‑aware distractors keep multiple‑choice options meaningful.
 - Flow: Bi‑directional translation, quick restarts (R), and tight feedback loops encourage repeat sessions.
@@ -109,7 +109,7 @@ Your preferences (mode, count, direction, auto‑advance) are saved locally.
 - Next.js 15, React 19, TypeScript
 - Tailwind CSS 4
 - Turso (@libsql) for database
-- Dexie (IndexedDB) for offline‑friendly caching
+- Dexie (IndexedDB) for client‑side caching
 - Lucide React for icons
 - Bun for package management and dev server
 
@@ -149,4 +149,4 @@ Private project. All rights reserved.
 
 — Made with ❤️ by Shoaib and Sarthak
 
-Note: A service worker for full offline shell is available now!
+
