@@ -14,6 +14,7 @@ import {
   EducationItem,
   WorkItem,
 } from "@/types/quiz";
+import { expandMorphologicalParentheticals } from "@/lib/utils";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
 const shuffleArray = <T>(input: T[]): T[] => {
@@ -170,7 +171,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // - Entire string separated by '/', ',', '|', or ' or '
   // - Parenthetical alternatives like "(corridor / hallway)"
   const extractAlternatives = (text: string): string[] => {
-    const alts: string[] = [];
+  const alts: string[] = [];
 
     // Collect parenthetical content
     const parenMatches = Array.from(text.matchAll(/\(([^)]*)\)/g));
@@ -186,9 +187,14 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
     // If no parentheses at all, use original text as candidate
     if (alts.length === 0) alts.push(text);
 
-    // Split all candidates by common separators to yield final atomic options
+    // Expand morphological parentheticals like "lourd(e)" -> ["lourd", "lourde"] first
+    const morphExpanded = alts.flatMap((s) =>
+      expandMorphologicalParentheticals(s),
+    );
+
+    // Then split all candidates by common separators to yield final atomic options
     const splitOn = /\s*(?:\/|,|\||;|\bor\b)\s*/i;
-    const expanded = alts
+    const expanded = morphExpanded
       .flatMap((s) => s.split(splitOn))
       .map((s) => s.trim())
       .filter((s) => s.length > 0);

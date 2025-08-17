@@ -7,6 +7,7 @@ import { TypingInput } from "./ui/TypingInput";
 import { QuizResult } from "./QuizResult";
 import { QuizState, QuizSettings } from "@/types/quiz";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { expandGenderedParentheticalsForSpeech } from "@/lib/utils";
 
 interface QuizGameProps {
   quizState: QuizState;
@@ -184,12 +185,15 @@ export const QuizGame = ({
       if (synth.speaking) synth.cancel();
 
       // Remove gender indicators like (m), (f), (mpl), (fpl) to avoid reading them aloud
-      const cleaned = (text || "")
-        .replace(/\(\s*(?:m|f|mpl|fpl)\s*\)/gi, "")
+      // First expand morphological parentheticals like "lourd(e)" -> "lourd (m) / lourde (f)"
+      const expandedForSpeech = expandGenderedParentheticalsForSpeech(text || "");
+      const cleaned = expandedForSpeech
+        // Remove plural markers only, keep (m) and (f)
+        .replace(/\(\s*(?:mpl|fpl)\s*\)/gi, "")
         // Also strip standalone tokens 'mpl' or 'fpl' if they appear outside parentheses
         .replace(/\b(?:mpl|fpl)\b/gi, "")
-        // If a whole string with slashes is passed, don't speak the slash
-        .replace(/\s*\/\s*/g, " ")
+        // Replace slashes with a comma pause so it's not read as "slash"
+        .replace(/\s*\/\s*/g, ", ")
         .replace(/\s{2,}/g, " ")
         .trim();
       const utter = new SpeechSynthesisUtterance(cleaned);
