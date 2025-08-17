@@ -325,7 +325,7 @@ export const getCurrentStreakRange = () => {
   const set = new Set(p.daily?.completions || []);
   if (!set.has(last)) set.add(last);
   let start = last;
-  let end = last;
+  const end = last;
   while (true) {
     const prev = previousDay(start);
     if (!set.has(prev)) break;
