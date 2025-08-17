@@ -143,3 +143,7 @@ body {
 .scrollbar-sleek::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+button {
+  cursor: pointer;
+}
