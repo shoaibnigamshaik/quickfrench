@@ -183,9 +183,11 @@ export const QuizGame = ({
       // Cancel any ongoing speech
       if (synth.speaking) synth.cancel();
 
-      // Remove gender indicators like (m) or (f) to avoid reading them aloud
+      // Remove gender indicators like (m), (f), (mpl), (fpl) to avoid reading them aloud
       const cleaned = (text || "")
-        .replace(/\(\s*[mf]\s*\)/gi, "")
+        .replace(/\(\s*(?:m|f|mpl|fpl)\s*\)/gi, "")
+        // Also strip standalone tokens 'mpl' or 'fpl' if they appear outside parentheses
+        .replace(/\b(?:mpl|fpl)\b/gi, "")
         // If a whole string with slashes is passed, don't speak the slash
         .replace(/\s*\/\s*/g, " ")
         .replace(/\s{2,}/g, " ")
