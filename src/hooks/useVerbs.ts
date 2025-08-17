@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Verb } from "@/types/quiz";
-import { vocabularyCacheService } from "@/lib/cache-service";
+import { vocabularyService } from "@/lib/cache-service";
 
 export const useVerbs = (forceRefresh = false) => {
   const [verbs, setVerbs] = useState<Verb[]>([]);
@@ -12,7 +12,7 @@ export const useVerbs = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getVerbs({ forceRefresh });
+  const data = await vocabularyService.getVerbs();
         setVerbs(data);
       } catch (error) {
         console.error("Failed to fetch verbs:", error);

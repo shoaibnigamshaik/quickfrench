@@ -111,7 +111,7 @@ export const MultipleChoiceOptions = ({
               color: "var(--muted-foreground)",
             }}
           >
-            <HelpCircle className="h-4 w-4" /> I don't know (0 or ?)
+            <HelpCircle className="h-4 w-4" /> I don&apos;t know (0 or ?)
           </button>
         </div>
       )}

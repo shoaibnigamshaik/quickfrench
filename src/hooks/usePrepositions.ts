@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Preposition } from "@/types/quiz";
-import { vocabularyCacheService } from "@/lib/cache-service";
+import { vocabularyService } from "@/lib/cache-service";
 
 export const usePrepositions = (forceRefresh = false) => {
   const [prepositions, setPrepositions] = useState<Preposition[]>([]);
@@ -12,9 +12,7 @@ export const usePrepositions = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getPrepositions({
-          forceRefresh,
-        });
+  const data = await vocabularyService.getPrepositions();
         setPrepositions(data);
       } catch (error) {
         console.error("Failed to fetch prepositions:", error);

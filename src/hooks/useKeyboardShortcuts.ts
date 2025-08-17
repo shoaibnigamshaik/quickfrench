@@ -193,5 +193,6 @@ export const useKeyboardShortcuts = ({
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,
+  onIDontKnow,
   ]);
 };

@@ -10,12 +10,8 @@ import {
   CheckCircle,
   LucideIcon,
   Clock,
-  RefreshCw,
-  Trash2,
-  HardDrive,
   Sliders,
 } from "lucide-react";
-import { useCacheManagement } from "@/hooks/useCacheManagement";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 interface SettingItem {
@@ -27,9 +23,6 @@ interface SettingItem {
     | "quiz-mode"
     | "question-count"
     | "auto-advance"
-    | "cache-refresh"
-    | "cache-clear"
-    | "cache-info"
     | "speech";
   value?: boolean | string;
   options?: string[];
@@ -110,40 +103,7 @@ const SettingsPage = () => {
     synth.speak(utter);
   };
 
-  // Cache management
-  const {
-    cacheInfo,
-    isRefreshing,
-    isClearing,
-    isOnline,
-    error: cacheError,
-    getCacheInfo,
-    refreshAllData,
-    clearAllCache,
-    formatCacheSize,
-    formatLastUpdated,
-  } = useCacheManagement();
-
-  // Load cache info on component mount
-  React.useEffect(() => {
-    getCacheInfo();
-  }, [getCacheInfo]);
-
-  // Update cache info when background warmup completes
-  React.useEffect(() => {
-    const handler = () => getCacheInfo();
-    if (typeof window !== "undefined") {
-      window.addEventListener(
-        "quickfrench:cacheWarmupDone",
-        handler as EventListener,
-      );
-      return () =>
-        window.removeEventListener(
-          "quickfrench:cacheWarmupDone",
-          handler as EventListener,
-        );
-    }
-  }, [getCacheInfo]);
+  // Cache management removed
 
   // Load saved settings from localStorage
   React.useEffect(() => {
@@ -388,35 +348,7 @@ const SettingsPage = () => {
         // Delay slider/input rendered alongside toggle
       ],
     },
-    {
-      title: "Data & Cache",
-      items: [
-        {
-          icon: HardDrive,
-          label: "Cache Information",
-          description: `${
-            cacheInfo ? cacheInfo.totalEntries : 0
-          } items cached • ${
-            cacheInfo ? formatCacheSize(cacheInfo.totalSize) : "0 B"
-          } • Last updated: ${
-            cacheInfo ? formatLastUpdated(cacheInfo.newestEntry) : "Never"
-          }`,
-          type: "cache-info" as const,
-        },
-        {
-          icon: RefreshCw,
-          label: "Refresh from Database",
-          description: "Fetch fresh data from the database and update cache",
-          type: "cache-refresh" as const,
-        },
-        {
-          icon: Trash2,
-          label: "Clear Cache",
-          description: "Remove all cached data (will be refetched when needed)",
-          type: "cache-clear" as const,
-        },
-      ],
-    },
+  // Data & Cache section removed
   ];
 
   // Removed generic toggles/links in favor of only functional settings
@@ -568,22 +500,7 @@ const SettingsPage = () => {
                 >
                   {section.title}
                 </h2>
-                {section.title === "Data & Cache" && !isOnline && (
-                  <div
-                    className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs border"
-                    style={{
-                      backgroundColor: "var(--muted)",
-                      color: "var(--muted-foreground)",
-                      borderColor: "var(--border)",
-                    }}
-                  >
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ backgroundColor: "#ef4444" }}
-                    />
-                    Offline: refresh and clear are disabled
-                  </div>
-                )}
+                {/* Cache offline notice removed */}
               </div>
 
               <div className="p-6 space-y-4">
@@ -887,83 +804,7 @@ const SettingsPage = () => {
                         />
                       )}
 
-                      {item.type === "cache-info" && (
-                        <div className="text-right">
-                          {cacheError && (
-                            <p
-                              className="text-xs mb-1"
-                              style={{ color: "var(--danger-600)" }}
-                            >
-                              {cacheError}
-                            </p>
-                          )}
-                          <button
-                            onClick={getCacheInfo}
-                            className="text-sm font-medium"
-                            style={{ color: "var(--primary-600)" }}
-                          >
-                            Refresh Info
-                          </button>
-                        </div>
-                      )}
-
-                      {item.type === "cache-refresh" && (
-                        <button
-                          onClick={refreshAllData}
-                          disabled={isRefreshing || !isOnline}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                            isRefreshing ? "cursor-not-allowed" : ""
-                          }`}
-                          style={
-                            isRefreshing || !isOnline
-                              ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
-                              : {
-                                  backgroundColor: "var(--primary-100)",
-                                  color: "var(--primary-600)",
-                                }
-                          }
-                        >
-                          {isRefreshing ? (
-                            <div className="flex items-center space-x-2">
-                              <RefreshCw className="h-4 w-4 animate-spin" />
-                              <span>Refreshing...</span>
-                            </div>
-                          ) : !isOnline ? (
-                            "Refresh (offline)"
-                          ) : (
-                            "Refresh"
-                          )}
-                        </button>
-                      )}
-
-                      {item.type === "cache-clear" && (
-                        <button
-                          onClick={clearAllCache}
-                          disabled={isClearing || !isOnline}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                            isClearing ? "cursor-not-allowed" : ""
-                          }`}
-                          style={
-                            isClearing || !isOnline
-                              ? { backgroundColor: "#f3f4f6", color: "#9ca3af" }
-                              : {
-                                  backgroundColor: "var(--danger-100)",
-                                  color: "var(--danger-600)",
-                                }
-                          }
-                        >
-                          {isClearing ? (
-                            <div className="flex items-center space-x-2">
-                              <Trash2 className="h-4 w-4 animate-pulse" />
-                              <span>Clearing...</span>
-                            </div>
-                          ) : !isOnline ? (
-                            "Clear (offline)"
-                          ) : (
-                            "Clear"
-                          )}
-                        </button>
-                      )}
+                      {/* Cache controls removed */}
 
                       {item.type === "speech" && (
                         <button

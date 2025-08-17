@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Number } from "@/types/quiz";
-import { vocabularyCacheService } from "@/lib/cache-service";
+import { vocabularyService } from "@/lib/cache-service";
 
 export const useNumbers = (forceRefresh = false) => {
   const [numbers, setNumbers] = useState<Number[]>([]);
@@ -12,7 +12,7 @@ export const useNumbers = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getNumbers({ forceRefresh });
+  const data = await vocabularyService.getNumbers();
         setNumbers(data);
       } catch (error) {
         console.error("Failed to fetch numbers:", error);

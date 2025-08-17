@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Transportation } from "@/types/quiz";
-import { vocabularyCacheService } from "@/lib/cache-service";
+import { vocabularyService } from "@/lib/cache-service";
 
 export const useTransportation = (forceRefresh = false) => {
   const [transportation, setTransportation] = useState<Transportation[]>([]);
@@ -12,9 +12,7 @@ export const useTransportation = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-        const data = await vocabularyCacheService.getTransportation({
-          forceRefresh,
-        });
+  const data = await vocabularyService.getTransportation();
         setTransportation(data);
       } catch (error) {
         console.error("Failed to fetch transportation:", error);
