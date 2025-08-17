@@ -148,5 +148,3 @@ Private project. All rights reserved.
 - Tailwind CSS — https://tailwindcss.com/
 
 — Made with ❤️ by Shoaib and Sarthak
-
-

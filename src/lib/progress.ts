@@ -19,6 +19,19 @@ export interface WordStats {
   lastResult?: "correct" | "wrong";
   topicId: string;
   byDirection?: Partial<Record<DirKey, { attempts: number; correct: number }>>;
+  // Spaced repetition scheduling per direction
+  srs?: Partial<
+    Record<
+      DirKey,
+      {
+        ease: number; // SM-2 ease factor (start ~2.5)
+        intervalDays: number; // current interval in days
+        dueAt: number; // epoch ms for next review
+        reps: number; // consecutive successful reps (resets on lapse)
+        lapses: number; // total lapses
+      }
+    >
+  >;
 }
 
 export interface TopicStats {
@@ -44,7 +57,7 @@ export interface ProgressState {
     currentStreak: number; // current day streak in days
     bestStreak: number; // best day streak
     lastCompletionDate?: string; // YYYY-MM-DD (local)
-  completions?: string[]; // YYYY-MM-DD list of days with >= 1 completion
+    completions?: string[]; // YYYY-MM-DD list of days with >= 1 completion
   };
 }
 
@@ -84,7 +97,7 @@ const load = (): ProgressState => {
       totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },
       topics: {},
       words: {},
-  daily: { currentStreak: 0, bestStreak: 0, completions: [] },
+      daily: { currentStreak: 0, bestStreak: 0, completions: [] },
     };
   }
   try {
@@ -158,6 +171,7 @@ export const recordAttempt = (args: {
       lastSeenAt: t,
       topicId: args.topicId,
       byDirection: {},
+      srs: {},
     };
   }
 
@@ -195,9 +209,93 @@ export const recordAttempt = (args: {
     topicStats.masteredCount += 1;
   }
 
+  // --- SRS scheduling (SM-2 lite) ---
+  try {
+    word.srs ||= {};
+    const s = (word.srs[dir] ||= {
+      ease: 2.5,
+      intervalDays: 0,
+      dueAt: 0,
+      reps: 0,
+      lapses: 0,
+    });
+    const clamp = (v: number, lo: number, hi: number) =>
+      Math.max(lo, Math.min(hi, v));
+
+    if (!args.isCorrect) {
+      // Lapse: make it due tomorrow, reset reps, decrease ease slightly
+      s.lapses += 1;
+      s.reps = 0;
+      s.ease = clamp(s.ease - 0.2, 1.3, 3.2);
+      s.intervalDays = 1;
+      s.dueAt = t + 24 * 60 * 60 * 1000;
+    } else {
+      // Success: increase reps and schedule forward
+      s.reps += 1;
+      if (s.reps === 1) {
+        s.intervalDays = 1; // first successful recall
+      } else if (s.reps === 2) {
+        s.intervalDays = 6; // second
+      } else {
+        s.intervalDays = Math.max(1, Math.round(s.intervalDays * s.ease));
+      }
+      s.ease = clamp(s.ease + 0.1, 1.3, 3.2);
+      s.dueAt = t + s.intervalDays * 24 * 60 * 60 * 1000;
+    }
+  } catch {}
+
   save(state);
   emitUpdate();
 };
+
+// Return normalized keys for words that are due for a given topic+direction
+export const getDueFrenchKeys = (args: {
+  topicId: string;
+  direction: TranslationDirection;
+  now?: number;
+}): string[] => {
+  const state = load();
+  const dir: DirKey =
+    args.direction === "french-to-english" ? "fr→en" : "en→fr";
+  const nowTs = args.now ?? now();
+  const out: string[] = [];
+  for (const [key, w] of Object.entries(state.words)) {
+    if (w.topicId !== args.topicId) continue;
+    const s = w.srs?.[dir];
+    if (!s) continue;
+    if ((s.dueAt || 0) <= nowTs) out.push(key);
+  }
+  // oldest due first
+  out.sort((a, b) => {
+    const sa = state.words[a]?.srs?.[dir]?.dueAt || 0;
+    const sb = state.words[b]?.srs?.[dir]?.dueAt || 0;
+    return sa - sb;
+  });
+  return out;
+};
+
+// Return normalized keys for new words (no attempts in this direction)
+export const getNewFrenchKeys = (args: {
+  topicId: string;
+  direction: TranslationDirection;
+  limit?: number;
+}): string[] => {
+  const state = load();
+  const dir: DirKey =
+    args.direction === "french-to-english" ? "fr→en" : "en→fr";
+  const acc: string[] = [];
+  for (const [key, w] of Object.entries(state.words)) {
+    if (w.topicId !== args.topicId) continue;
+    const d = w.byDirection?.[dir];
+    if (!d || (d.attempts || 0) === 0) acc.push(key);
+    if (args.limit && acc.length >= args.limit) break;
+  }
+  return acc;
+};
+
+// Convenience: from a french word string -> progress key for a topic
+export const makeProgressKey = (topicId: string, frenchWord: string) =>
+  `${topicId}::${normalizeFrench(frenchWord)}`;
 
 export const recordSessionComplete = (args: { topicId: string }) => {
   const state = load();
@@ -292,8 +390,12 @@ const isYesterday = (lastDateStr: string, todayStr: string): boolean => {
     const today = parseDate(todayStr);
     const diffMs = today.getTime() - last.getTime();
     const oneDay = 24 * 60 * 60 * 1000;
-    return diffMs > 0 && diffMs <= oneDay + 1000 && last.getDate() !== today.getDate() &&
-      formatLocalDate(new Date(last.getTime() + oneDay)) === todayStr;
+    return (
+      diffMs > 0 &&
+      diffMs <= oneDay + 1000 &&
+      last.getDate() !== today.getDate() &&
+      formatLocalDate(new Date(last.getTime() + oneDay)) === todayStr
+    );
   } catch {
     return false;
   }
@@ -301,7 +403,8 @@ const isYesterday = (lastDateStr: string, todayStr: string): boolean => {
 
 export const getDailyStreakSummary = () => {
   const p = load();
-  const todayStr = typeof window !== "undefined" ? formatLocalDate(new Date()) : undefined;
+  const todayStr =
+    typeof window !== "undefined" ? formatLocalDate(new Date()) : undefined;
   const last = p.daily?.lastCompletionDate;
   return {
     currentStreak: p.daily?.currentStreak || 0,

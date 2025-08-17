@@ -49,6 +49,14 @@ const SettingsPage = () => {
     React.useState<number>(1000);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
   const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
+  // Spaced repetition controls (persisted locally)
+  const [srsReviewMode, setSrsReviewMode] = React.useState<boolean | undefined>(
+    undefined,
+  );
+  const [, setSrsMaxPerSession] = React.useState<number | undefined>(undefined);
+  const [srsNewPerSession, setSrsNewPerSession] = React.useState<
+    number | undefined
+  >(undefined);
 
   // Speech settings
   const [availableVoices, setAvailableVoices] = React.useState<
@@ -116,6 +124,9 @@ const SettingsPage = () => {
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
     const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
     const savedVoiceURI = localStorage.getItem("speechVoiceURI");
+    const savedSrsReview = localStorage.getItem("srsReviewMode");
+    const savedSrsMax = localStorage.getItem("srsMaxPerSession");
+    const savedSrsNew = localStorage.getItem("srsNewPerSession");
     const savedVol = localStorage.getItem("speechVolume");
     const savedPitch = localStorage.getItem("speechPitch");
     const savedRate = localStorage.getItem("speechRate");
@@ -152,6 +163,12 @@ const SettingsPage = () => {
       setSpeechPitch(Math.min(Math.max(parseFloat(savedPitch), 0), 2));
     if (savedRate)
       setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
+
+    if (savedSrsReview === "true") setSrsReviewMode(true);
+    if (savedSrsMax && !Number.isNaN(parseInt(savedSrsMax)))
+      setSrsMaxPerSession(Math.max(5, Math.min(100, parseInt(savedSrsMax))));
+    if (savedSrsNew && !Number.isNaN(parseInt(savedSrsNew)))
+      setSrsNewPerSession(Math.max(1, Math.min(50, parseInt(savedSrsNew))));
   }, []);
 
   // Load speech voices with robust cross-browser strategy
@@ -319,6 +336,14 @@ const SettingsPage = () => {
           label: "Quiz Mode",
           description: "Choose how you want to answer questions",
           type: "quiz-mode" as const,
+        },
+        {
+          icon: Clock,
+          label: "Review (Spaced Repetition)",
+          description:
+            "Prioritize due items first; fallback to practice when nothing is due",
+          type: "auto-advance" as const, // reuse toggle visuals
+          value: !!srsReviewMode,
         },
         {
           icon: HelpCircle,
@@ -730,57 +755,121 @@ const SettingsPage = () => {
 
                       {item.type === "auto-advance" && (
                         <div className="flex items-center gap-4">
-                          <button
-                            onClick={handleAutoAdvanceChange}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
-                            style={{
-                              backgroundColor: autoAdvance
-                                ? "var(--primary-600)"
-                                : "#d1d5db",
-                            }}
-                            aria-pressed={autoAdvance}
-                            aria-label="Toggle auto advance"
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                autoAdvance ? "translate-x-6" : "translate-x-1"
-                              }`}
-                            />
-                          </button>
-                          <div className="flex items-center gap-2">
-                            <label
-                              className="text-sm"
-                              style={{ color: "var(--muted-foreground)" }}
-                            >
-                              Delay:
-                            </label>
-                            <input
-                              type="number"
-                              min={300}
-                              max={5000}
-                              step={100}
-                              value={autoAdvanceDelayMs}
-                              onChange={(e) =>
-                                handleAutoAdvanceDelayChange(
-                                  parseInt(e.target.value || "1000", 10),
-                                )
-                              }
-                              disabled={!autoAdvance}
-                              className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
-                              style={{
-                                backgroundColor: "var(--card)",
-                                color: "var(--foreground)",
-                                borderColor: "var(--border)",
-                              }}
-                              aria-label="Auto-advance delay in milliseconds"
-                            />
-                            <span
-                              className="text-sm"
-                              style={{ color: "var(--muted-foreground)" }}
-                            >
-                              ms
-                            </span>
-                          </div>
+                          {(() => {
+                            const isOn =
+                              item.label === "Auto Advance"
+                                ? autoAdvance
+                                : !!srsReviewMode;
+                            return (
+                              <button
+                                onClick={
+                                  item.label === "Auto Advance"
+                                    ? handleAutoAdvanceChange
+                                    : () => {
+                                        const next = !srsReviewMode;
+                                        setSrsReviewMode(next);
+                                        localStorage.setItem(
+                                          "srsReviewMode",
+                                          String(next),
+                                        );
+                                      }
+                                }
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                                style={{
+                                  backgroundColor: isOn
+                                    ? "var(--primary-600)"
+                                    : "#d1d5db",
+                                }}
+                                aria-pressed={
+                                  item.label === "Auto Advance"
+                                    ? autoAdvance
+                                    : !!srsReviewMode
+                                }
+                                aria-label={
+                                  item.label === "Auto Advance"
+                                    ? "Toggle auto advance"
+                                    : "Toggle SRS review mode"
+                                }
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    isOn ? "translate-x-6" : "translate-x-1"
+                                  }`}
+                                />
+                              </button>
+                            );
+                          })()}
+                          {item.label === "Auto Advance" ? (
+                            <div className="flex items-center gap-2">
+                              <label
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
+                                Delay:
+                              </label>
+                              <input
+                                type="number"
+                                min={300}
+                                max={5000}
+                                step={100}
+                                value={autoAdvanceDelayMs}
+                                onChange={(e) =>
+                                  handleAutoAdvanceDelayChange(
+                                    parseInt(e.target.value || "1000", 10),
+                                  )
+                                }
+                                disabled={!autoAdvance}
+                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
+                                style={{
+                                  backgroundColor: "var(--card)",
+                                  color: "var(--foreground)",
+                                  borderColor: "var(--border)",
+                                }}
+                                aria-label="Auto-advance delay in milliseconds"
+                              />
+                              <span
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
+                                ms
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <label
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
+                                Max New per Quiz:
+                              </label>
+                              <input
+                                type="number"
+                                min={1}
+                                max={50}
+                                step={1}
+                                value={srsNewPerSession ?? 10}
+                                onChange={(e) => {
+                                  const n = parseInt(
+                                    e.target.value || "10",
+                                    10,
+                                  );
+                                  const clamped = Math.max(1, Math.min(50, n));
+                                  setSrsNewPerSession(clamped);
+                                  localStorage.setItem(
+                                    "srsNewPerSession",
+                                    String(clamped),
+                                  );
+                                }}
+                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
+                                style={{
+                                  backgroundColor: "var(--card)",
+                                  color: "var(--foreground)",
+                                  borderColor: "var(--border)",
+                                }}
+                                aria-label="SRS new items per quiz"
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
 

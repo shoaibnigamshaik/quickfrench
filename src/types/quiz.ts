@@ -189,6 +189,12 @@ export interface QuizSettings {
   translationDirection: TranslationDirection;
   autoAdvance: boolean;
   autoAdvanceDelayMs?: number;
+  // Optional spaced repetition settings (client-only)
+  // When true, question generation prioritizes SRS due items.
+  srsReviewMode?: boolean;
+  // Soft caps for review/new items per session (when questionCount is a number)
+  srsMaxPerSession?: number;
+  srsNewPerSession?: number;
 }
 
 export type VocabularyItem =

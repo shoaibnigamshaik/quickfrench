@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { ComponentProps } from "react"
+import { cn } from "@/lib/utils";
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { ComponentProps } from "react";
 import {
   Button,
   CalendarCell as CalendarCellRac,
@@ -14,17 +14,17 @@ import {
   Heading as HeadingRac,
   RangeCalendar as RangeCalendarRac,
   composeRenderProps,
-} from "react-aria-components"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+} from "react-aria-components";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 interface BaseCalendarProps {
-  className?: string
-  markedDates?: string[]
+  className?: string;
+  markedDates?: string[];
 }
 
-type CalendarProps = ComponentProps<typeof CalendarRac> & BaseCalendarProps
+type CalendarProps = ComponentProps<typeof CalendarRac> & BaseCalendarProps;
 type RangeCalendarProps = ComponentProps<typeof RangeCalendarRac> &
-  BaseCalendarProps
+  BaseCalendarProps;
 
 const CalendarHeader = () => (
   <header className="flex w-full items-center gap-1 pb-1">
@@ -42,10 +42,16 @@ const CalendarHeader = () => (
       <ChevronRightIcon className="h-4 w-4" />
     </Button>
   </header>
-)
+);
 
-const CalendarGridComponent = ({ isRange = false, markedDates = [] }: { isRange?: boolean; markedDates?: string[] }) => {
-  const now = today(getLocalTimeZone())
+const CalendarGridComponent = ({
+  isRange = false,
+  markedDates = [],
+}: {
+  isRange?: boolean;
+  markedDates?: string[];
+}) => {
+  const now = today(getLocalTimeZone());
 
   return (
     <CalendarGridRac>
@@ -65,31 +71,31 @@ const CalendarGridComponent = ({ isRange = false, markedDates = [] }: { isRange?
               // Range-specific styles
               isRange &&
                 "data-[selected]:rounded-none data-[selection-end]:rounded-e-lg data-[selection-start]:rounded-s-lg data-[invalid]:bg-red-100 data-[selected]:bg-accent data-[selected]:text-foreground data-[invalid]:data-[selection-end]:[&:not([data-hover])]:bg-destructive data-[invalid]:data-[selection-start]:[&:not([data-hover])]:bg-destructive data-[selection-end]:bg-accent data-[selection-start]:bg-accent data-[selection-end]:text-foreground data-[selection-start]:text-foreground data-[selection-end]:after:pointer-events-none data-[selection-start]:after:pointer-events-none data-[selection-end]:after:absolute data-[selection-start]:after:absolute data-[selection-end]:after:top-1 data-[selection-start]:after:top-1 data-[selection-end]:after:start-1/2 data-[selection-start]:after:start-1/2 data-[selection-end]:after:-translate-x-1/2 data-[selection-start]:after:-translate-x-1/2 data-[selection-end]:after:size-[5px] data-[selection-start]:after:size-[5px] data-[selection-end]:after:rounded-full data-[selection-start]:after:rounded-full data-[selection-end]:after:bg-[var(--primary-600)] data-[selection-start]:after:bg-[var(--primary-600)]",
-        // Today indicator styles (no border, keep bottom dot)
+              // Today indicator styles (no border, keep bottom dot)
               date.compare(now) === 0 &&
                 cn(
-          "after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary",
+                  "after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary",
                   isRange
                     ? "data-[selection-end]:[&:not([data-hover])]:after:bg-background data-[selection-start]:[&:not([data-hover])]:after:bg-background"
                     : "data-[selected]:after:bg-background",
                 ),
               // Completed day marker (small dot at top-right). Use before: to not clash with today 'after:' dot.
               (() => {
-                const y = String(date.year).padStart(4, "0")
-                const m = String(date.month).padStart(2, "0")
-                const d = String(date.day).padStart(2, "0")
-                const key = `${y}-${m}-${d}`
+                const y = String(date.year).padStart(4, "0");
+                const m = String(date.month).padStart(2, "0");
+                const d = String(date.day).padStart(2, "0");
+                const key = `${y}-${m}-${d}`;
                 return markedDates.includes(key)
                   ? "before:pointer-events-none before:absolute before:top-1 before:right-1 before:z-10 before:size-[5px] before:rounded-full before:bg-[var(--success-600)]"
-                  : undefined
+                  : undefined;
               })(),
             )}
           />
         )}
       </CalendarGridBodyRac>
     </CalendarGridRac>
-  )
-}
+  );
+};
 
 const Calendar = ({ className, markedDates = [], ...props }: CalendarProps) => {
   return (
@@ -100,12 +106,16 @@ const Calendar = ({ className, markedDates = [], ...props }: CalendarProps) => {
       )}
     >
       <CalendarHeader />
-  <CalendarGridComponent markedDates={markedDates} />
+      <CalendarGridComponent markedDates={markedDates} />
     </CalendarRac>
-  )
-}
+  );
+};
 
-const RangeCalendar = ({ className, markedDates = [], ...props }: RangeCalendarProps) => {
+const RangeCalendar = ({
+  className,
+  markedDates = [],
+  ...props
+}: RangeCalendarProps) => {
   return (
     <RangeCalendarRac
       {...props}
@@ -114,9 +124,9 @@ const RangeCalendar = ({ className, markedDates = [], ...props }: RangeCalendarP
       )}
     >
       <CalendarHeader />
-  <CalendarGridComponent isRange markedDates={markedDates} />
+      <CalendarGridComponent isRange markedDates={markedDates} />
     </RangeCalendarRac>
-  )
-}
+  );
+};
 
-export { Calendar, RangeCalendar }
+export { Calendar, RangeCalendar };

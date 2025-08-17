@@ -14,7 +14,12 @@ import {
   EducationItem,
   WorkItem,
 } from "@/types/quiz";
-import { getProgress, normalizeFrench } from "@/lib/progress";
+import {
+  getProgress,
+  normalizeFrench,
+  getDueFrenchKeys,
+  makeProgressKey,
+} from "@/lib/progress";
 import { expandMorphologicalParentheticals } from "@/lib/utils";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
@@ -149,6 +154,108 @@ export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
               x.category ===
               (item as T & { category?: string | null }).category,
           )
+        : items;
+
+    const distractors = shuffleArray(
+      pool.filter((x) =>
+        isEnglishToFrench ? x.word !== item.word : x.meaning !== item.meaning,
+      ),
+    )
+      .slice(0, 3)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const options = shuffleArray([correctAnswer, ...distractors]);
+    return { word: questionWord, correct: correctAnswer, options };
+  });
+};
+
+// SRS-based generator: take due items (direction-aware), then fill with new/unseen for the topic
+export const generateQuestionsSrs = <T extends WithOptionalCategory>(
+  items: T[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+  topicId: string,
+  options?: { maxNew?: number; nowTs?: number },
+): Question[] => {
+  if (!Array.isArray(items) || items.length === 0) return [];
+
+  const isEnglishToFrench = translationDirection === "english-to-french";
+  const nowTs = options?.nowTs;
+
+  // Map items by progress key for quick lookup
+  const byKey = new Map<string, T>();
+  for (const it of items) byKey.set(makeProgressKey(topicId, it.word), it);
+
+  const dueKeys = getDueFrenchKeys({
+    topicId,
+    direction: translationDirection,
+    now: nowTs,
+  });
+  const dueItems: T[] = [];
+  for (const k of dueKeys) {
+    const it = byKey.get(k);
+    if (it) dueItems.push(it);
+  }
+
+  const numRequested =
+    questionCount === "all"
+      ? items.length
+      : Math.min(items.length, questionCount);
+
+  const targets: T[] = [];
+  for (const it of dueItems) {
+    if (targets.length >= numRequested) break;
+    targets.push(it);
+  }
+
+  // If not enough due, add never-seen/new items (based on absence in progress.words)
+  if (targets.length < numRequested) {
+    const progress = getProgress();
+    const dirKey = isEnglishToFrench ? "en→fr" : "fr→en"; // direction of recall target
+    const newPool = items.filter((it) => {
+      const key = makeProgressKey(topicId, it.word);
+      const ws = progress.words[key];
+      if (!ws) return true; // unseen entirely
+      const d = ws.byDirection?.[dirKey];
+      return !d || (d.attempts || 0) === 0; // unseen in this recall direction
+    });
+    const maxNew = options?.maxNew ?? Math.max(5, Math.floor(numRequested / 2));
+    const toTake = Math.min(maxNew, numRequested - targets.length);
+    const shuffledNew = shuffleArray(newPool).slice(0, toTake);
+    targets.push(...shuffledNew);
+  }
+
+  // If still short, add remaining items by low progress weight (fallback)
+  if (targets.length < numRequested) {
+    const progress = getProgress();
+    const weight = (it: T): number => {
+      const key = makeProgressKey(topicId, it.word);
+      const ws = progress.words[key];
+      if (!ws) return 0;
+      const dirKey =
+        translationDirection === "french-to-english" ? "fr→en" : "en→fr";
+      const dueAt = ws.srs?.[dirKey]?.dueAt ?? Infinity;
+      const reps = ws.srs?.[dirKey]?.reps ?? 0;
+      // Prefer items with fewer reps or overdue sooner
+      return (dueAt === Infinity ? 0 : -dueAt) - reps * 10;
+    };
+    const remaining = items
+      .filter((it) => !targets.includes(it))
+      .sort((a, b) => weight(b) - weight(a));
+    for (const it of remaining) {
+      if (targets.length >= numRequested) break;
+      targets.push(it);
+    }
+  }
+
+  // Build MCQ questions with category-aware distractors where available
+  return targets.map((item) => {
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    const pool =
+      "category" in item
+        ? items.filter((x) => x.category === item.category)
         : items;
 
     const distractors = shuffleArray(

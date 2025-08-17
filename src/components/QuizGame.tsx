@@ -92,56 +92,56 @@ export const QuizGame = ({
     onIDontKnow,
   });
 
-    // Fallback: Direct numeric key handler (1-4) for multiple-choice
-    // Some production environments may swallow key events in hooks for certain keys.
-    // This ensures 1/2/3/4 still select options when appropriate.
-    useEffect(() => {
-      const handler = (e: KeyboardEvent) => {
-        // Only in multiple-choice mode, not during result or after completion
-        if (
-          settings.quizMode !== "multiple-choice" ||
-          quizState.showResult ||
-          quizState.quizComplete
-        ) {
-          return;
-        }
+  // Fallback: Direct numeric key handler (1-4) for multiple-choice
+  // Some production environments may swallow key events in hooks for certain keys.
+  // This ensures 1/2/3/4 still select options when appropriate.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // Only in multiple-choice mode, not during result or after completion
+      if (
+        settings.quizMode !== "multiple-choice" ||
+        quizState.showResult ||
+        quizState.quizComplete
+      ) {
+        return;
+      }
 
-        // Ignore when typing in inputs/contentEditable
-        const target = e.target as HTMLElement | null;
-        const isEditable =
-          !!target &&
-          (target.tagName === "INPUT" ||
-            target.tagName === "TEXTAREA" ||
-            (target as HTMLElement).isContentEditable);
-        if (isEditable) return;
+      // Ignore when typing in inputs/contentEditable
+      const target = e.target as HTMLElement | null;
+      const isEditable =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          (target as HTMLElement).isContentEditable);
+      if (isEditable) return;
 
-        // Ignore system modifiers
-        if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Ignore system modifiers
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
 
-        // Only handle keys 1-4
-        let idx = -1;
-        if (e.key === "1") idx = 0;
-        else if (e.key === "2") idx = 1;
-        else if (e.key === "3") idx = 2;
-        else if (e.key === "4") idx = 3;
+      // Only handle keys 1-4
+      let idx = -1;
+      if (e.key === "1") idx = 0;
+      else if (e.key === "2") idx = 1;
+      else if (e.key === "3") idx = 2;
+      else if (e.key === "4") idx = 3;
 
-        const q = quizState.questions[quizState.currentQuestion];
-        if (idx >= 0 && q && q.options && q.options[idx]) {
-          e.preventDefault();
-          onAnswerSelect(q.options[idx]);
-        }
-      };
+      const q = quizState.questions[quizState.currentQuestion];
+      if (idx >= 0 && q && q.options && q.options[idx]) {
+        e.preventDefault();
+        onAnswerSelect(q.options[idx]);
+      }
+    };
 
-      window.addEventListener("keydown", handler);
-      return () => window.removeEventListener("keydown", handler);
-    }, [
-      settings.quizMode,
-      quizState.showResult,
-      quizState.quizComplete,
-      quizState.currentQuestion,
-      quizState.questions,
-      onAnswerSelect,
-    ]);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [
+    settings.quizMode,
+    quizState.showResult,
+    quizState.quizComplete,
+    quizState.currentQuestion,
+    quizState.questions,
+    onAnswerSelect,
+  ]);
 
   // Prepare a French voice or saved voice if available
   useEffect(() => {

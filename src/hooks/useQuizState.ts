@@ -20,10 +20,15 @@ import {
 import type { Question } from "@/types/quiz";
 import {
   generateQuestionsProgressAware,
+  generateQuestionsSrs,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
-import { recordAttempt, recordSessionComplete } from "@/lib/progress";
+import {
+  recordAttempt,
+  recordSessionComplete,
+  getDueFrenchKeys,
+} from "@/lib/progress";
 
 export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   const [quizState, setQuizState] = useState<QuizState>({
@@ -46,6 +51,9 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     translationDirection: "french-to-english",
     autoAdvance: false,
     autoAdvanceDelayMs: 1000,
+    srsReviewMode: undefined,
+    srsMaxPerSession: undefined,
+    srsNewPerSession: undefined,
   });
 
   const [showTopicSelector, setShowTopicSelector] = useState(true);
@@ -61,91 +69,219 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         savedSettings.translationDirection as TranslationDirection,
       autoAdvance: savedSettings.autoAdvance,
       autoAdvanceDelayMs: savedSettings.autoAdvanceDelayMs ?? 1000,
+      // SRS toggles (optional): read if present
+      srsReviewMode:
+        (localStorage.getItem("srsReviewMode") as "true" | "false" | null) ===
+        "true"
+          ? true
+          : undefined,
+      srsMaxPerSession: (() => {
+        const v = localStorage.getItem("srsMaxPerSession");
+        const n = v ? parseInt(v, 10) : NaN;
+        return Number.isFinite(n) ? Math.max(5, Math.min(100, n)) : undefined;
+      })(),
+      srsNewPerSession: (() => {
+        const v = localStorage.getItem("srsNewPerSession");
+        const n = v ? parseInt(v, 10) : NaN;
+        return Number.isFinite(n) ? Math.max(1, Math.min(50, n)) : undefined;
+      })(),
     }));
   }, []);
 
   // Generate questions when topic is selected
   useEffect(() => {
     if (settings.selectedTopic && vocabulary.length > 0) {
+      const nowTs = Date.now();
+      const maybeUseSrs = (() => {
+        // If explicit toggle, honor it; else enable if there are any due items
+        if (typeof settings.srsReviewMode === "boolean") {
+          return settings.srsReviewMode;
+        }
+        try {
+          const due = getDueFrenchKeys({
+            topicId: topic,
+            direction: settings.translationDirection,
+            now: nowTs,
+          });
+          return due.length > 0;
+        } catch {
+          return false;
+        }
+      })();
+
       let questions;
       if (topic === "adverbs") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as Adverb[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as Adverb[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              {
+                maxNew:
+                  typeof settings.srsNewPerSession === "number"
+                    ? settings.srsNewPerSession
+                    : undefined,
+                nowTs,
+              },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as Adverb[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "food") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as Food[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as Food[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as Food[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "body") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as BodyItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as BodyItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as BodyItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "family") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as FamilyItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as FamilyItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as FamilyItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "home") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as HomeItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as HomeItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as HomeItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "nature") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as NatureItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as NatureItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as NatureItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "ict") {
         // ICT behaves like nature: category-based options
-        questions = generateQuestionsProgressAware(
-          vocabulary as ICTItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as ICTItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as ICTItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "shopping") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as ShoppingItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as ShoppingItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as ShoppingItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "education") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as EducationItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as EducationItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as EducationItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else if (topic === "work") {
-        questions = generateQuestionsProgressAware(
-          vocabulary as WorkItem[],
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary as WorkItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary as WorkItem[],
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       } else {
-        questions = generateQuestionsProgressAware(
-          vocabulary,
-          settings.questionCount,
-          settings.translationDirection,
-          topic,
-        );
+        questions = maybeUseSrs
+          ? generateQuestionsSrs(
+              vocabulary,
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+              { maxNew: settings.srsNewPerSession, nowTs },
+            )
+          : generateQuestionsProgressAware(
+              vocabulary,
+              settings.questionCount,
+              settings.translationDirection,
+              topic,
+            );
       }
       setQuizState((prev) => ({ ...prev, questions }));
     }
@@ -155,6 +291,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     settings.questionCount,
     settings.translationDirection,
     topic,
+    settings.srsReviewMode,
+    settings.srsNewPerSession,
   ]);
 
   const handleAnswerSelect = (answer: string) => {
@@ -315,84 +453,188 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     // Trigger regeneration by toggling selectedTopic (noop) to same value, or recompute directly
     // Recompute questions immediately based on current vocabulary, topic, and settings
     // Note: This relies on the latest `vocabulary` and `topic` from hook scope
+    const nowTs = Date.now();
+    const maybeUseSrs = (() => {
+      if (typeof settings.srsReviewMode === "boolean")
+        return settings.srsReviewMode;
+      try {
+        const due = getDueFrenchKeys({
+          topicId: topic,
+          direction: settings.translationDirection,
+          now: nowTs,
+        });
+        return due.length > 0;
+      } catch {
+        return false;
+      }
+    })();
+
     let questions;
     if (topic === "adverbs") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as Adverb[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as Adverb[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as Adverb[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "food") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as Food[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as Food[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as Food[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "body") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as BodyItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as BodyItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as BodyItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "family") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as FamilyItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as FamilyItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as FamilyItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "home") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as HomeItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as HomeItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as HomeItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "nature") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as NatureItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as NatureItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as NatureItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "ict") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as ICTItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as ICTItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as ICTItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "shopping") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as ShoppingItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as ShoppingItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as ShoppingItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "education") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as EducationItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as EducationItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as EducationItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else if (topic === "work") {
-      questions = generateQuestionsProgressAware(
-        vocabulary as unknown as WorkItem[],
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary as unknown as WorkItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary as unknown as WorkItem[],
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     } else {
-      questions = generateQuestionsProgressAware(
-        vocabulary,
-        settings.questionCount,
-        settings.translationDirection,
-        topic,
-      );
+      questions = maybeUseSrs
+        ? generateQuestionsSrs(
+            vocabulary,
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+            { maxNew: settings.srsNewPerSession, nowTs },
+          )
+        : generateQuestionsProgressAware(
+            vocabulary,
+            settings.questionCount,
+            settings.translationDirection,
+            topic,
+          );
     }
     setQuizState((prev) => ({ ...prev, questions }));
     // Stay in the quiz view
