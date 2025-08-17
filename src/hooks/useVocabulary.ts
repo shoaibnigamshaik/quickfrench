@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { VocabularyItem } from "@/types/quiz";
-import { vocabularyCacheService } from "@/lib/cache-service";
+import { vocabularyService } from "@/lib/cache-service";
 
 export const useVocabulary = () => {
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
@@ -8,7 +8,7 @@ export const useVocabulary = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchVocabulary = useCallback(
-    async (topic: string, subCategory?: string, forceRefresh = false) => {
+    async (topic: string, subCategory?: string) => {
       try {
         setLoading(true);
         setError(null);
@@ -19,143 +19,86 @@ export const useVocabulary = () => {
         const simpleFetchers: Record<string, () => Promise<VocabularyItem[]>> =
           {
             adjectives: () =>
-              vocabularyCacheService.getAdjectives({ forceRefresh }) as Promise<
+              vocabularyService.getAdjectives() as Promise<
                 VocabularyItem[]
               >,
             numbers: () =>
-              vocabularyCacheService.getNumbers({ forceRefresh }) as Promise<
+              vocabularyService.getNumbers() as Promise<
                 VocabularyItem[]
               >,
             prepositions: () =>
-              vocabularyCacheService.getPrepositions({
-                forceRefresh,
-              }) as Promise<VocabularyItem[]>,
+              vocabularyService.getPrepositions() as Promise<VocabularyItem[]>,
             verbs: () =>
-              vocabularyCacheService.getVerbs({ forceRefresh }) as Promise<
+              vocabularyService.getVerbs() as Promise<
                 VocabularyItem[]
               >,
             adverbs: () =>
-              vocabularyCacheService.getAdverbs({ forceRefresh }) as Promise<
+              vocabularyService.getAdverbs() as Promise<
                 VocabularyItem[]
               >,
             transportation: () =>
-              vocabularyCacheService.getTransportation({
-                forceRefresh,
-              }) as Promise<VocabularyItem[]>,
-            colours: () =>
-              vocabularyCacheService.getColours({ forceRefresh }) as Promise<
-                VocabularyItem[]
-              >,
-            hobbies: () =>
-              vocabularyCacheService.getHobbies({ forceRefresh }) as Promise<
-                VocabularyItem[]
-              >,
-            wardrobe: () =>
-              vocabularyCacheService.getWardrobe({ forceRefresh }) as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getTransportation() as Promise<VocabularyItem[]>,
             buildings: () =>
-              vocabularyCacheService.getBuildings({ forceRefresh }) as Promise<
-                VocabularyItem[]
-              >,
-            culture: () =>
-              vocabularyCacheService.getCulture({ forceRefresh }) as Promise<
+              vocabularyService.getBuildings() as Promise<
                 VocabularyItem[]
               >,
             home: () =>
-              vocabularyCacheService.getHome({ forceRefresh }) as Promise<
+              vocabularyService.getHome() as Promise<
                 VocabularyItem[]
               >,
             nature: () =>
-              vocabularyCacheService.getNature({ forceRefresh }) as Promise<
-                VocabularyItem[]
-              >,
-            ict: () =>
-              vocabularyCacheService.getICT({ forceRefresh }) as Promise<
+              vocabularyService.getNature() as Promise<
                 VocabularyItem[]
               >,
             shopping: () =>
-              vocabularyCacheService.getShopping({ forceRefresh }) as Promise<
+              vocabularyService.getShopping() as Promise<
                 VocabularyItem[]
               >,
             education: () =>
-              vocabularyCacheService.getEducation({ forceRefresh }) as Promise<
+              vocabularyService.getEducation() as Promise<
                 VocabularyItem[]
               >,
             work: () =>
-              vocabularyCacheService.getWork({ forceRefresh }) as Promise<
+              vocabularyService.getWork() as Promise<
                 VocabularyItem[]
               >,
             family: () =>
-              vocabularyCacheService.getFamily({ forceRefresh }) as Promise<
+              vocabularyService.getFamily() as Promise<
                 VocabularyItem[]
               >,
             body: () =>
-              vocabularyCacheService.getBody({ forceRefresh }) as Promise<
+              vocabularyService.getBody() as Promise<
                 VocabularyItem[]
               >,
           };
 
         const categoryFetchers: Record<
           string,
-          (c: string) => Promise<VocabularyItem[]>
+          () => Promise<VocabularyItem[]>
         > = {
-          food: (c) =>
-            vocabularyCacheService.getFood(c, { forceRefresh }) as Promise<
-              VocabularyItem[]
-            >,
-          body: (c) =>
-            vocabularyCacheService.getBodyByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          family: (c) =>
-            vocabularyCacheService.getFamilyByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          home: (c) =>
-            vocabularyCacheService.getHomeByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          nature: (c) =>
-            vocabularyCacheService.getNatureByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          ict: (c) =>
-            vocabularyCacheService.getICTByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          shopping: (c) =>
-            vocabularyCacheService.getShoppingByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          education: (c) =>
-            vocabularyCacheService.getEducationByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
-          work: (c) =>
-            vocabularyCacheService.getWorkByCategory(c, {
-              forceRefresh,
-            }) as Promise<VocabularyItem[]>,
+          food: () => vocabularyService.getFood() as Promise<VocabularyItem[]>,
         };
 
-        if (topic === "food") {
-          if (subCategory) data = await categoryFetchers.food(subCategory);
-          else
-            data = (await vocabularyCacheService.getAllFood({
-              forceRefresh,
-            })) as unknown as VocabularyItem[];
-        } else if (subCategory && categoryFetchers[topic]) {
-          data = await categoryFetchers[topic](subCategory);
-        } else if (simpleFetchers[topic]) {
+        if (topic in simpleFetchers) {
           data = await simpleFetchers[topic]();
+        } else if (topic in categoryFetchers) {
+          const allItems = await categoryFetchers[topic]();
+          if (subCategory && subCategory !== "All") {
+            data = allItems.filter(
+              (item) => "category" in item && item.category === subCategory,
+            );
+          } else {
+            data = allItems;
+          }
         } else {
-          data = [];
+          console.warn(`Unknown topic: ${topic}`);
         }
 
         setVocabulary(data);
       } catch (err) {
-        console.error(`Failed to fetch ${topic}:`, err);
-        setError(`Failed to fetch ${topic}`);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred",
+        );
       } finally {
         setLoading(false);
       }
@@ -163,17 +106,5 @@ export const useVocabulary = () => {
     [],
   );
 
-  const clearVocabulary = useCallback(() => {
-    setVocabulary([]);
-    setError(null);
-    setLoading(false);
-  }, []);
-
-  return {
-    vocabulary,
-    loading,
-    error,
-    fetchVocabulary,
-    clearVocabulary,
-  };
+  return { vocabulary, loading, error, fetchVocabulary };
 };
