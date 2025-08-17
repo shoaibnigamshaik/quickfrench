@@ -92,6 +92,85 @@ export const QuizGame = ({
     onIDontKnow,
   });
 
+    // Fallback: Direct numeric key handler (1-4) for multiple-choice
+    // Some production environments may swallow key events in hooks for certain keys.
+    // This ensures 1/2/3/4 still select options when appropriate.
+    useEffect(() => {
+      const handler = (e: KeyboardEvent) => {
+        // Only in multiple-choice mode, not during result or after completion
+        if (
+          settings.quizMode !== "multiple-choice" ||
+          quizState.showResult ||
+          quizState.quizComplete
+        ) {
+          return;
+        }
+
+        // Ignore when typing in inputs/contentEditable
+        const target = e.target as HTMLElement | null;
+        const isEditable =
+          !!target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            (target as HTMLElement).isContentEditable);
+        if (isEditable) return;
+
+        // Ignore system modifiers (allow Shift for layouts)
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        // Map key/code to option index
+        let idx = -1;
+        const altGlyphToIndex: Record<string, number> = {
+          "1": 0,
+          "2": 1,
+          "3": 2,
+          "4": 3,
+          "&": 0,
+          é: 1,
+          '"': 2,
+          "'": 3,
+        };
+        if (e.key && e.key in altGlyphToIndex) {
+          idx = altGlyphToIndex[e.key];
+        } else if (e.code) {
+          const codeMap: Record<string, number> = {
+            Digit1: 0,
+            Digit2: 1,
+            Digit3: 2,
+            Digit4: 3,
+            Numpad1: 0,
+            Numpad2: 1,
+            Numpad3: 2,
+            Numpad4: 3,
+          };
+          if (e.code in codeMap) idx = codeMap[e.code];
+        } else {
+          // Legacy keyCode fallback
+          const kc = e.keyCode;
+          if (kc === 49 || kc === 97) idx = 0;
+          else if (kc === 50 || kc === 98) idx = 1;
+          else if (kc === 51 || kc === 99) idx = 2;
+          else if (kc === 52 || kc === 100) idx = 3;
+        }
+
+        const q = quizState.questions[quizState.currentQuestion];
+        if (idx >= 0 && q && q.options && q.options[idx]) {
+          e.preventDefault();
+          onAnswerSelect(q.options[idx]);
+        }
+      };
+
+      window.addEventListener("keydown", handler);
+      return () => window.removeEventListener("keydown", handler);
+    }, [
+      settings.quizMode,
+      quizState.showResult,
+      quizState.quizComplete,
+      quizState.currentQuestion,
+      quizState.questions,
+      onAnswerSelect,
+    ]);
+
   // Prepare a French voice or saved voice if available
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
