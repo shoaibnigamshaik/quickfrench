@@ -186,7 +186,9 @@ export const QuizGame = ({
 
       // Remove gender indicators like (m), (f), (mpl), (fpl) to avoid reading them aloud
       // First expand morphological parentheticals like "lourd(e)" -> "lourd (m) / lourde (f)"
-      const expandedForSpeech = expandGenderedParentheticalsForSpeech(text || "");
+      const expandedForSpeech = expandGenderedParentheticalsForSpeech(
+        text || "",
+      );
       const cleaned = expandedForSpeech
         // Remove plural markers only, keep (m) and (f)
         .replace(/\(\s*(?:mpl|fpl)\s*\)/gi, "")

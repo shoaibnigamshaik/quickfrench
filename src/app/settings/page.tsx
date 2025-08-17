@@ -13,6 +13,7 @@ import {
   Sliders,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
+import { resetProgress } from "@/lib/progress";
 
 interface SettingItem {
   icon: LucideIcon;
@@ -830,13 +831,32 @@ const SettingsPage = () => {
           >
             Changes will take effect immediately
           </span>
-          <Link
-            href="/"
-            className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                if (
+                  confirm("Reset all learning progress? This cannot be undone.")
+                ) {
+                  resetProgress();
+                }
+              }}
+              className="inline-flex items-center px-4 py-2 rounded-lg border text-sm"
+              style={{
+                backgroundColor: "var(--muted)",
+                color: "var(--foreground)",
+                borderColor: "var(--border)",
+              }}
+            >
+              Reset Progress
+            </button>
+            <Link
+              href="/"
+              className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
 

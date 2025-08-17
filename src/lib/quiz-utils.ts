@@ -171,7 +171,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // - Entire string separated by '/', ',', '|', or ' or '
   // - Parenthetical alternatives like "(corridor / hallway)"
   const extractAlternatives = (text: string): string[] => {
-  const alts: string[] = [];
+    const alts: string[] = [];
 
     // Collect parenthetical content
     const parenMatches = Array.from(text.matchAll(/\(([^)]*)\)/g));

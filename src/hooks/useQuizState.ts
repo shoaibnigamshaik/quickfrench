@@ -33,6 +33,7 @@ import {
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
+import { recordAttempt, recordSessionComplete } from "@/lib/progress";
 
 export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   const [quizState, setQuizState] = useState<QuizState>({
@@ -180,6 +181,20 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
               } as WrongAnswer,
             ],
       };
+      // Persist progress (topic is from hook param; question.word is the prompt, map to FR word depending on direction)
+      try {
+        const q = prev.questions[prev.currentQuestion];
+        const frenchWord =
+          settings.translationDirection === "french-to-english"
+            ? q.word
+            : q.correct; // in EN->FR, the correct answer is the French word
+        recordAttempt({
+          topicId: topic,
+          frenchWord,
+          isCorrect,
+          direction: settings.translationDirection,
+        });
+      } catch {}
       return updated;
     });
   };
@@ -212,6 +227,20 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
             } as WrongAnswer,
           ],
     }));
+    // Persist progress
+    try {
+      const q = quizState.questions[quizState.currentQuestion];
+      const frenchWord =
+        settings.translationDirection === "french-to-english"
+          ? q.word
+          : q.correct;
+      recordAttempt({
+        topicId: topic,
+        frenchWord,
+        isCorrect,
+        direction: settings.translationDirection,
+      });
+    } catch {}
   };
 
   const handleIDontKnow = () => {
@@ -234,6 +263,20 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         } as WrongAnswer,
       ],
     }));
+    // Persist as incorrect
+    try {
+      const q = quizState.questions[quizState.currentQuestion];
+      const frenchWord =
+        settings.translationDirection === "french-to-english"
+          ? q.word
+          : q.correct;
+      recordAttempt({
+        topicId: topic,
+        frenchWord,
+        isCorrect: false,
+        direction: settings.translationDirection,
+      });
+    } catch {}
   };
 
   const nextQuestion = () => {
@@ -247,6 +290,10 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       }));
     } else {
       setQuizState((prev) => ({ ...prev, quizComplete: true }));
+      // Mark session complete
+      try {
+        recordSessionComplete({ topicId: topic });
+      } catch {}
     }
   };
 

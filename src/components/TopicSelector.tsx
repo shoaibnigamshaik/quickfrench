@@ -15,6 +15,7 @@ import {
   WORK_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
+import { getTopicProgress, PROGRESS_EVENT } from "@/lib/progress";
 
 interface TopicSelectorProps {
   topics: Topic[];
@@ -55,10 +56,19 @@ export const TopicSelector = ({
   onToggleDirection,
 }: TopicSelectorProps) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [, setProgressTick] = React.useState(false);
 
   React.useEffect(() => {
     const saved = localStorage.getItem("topicSelector:selectedId");
     if (saved) setSelectedId(saved);
+  }, []);
+
+  // Refresh when progress updates
+  React.useEffect(() => {
+    const handler = () => setProgressTick((x) => !x);
+    window.addEventListener(PROGRESS_EVENT, handler as EventListener);
+    return () =>
+      window.removeEventListener(PROGRESS_EVENT, handler as EventListener);
   }, []);
 
   React.useEffect(() => {
@@ -184,8 +194,18 @@ export const TopicSelector = ({
                   const itemCount = TOPIC_COUNTS[topic.id];
                   const isSelected = selectedId === topic.id;
                   const _hasSub = hasSubtopics(topic.id);
+                  const tp = getTopicProgress(topic.id);
+                  const learned = tp.learnedCount || 0;
+                  const total = itemCount ?? 0;
+                  const pct =
+                    total > 0
+                      ? Math.min(100, Math.round((learned / total) * 100))
+                      : 0;
                   return (
-                    <li key={topic.id}>
+                    <li
+                      key={topic.id}
+                      className={isSelected ? "bg-[var(--muted)]" : undefined}
+                    >
                       <button
                         type="button"
                         onClick={() => {
@@ -200,7 +220,7 @@ export const TopicSelector = ({
                           }
                         }}
                         aria-label={`${topic.name}${_hasSub ? " (has subtopics)" : ""}`}
-                        className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)] ${isSelected ? "bg-[var(--muted)]" : ""}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]`}
                         style={{ color: "var(--foreground)" }}
                       >
                         <span className="text-2xl" aria-hidden>
@@ -223,7 +243,7 @@ export const TopicSelector = ({
                             borderColor: "var(--border)",
                           }}
                         >
-                          {itemCount ?? "—"}
+                          {learned}/{itemCount ?? "—"}
                         </span>
                         {_hasSub && (
                           <ChevronRight
@@ -232,6 +252,22 @@ export const TopicSelector = ({
                           />
                         )}
                       </button>
+                      {/* Progress bar */}
+                      <div className="px-4 pb-3">
+                        <div
+                          className="w-full h-1.5 rounded-full bg-[var(--muted)] border"
+                          style={{ borderColor: "var(--border)" }}
+                        >
+                          <div
+                            className="h-1.5 rounded-full"
+                            style={{
+                              width: `${pct}%`,
+                              background:
+                                "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
+                            }}
+                          />
+                        </div>
+                      </div>
                     </li>
                   );
                 })}
