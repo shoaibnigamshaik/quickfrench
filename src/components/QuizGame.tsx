@@ -362,9 +362,9 @@ export const QuizGame = ({
               "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
           }}
         >
-          <div className="inline-flex items-center gap-2">
+          <div className="inline-flex flex-wrap justify-center items-center gap-2">
             <div
-              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-flex items-center gap-2"
+              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-flex flex-wrap justify-center items-center gap-2"
               style={{
                 background:
                   "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
