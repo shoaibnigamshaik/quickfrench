@@ -207,3 +207,24 @@ export const getTopicProgress = (topicId: string) => {
   const t = p.topics[topicId];
   return t || { attempts: 0, correct: 0, learnedCount: 0, masteredCount: 0 };
 };
+
+export const getTopicSummary = (topicId: string) => {
+  const p = load();
+  const t = p.topics[topicId] || {
+    attempts: 0,
+    correct: 0,
+    learnedCount: 0,
+    masteredCount: 0,
+  };
+  let uniqueCorrect = 0;
+  for (const w of Object.values(p.words)) {
+    if (w.topicId === topicId && (w.correct || 0) > 0) uniqueCorrect += 1;
+  }
+  return {
+    attempts: t.attempts,
+    correct: t.correct,
+    learnedCount: t.learnedCount,
+    masteredCount: t.masteredCount,
+    uniqueCorrect,
+  } as const;
+};

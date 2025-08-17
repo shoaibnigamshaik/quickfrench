@@ -15,7 +15,7 @@ import {
   WORK_SUBTOPICS,
 } from "@/data/subtopics";
 import { Topic, TranslationDirection } from "@/types/quiz";
-import { getTopicProgress, PROGRESS_EVENT } from "@/lib/progress";
+import { getTopicSummary, PROGRESS_EVENT } from "@/lib/progress";
 
 interface TopicSelectorProps {
   topics: Topic[];
@@ -194,12 +194,12 @@ export const TopicSelector = ({
                   const itemCount = TOPIC_COUNTS[topic.id];
                   const isSelected = selectedId === topic.id;
                   const _hasSub = hasSubtopics(topic.id);
-                  const tp = getTopicProgress(topic.id);
-                  const learned = tp.learnedCount || 0;
+                  const summary = getTopicSummary(topic.id);
+                  const uniqueCorrect = summary.uniqueCorrect || 0;
                   const total = itemCount ?? 0;
                   const pct =
                     total > 0
-                      ? Math.min(100, Math.round((learned / total) * 100))
+                      ? Math.min(100, Math.round((uniqueCorrect / total) * 100))
                       : 0;
                   return (
                     <li
@@ -243,7 +243,7 @@ export const TopicSelector = ({
                             borderColor: "var(--border)",
                           }}
                         >
-                          {learned}/{itemCount ?? "—"}
+                          {uniqueCorrect}/{itemCount ?? "—"}
                         </span>
                         {_hasSub && (
                           <ChevronRight

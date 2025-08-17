@@ -19,17 +19,7 @@ import {
 } from "@/types/quiz";
 import type { Question } from "@/types/quiz";
 import {
-  generateQuestions,
-  generateAdverbQuestions,
-  generateFoodQuestions,
-  generateBodyQuestions,
-  generateFamilyQuestions,
-  generateHomeQuestions,
-  generateNatureQuestions,
-  generateICTQuestions,
-  generateShoppingQuestions,
-  generateEducationQuestions,
-  generateWorkQuestions,
+  generateQuestionsProgressAware,
   checkTypedAnswer,
   loadQuizSettings,
 } from "@/lib/quiz-utils";
@@ -79,71 +69,82 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     if (settings.selectedTopic && vocabulary.length > 0) {
       let questions;
       if (topic === "adverbs") {
-        questions = generateAdverbQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as Adverb[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "food") {
-        questions = generateFoodQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as Food[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "body") {
-        questions = generateBodyQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as BodyItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "family") {
-        questions = generateFamilyQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as FamilyItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "home") {
-        questions = generateHomeQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as HomeItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "nature") {
-        questions = generateNatureQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as NatureItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "ict") {
         // ICT behaves like nature: category-based options
-        questions = generateICTQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as ICTItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "shopping") {
-        questions = generateShoppingQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as ShoppingItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "education") {
-        questions = generateEducationQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as EducationItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else if (topic === "work") {
-        questions = generateWorkQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary as WorkItem[],
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       } else {
-        questions = generateQuestions(
+        questions = generateQuestionsProgressAware(
           vocabulary,
           settings.questionCount,
           settings.translationDirection,
+          topic,
         );
       }
       setQuizState((prev) => ({ ...prev, questions }));
@@ -316,70 +317,81 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     // Note: This relies on the latest `vocabulary` and `topic` from hook scope
     let questions;
     if (topic === "adverbs") {
-      questions = generateAdverbQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as Adverb[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "food") {
-      questions = generateFoodQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as Food[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "body") {
-      questions = generateBodyQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as BodyItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "family") {
-      questions = generateFamilyQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as FamilyItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "home") {
-      questions = generateHomeQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as HomeItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "nature") {
-      questions = generateNatureQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as NatureItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "ict") {
-      questions = generateICTQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as ICTItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "shopping") {
-      questions = generateShoppingQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as ShoppingItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "education") {
-      questions = generateEducationQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as EducationItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else if (topic === "work") {
-      questions = generateWorkQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary as unknown as WorkItem[],
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     } else {
-      questions = generateQuestions(
+      questions = generateQuestionsProgressAware(
         vocabulary,
         settings.questionCount,
         settings.translationDirection,
+        topic,
       );
     }
     setQuizState((prev) => ({ ...prev, questions }));

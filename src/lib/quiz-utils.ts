@@ -14,6 +14,7 @@ import {
   EducationItem,
   WorkItem,
 } from "@/types/quiz";
+import { getProgress, normalizeFrench } from "@/lib/progress";
 import { expandMorphologicalParentheticals } from "@/lib/utils";
 
 // Fisher–Yates shuffle (returns a new shuffled copy)
@@ -103,6 +104,62 @@ const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
 
     const options = shuffleArray([correctAnswer, ...distractors]);
 
+    return { word: questionWord, correct: correctAnswer, options };
+  });
+};
+
+// Progress-aware generator: prioritize targets by user progress, but use full set for distractors
+export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
+  items: T[],
+  questionCount: number | "all",
+  translationDirection: TranslationDirection = "french-to-english",
+  topicId: string,
+): Question[] => {
+  if (!Array.isArray(items) || items.length === 0) return [];
+
+  const numQuestions =
+    questionCount === "all"
+      ? items.length
+      : Math.min(questionCount, items.length);
+
+  const progress = getProgress();
+  const weight = (it: T): number => {
+    const key = `${topicId}::${normalizeFrench(it.word)}`;
+    const ws = progress.words[key];
+    if (!ws) return 0; // unseen highest priority
+    if (ws.correct === 0 && ws.attempts > 0) return 1; // seen but never correct
+    if (!ws.learned) return 2; // some correct but not learned
+    if (!ws.mastered) return 3; // learned but not mastered
+    return 4; // mastered last
+  };
+
+  const prioritized = [...items].sort((a, b) => weight(a) - weight(b));
+  const targets = prioritized.slice(0, numQuestions);
+
+  const isEnglishToFrench = translationDirection === "english-to-french";
+
+  return targets.map((item) => {
+    const questionWord = isEnglishToFrench ? item.meaning : item.word;
+    const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
+
+    const pool =
+      "category" in item
+        ? items.filter(
+            (x) =>
+              x.category ===
+              (item as T & { category?: string | null }).category,
+          )
+        : items;
+
+    const distractors = shuffleArray(
+      pool.filter((x) =>
+        isEnglishToFrench ? x.word !== item.word : x.meaning !== item.meaning,
+      ),
+    )
+      .slice(0, 3)
+      .map((x) => (isEnglishToFrench ? x.word : x.meaning));
+
+    const options = shuffleArray([correctAnswer, ...distractors]);
     return { word: questionWord, correct: correctAnswer, options };
   });
 };
