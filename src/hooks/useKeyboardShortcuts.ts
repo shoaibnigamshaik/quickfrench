@@ -39,6 +39,14 @@ export const useKeyboardShortcuts = ({
       return;
     }
     const getOptionIndexFromEvent = (e: KeyboardEvent): number => {
+      console.log("Key event:", {
+        key: e.key,
+        code: e.code,
+        keyCode: e.keyCode,
+        metaKey: e.metaKey,
+        ctrlKey: e.ctrlKey,
+        altKey: e.altKey,
+      });
       // Ignore when using system modifiers; allow Shift for layouts that need it for digits
       if (e.metaKey || e.ctrlKey || e.altKey) return -1;
 
