@@ -12,7 +12,7 @@ export const useAdjectives = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-  const data = await vocabularyService.getAdjectives();
+        const data = await vocabularyService.getAdjectives();
         setAdjectives(data);
       } catch (error) {
         console.error("Failed to fetch adjectives:", error);

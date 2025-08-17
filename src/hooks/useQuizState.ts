@@ -420,7 +420,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     goHome,
     startQuiz,
     startCustomQuiz,
-  handleIDontKnow,
+    handleIDontKnow,
     updateTypedAnswer,
     updateQuizMode,
     updateQuestionCount,

@@ -19,57 +19,35 @@ export const useVocabulary = () => {
         const simpleFetchers: Record<string, () => Promise<VocabularyItem[]>> =
           {
             adjectives: () =>
-              vocabularyService.getAdjectives() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getAdjectives() as Promise<VocabularyItem[]>,
             numbers: () =>
-              vocabularyService.getNumbers() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getNumbers() as Promise<VocabularyItem[]>,
             prepositions: () =>
               vocabularyService.getPrepositions() as Promise<VocabularyItem[]>,
             verbs: () =>
-              vocabularyService.getVerbs() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getVerbs() as Promise<VocabularyItem[]>,
             adverbs: () =>
-              vocabularyService.getAdverbs() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getAdverbs() as Promise<VocabularyItem[]>,
             transportation: () =>
-              vocabularyService.getTransportation() as Promise<VocabularyItem[]>,
+              vocabularyService.getTransportation() as Promise<
+                VocabularyItem[]
+              >,
             buildings: () =>
-              vocabularyService.getBuildings() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getBuildings() as Promise<VocabularyItem[]>,
             home: () =>
-              vocabularyService.getHome() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getHome() as Promise<VocabularyItem[]>,
             nature: () =>
-              vocabularyService.getNature() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getNature() as Promise<VocabularyItem[]>,
             shopping: () =>
-              vocabularyService.getShopping() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getShopping() as Promise<VocabularyItem[]>,
             education: () =>
-              vocabularyService.getEducation() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getEducation() as Promise<VocabularyItem[]>,
             work: () =>
-              vocabularyService.getWork() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getWork() as Promise<VocabularyItem[]>,
             family: () =>
-              vocabularyService.getFamily() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getFamily() as Promise<VocabularyItem[]>,
             body: () =>
-              vocabularyService.getBody() as Promise<
-                VocabularyItem[]
-              >,
+              vocabularyService.getBody() as Promise<VocabularyItem[]>,
           };
 
         const categoryFetchers: Record<

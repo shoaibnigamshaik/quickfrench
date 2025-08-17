@@ -88,7 +88,7 @@ export const QuizGame = ({
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,
-  onIDontKnow,
+    onIDontKnow,
   });
 
   // Prepare a French voice or saved voice if available

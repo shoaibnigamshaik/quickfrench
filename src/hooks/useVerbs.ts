@@ -12,7 +12,7 @@ export const useVerbs = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-  const data = await vocabularyService.getVerbs();
+        const data = await vocabularyService.getVerbs();
         setVerbs(data);
       } catch (error) {
         console.error("Failed to fetch verbs:", error);

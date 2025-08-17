@@ -18,12 +18,7 @@ interface SettingItem {
   icon: LucideIcon;
   label: string;
   description: string;
-  type:
-    | "select"
-    | "quiz-mode"
-    | "question-count"
-    | "auto-advance"
-    | "speech";
+  type: "select" | "quiz-mode" | "question-count" | "auto-advance" | "speech";
   value?: boolean | string;
   options?: string[];
 }
@@ -348,7 +343,7 @@ const SettingsPage = () => {
         // Delay slider/input rendered alongside toggle
       ],
     },
-  // Data & Cache section removed
+    // Data & Cache section removed
   ];
 
   // Removed generic toggles/links in favor of only functional settings

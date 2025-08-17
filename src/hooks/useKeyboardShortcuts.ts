@@ -169,14 +169,12 @@ export const useKeyboardShortcuts = ({
         // 0 / Numpad0 / '?' triggers I don't know
         if (
           typeof onIDontKnow === "function" &&
-          (
-            e.key === "0" ||
+          (e.key === "0" ||
             e.key === "?" ||
             e.code === "Digit0" ||
             e.code === "Numpad0" ||
             e.keyCode === 48 ||
-            e.keyCode === 96
-          )
+            e.keyCode === 96)
         ) {
           e.preventDefault();
           onIDontKnow();
@@ -201,6 +199,6 @@ export const useKeyboardShortcuts = ({
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,
-  onIDontKnow,
+    onIDontKnow,
   ]);
 };

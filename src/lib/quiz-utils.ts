@@ -150,18 +150,20 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
   // drop punctuation, collapse spaces.
   const normalizeText = (text: string): string => {
-    return text
-      .toLowerCase()
-      .trim()
-  // Remove common gender markers like (m), (f), (mpl), (fpl)
-  .replace(/\(\s*(?:m|f|mpl|fpl)\s*\)/gi, "")
-  // Also strip standalone tokens 'mpl' or 'fpl' if they appear outside parentheses
-  .replace(/\b(?:mpl|fpl)\b/gi, "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
+    return (
+      text
+        .toLowerCase()
+        .trim()
+        // Remove common gender markers like (m), (f), (mpl), (fpl)
+        .replace(/\(\s*(?:m|f|mpl|fpl)\s*\)/gi, "")
+        // Also strip standalone tokens 'mpl' or 'fpl' if they appear outside parentheses
+        .replace(/\b(?:mpl|fpl)\b/gi, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    );
   };
 
   // Extract possible alternatives from the correct answer. Supports:

@@ -12,7 +12,7 @@ export const useTransportation = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-  const data = await vocabularyService.getTransportation();
+        const data = await vocabularyService.getTransportation();
         setTransportation(data);
       } catch (error) {
         console.error("Failed to fetch transportation:", error);

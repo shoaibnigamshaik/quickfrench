@@ -24,15 +24,14 @@ const FrenchVocabularyQuiz = () => {
     useState<string>("");
   const [selectedWorkCategory, setSelectedWorkCategory] = useState<string>("");
 
-  const { vocabulary, loading, error, fetchVocabulary } =
-    useVocabulary();
+  const { vocabulary, loading, error, fetchVocabulary } = useVocabulary();
   const {
     quizState,
     settings,
     showTopicSelector,
     handleAnswerSelect,
     handleTypedSubmit,
-  handleIDontKnow,
+    handleIDontKnow,
     nextQuestion,
     resetQuiz,
     goHome,
@@ -433,7 +432,7 @@ const FrenchVocabularyQuiz = () => {
       settings={settings}
       onAnswerSelect={handleAnswerSelect}
       onTypedSubmit={handleTypedSubmit}
-  onIDontKnow={handleIDontKnow}
+      onIDontKnow={handleIDontKnow}
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
       onRestartQuiz={resetQuiz}

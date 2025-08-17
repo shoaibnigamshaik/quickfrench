@@ -20,83 +20,86 @@ export const MultipleChoiceOptions = ({
     <div className="mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {question.options.map((option: string, index: number) => {
-        let buttonClass =
-          "w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
-        let inlineStyle: React.CSSProperties | undefined = undefined;
+          let buttonClass =
+            "w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
+          let inlineStyle: React.CSSProperties | undefined = undefined;
 
-        if (showResult) {
-          if (option === question.correct) {
-            buttonClass += " border";
-            inlineStyle = {
-              ...(inlineStyle || {}),
-              backgroundColor: "var(--success-50)",
-              borderColor: "var(--success-600)",
-              color: "var(--success-600)",
-            };
-          } else if (option === selectedAnswer && option !== question.correct) {
-            buttonClass += " border";
-            inlineStyle = {
-              ...(inlineStyle || {}),
-              backgroundColor: "var(--danger-50)",
-              borderColor: "var(--danger-600)",
-              color: "var(--danger-600)",
-            };
+          if (showResult) {
+            if (option === question.correct) {
+              buttonClass += " border";
+              inlineStyle = {
+                ...(inlineStyle || {}),
+                backgroundColor: "var(--success-50)",
+                borderColor: "var(--success-600)",
+                color: "var(--success-600)",
+              };
+            } else if (
+              option === selectedAnswer &&
+              option !== question.correct
+            ) {
+              buttonClass += " border";
+              inlineStyle = {
+                ...(inlineStyle || {}),
+                backgroundColor: "var(--danger-50)",
+                borderColor: "var(--danger-600)",
+                color: "var(--danger-600)",
+              };
+            } else {
+              buttonClass += " border";
+              inlineStyle = {
+                ...(inlineStyle || {}),
+                backgroundColor: "var(--muted)",
+                borderColor: "var(--border)",
+                color: "var(--muted-foreground)",
+              };
+            }
           } else {
-            buttonClass += " border";
+            buttonClass += " border hover:shadow-sm";
             inlineStyle = {
               ...(inlineStyle || {}),
-              backgroundColor: "var(--muted)",
+              backgroundColor: "var(--card)",
               borderColor: "var(--border)",
-              color: "var(--muted-foreground)",
+              color: "var(--foreground)",
             };
           }
-        } else {
-          buttonClass += " border hover:shadow-sm";
-          inlineStyle = {
-            ...(inlineStyle || {}),
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-            color: "var(--foreground)",
-          };
-        }
 
-        return (
-          <button
-            key={index}
-            onClick={() => onAnswerSelect(option)}
-            disabled={showResult}
-            className={buttonClass}
-            style={inlineStyle}
-            aria-live="polite"
-          >
-            <div className="flex items-center justify-between">
-              <span>
-                <span
-                  className="font-bold mr-3"
-                  style={{ color: "var(--primary-600)" }}
-                >
-                  {index + 1}
+          return (
+            <button
+              key={index}
+              onClick={() => onAnswerSelect(option)}
+              disabled={showResult}
+              className={buttonClass}
+              style={inlineStyle}
+              aria-live="polite"
+            >
+              <div className="flex items-center justify-between">
+                <span>
+                  <span
+                    className="font-bold mr-3"
+                    style={{ color: "var(--primary-600)" }}
+                  >
+                    {index + 1}
+                  </span>
+                  {option}
                 </span>
-                {option}
-              </span>
-              {showResult && option === question.correct && (
-                <Check
-                  className="h-5 w-5"
-                  style={{ color: "var(--success-600)" }}
-                />
-              )}
-              {showResult &&
-                option === selectedAnswer &&
-                option !== question.correct && (
-                  <X
+                {showResult && option === question.correct && (
+                  <Check
                     className="h-5 w-5"
-                    style={{ color: "var(--danger-600)" }}
+                    style={{ color: "var(--success-600)" }}
                   />
                 )}
-            </div>
-          </button>
-        );
-      })}
+                {showResult &&
+                  option === selectedAnswer &&
+                  option !== question.correct && (
+                    <X
+                      className="h-5 w-5"
+                      style={{ color: "var(--danger-600)" }}
+                    />
+                  )}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {!showResult && (

@@ -18,9 +18,9 @@ export const useFood = (category: string, forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-  const data = await vocabularyService.getFood();
-  const filtered = data.filter((f) => f.category === category);
-  setFood(filtered);
+        const data = await vocabularyService.getFood();
+        const filtered = data.filter((f) => f.category === category);
+        setFood(filtered);
       } catch (error) {
         console.error("Failed to fetch food:", error);
         setError("Failed to fetch food");

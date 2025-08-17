@@ -12,7 +12,7 @@ export const useNumbers = (forceRefresh = false) => {
       try {
         setLoading(true);
         setError(null);
-  const data = await vocabularyService.getNumbers();
+        const data = await vocabularyService.getNumbers();
         setNumbers(data);
       } catch (error) {
         console.error("Failed to fetch numbers:", error);
