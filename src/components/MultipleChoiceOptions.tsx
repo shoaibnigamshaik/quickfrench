@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, X, HelpCircle } from "lucide-react";
 import { Question } from "@/types/quiz";
 
 interface MultipleChoiceOptionsProps {
@@ -6,6 +6,7 @@ interface MultipleChoiceOptionsProps {
   selectedAnswer: string;
   showResult: boolean;
   onAnswerSelect: (answer: string) => void;
+  onIDontKnow?: () => void;
 }
 
 export const MultipleChoiceOptions = ({
@@ -13,10 +14,12 @@ export const MultipleChoiceOptions = ({
   selectedAnswer,
   showResult,
   onAnswerSelect,
+  onIDontKnow,
 }: MultipleChoiceOptionsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      {question.options.map((option: string, index: number) => {
+    <div className="mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {question.options.map((option: string, index: number) => {
         let buttonClass =
           "w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold";
         let inlineStyle: React.CSSProperties | undefined = undefined;
@@ -94,6 +97,24 @@ export const MultipleChoiceOptions = ({
           </button>
         );
       })}
+      </div>
+
+      {!showResult && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={onIDontKnow}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm md:text-base font-medium hover:bg-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
+            style={{
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border)",
+              color: "var(--muted-foreground)",
+            }}
+          >
+            <HelpCircle className="h-4 w-4" /> I don't know (0 or ?)
+          </button>
+        </div>
+      )}
     </div>
   );
 };

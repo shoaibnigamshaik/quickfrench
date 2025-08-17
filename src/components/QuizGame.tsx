@@ -17,6 +17,7 @@ interface QuizGameProps {
   onResetQuiz: () => void;
   onRestartQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
+  onIDontKnow?: () => void;
 }
 
 export const QuizGame = ({
@@ -28,6 +29,7 @@ export const QuizGame = ({
   onResetQuiz,
   onRestartQuiz,
   onUpdateTypedAnswer,
+  onIDontKnow,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -86,6 +88,7 @@ export const QuizGame = ({
     onAnswerSelect,
     onTypedSubmit,
     onNextQuestion,
+  onIDontKnow,
   });
 
   // Prepare a French voice or saved voice if available
@@ -351,6 +354,7 @@ export const QuizGame = ({
               selectedAnswer={quizState.selectedAnswer}
               showResult={quizState.showResult}
               onAnswerSelect={onAnswerSelect}
+              onIDontKnow={onIDontKnow}
             />
           ) : (
             <TypingInput
@@ -361,6 +365,7 @@ export const QuizGame = ({
               onTypedAnswerChange={onUpdateTypedAnswer}
               onSubmit={onTypedSubmit}
               inputRef={inputRef}
+              onIDontKnow={onIDontKnow}
               placeholder={
                 settings.translationDirection === "french-to-english"
                   ? "Type the English meaning..."

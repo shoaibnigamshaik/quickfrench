@@ -24,7 +24,7 @@ const FrenchVocabularyQuiz = () => {
     useState<string>("");
   const [selectedWorkCategory, setSelectedWorkCategory] = useState<string>("");
 
-  const { vocabulary, loading, error, fetchVocabulary, clearVocabulary } =
+  const { vocabulary, loading, error, fetchVocabulary } =
     useVocabulary();
   const {
     quizState,
@@ -32,6 +32,7 @@ const FrenchVocabularyQuiz = () => {
     showTopicSelector,
     handleAnswerSelect,
     handleTypedSubmit,
+  handleIDontKnow,
     nextQuestion,
     resetQuiz,
     goHome,
@@ -289,7 +290,6 @@ const FrenchVocabularyQuiz = () => {
     setSelectedShoppingCategory("");
     setSelectedEducationCategory("");
     setSelectedWorkCategory("");
-    clearVocabulary();
     goHome();
   };
 
@@ -353,8 +353,8 @@ const FrenchVocabularyQuiz = () => {
               color: "var(--foreground)",
             }}
             onClick={() => {
-              // Try again with a forced refresh
-              fetchVocabulary(selectedTopic, undefined, true);
+              // Try again
+              fetchVocabulary(selectedTopic);
             }}
           >
             Retry
@@ -433,6 +433,7 @@ const FrenchVocabularyQuiz = () => {
       settings={settings}
       onAnswerSelect={handleAnswerSelect}
       onTypedSubmit={handleTypedSubmit}
+  onIDontKnow={handleIDontKnow}
       onNextQuestion={nextQuestion}
       onResetQuiz={handleResetQuiz}
       onRestartQuiz={resetQuiz}

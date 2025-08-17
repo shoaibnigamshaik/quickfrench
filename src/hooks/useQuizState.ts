@@ -214,6 +214,28 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     }));
   };
 
+  const handleIDontKnow = () => {
+    if (quizState.showResult) return;
+
+    // Treat as an incorrect answer, record user's attempt if any else a sentinel
+    setQuizState((prev) => ({
+      ...prev,
+      selectedAnswer: prev.typedAnswer?.trim() || "I don't know",
+      showResult: true,
+      // do not change score
+      streak: 0,
+      // maxStreak unchanged on wrong answers
+      wrongAnswers: [
+        ...prev.wrongAnswers,
+        {
+          question: prev.questions[prev.currentQuestion],
+          userAnswer: prev.typedAnswer?.trim() || "I don't know",
+          questionIndex: prev.currentQuestion,
+        } as WrongAnswer,
+      ],
+    }));
+  };
+
   const nextQuestion = () => {
     if (quizState.currentQuestion < quizState.questions.length - 1) {
       setQuizState((prev) => ({
@@ -398,6 +420,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     goHome,
     startQuiz,
     startCustomQuiz,
+  handleIDontKnow,
     updateTypedAnswer,
     updateQuizMode,
     updateQuestionCount,

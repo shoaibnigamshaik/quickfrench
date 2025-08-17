@@ -10,6 +10,7 @@ interface TypingInputProps {
   onSubmit: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   placeholder?: string;
+  onIDontKnow?: () => void;
 }
 
 export const TypingInput = ({
@@ -21,6 +22,7 @@ export const TypingInput = ({
   onSubmit,
   inputRef,
   placeholder,
+  onIDontKnow,
 }: TypingInputProps) => {
   return (
     <div className="mb-6">
@@ -52,7 +54,7 @@ export const TypingInput = ({
           }}
         />
         {!showResult && (
-          <div className="mt-3 text-center">
+          <div className="mt-3 flex items-center justify-center gap-3">
             <button
               onClick={onSubmit}
               disabled={!typedAnswer.trim()}
@@ -63,6 +65,18 @@ export const TypingInput = ({
               }}
             >
               Submit (Enter)
+            </button>
+            <button
+              type="button"
+              onClick={onIDontKnow}
+              className="inline-flex items-center px-4 py-2.5 text-sm md:text-base rounded-lg font-medium border focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border)",
+                color: "var(--muted-foreground)",
+              }}
+            >
+              I don't know (Ctrl+Enter)
             </button>
           </div>
         )}

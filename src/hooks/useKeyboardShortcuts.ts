@@ -15,6 +15,7 @@ interface UseKeyboardShortcutsProps {
   onAnswerSelect: (answer: string) => void;
   onTypedSubmit: () => void;
   onNextQuestion: () => void;
+  onIDontKnow?: () => void;
 }
 
 export const useKeyboardShortcuts = ({
@@ -31,6 +32,7 @@ export const useKeyboardShortcuts = ({
   onAnswerSelect,
   onTypedSubmit,
   onNextQuestion,
+  onIDontKnow,
 }: UseKeyboardShortcutsProps) => {
   useEffect(() => {
     if (!enabled) {
@@ -106,8 +108,26 @@ export const useKeyboardShortcuts = ({
         return;
       }
 
-      // In typing mode, Enter submits
-      if (quizMode === "typing" && e.key === "Enter" && !showResult) {
+      // In typing mode, allow Ctrl+Enter to trigger "I don't know"
+      if (
+        quizMode === "typing" &&
+        !showResult &&
+        e.key === "Enter" &&
+        e.ctrlKey &&
+        typeof onIDontKnow === "function"
+      ) {
+        e.preventDefault();
+        onIDontKnow();
+        return;
+      }
+
+      // In typing mode, Enter submits (when not inside an editable element to avoid double submit)
+      if (
+        quizMode === "typing" &&
+        e.key === "Enter" &&
+        !showResult &&
+        !isEditable
+      ) {
         e.preventDefault();
         onTypedSubmit();
         return;
@@ -135,6 +155,24 @@ export const useKeyboardShortcuts = ({
         if (idx >= 0 && questions[currentQuestion]?.options[idx]) {
           e.preventDefault();
           onAnswerSelect(questions[currentQuestion].options[idx]);
+          return;
+        }
+
+        // 0 / Numpad0 / '?' triggers I don't know
+        if (
+          typeof onIDontKnow === "function" &&
+          (
+            e.key === "0" ||
+            e.key === "?" ||
+            e.code === "Digit0" ||
+            e.code === "Numpad0" ||
+            e.keyCode === 48 ||
+            e.keyCode === 96
+          )
+        ) {
+          e.preventDefault();
+          onIDontKnow();
+          return;
         }
       }
     };
