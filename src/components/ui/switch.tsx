@@ -17,11 +17,17 @@ function Switch({
     thumbTo: "var(--primary-50)",
   }), [])
 
-  const mergedStyle = React.useMemo<React.CSSProperties>(() => ({
+  type CSSVariableStyles = React.CSSProperties & {
+    "--switch-track-on"?: string
+    "--switch-thumb-from"?: string
+    "--switch-thumb-to"?: string
+  }
+
+  const mergedStyle = React.useMemo<CSSVariableStyles>(() => ({
     // Expose variables for Tailwind arbitrary values to consume
-    ["--switch-track-on" as any]: palette.trackOn,
-    ["--switch-thumb-from" as any]: palette.thumbFrom,
-    ["--switch-thumb-to" as any]: palette.thumbTo,
+    "--switch-track-on": palette.trackOn,
+    "--switch-thumb-from": palette.thumbFrom,
+    "--switch-thumb-to": palette.thumbTo,
     ...(style as React.CSSProperties),
   }), [palette, style])
 
