@@ -16,6 +16,25 @@ import {
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { resetProgress } from "@/lib/progress";
+// shadcn/ui components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SettingItem {
   icon: LucideIcon;
@@ -73,7 +92,6 @@ const SettingsPage = () => {
   const [speechVolume, setSpeechVolume] = React.useState<number>(1);
   const [speechPitch, setSpeechPitch] = React.useState<number>(1);
   const [speechRate, setSpeechRate] = React.useState<number>(1);
-  const [voiceListOpen, setVoiceListOpen] = React.useState<boolean>(false);
   const isFirefoxLike = React.useMemo(() => {
     if (typeof navigator === "undefined") return false;
     const ua = navigator.userAgent || "";
@@ -370,49 +388,10 @@ const SettingsPage = () => {
           description: "Choose voice and fine-tune volume, pitch, speed",
           type: "speech" as const,
         },
-        // Delay slider/input rendered alongside toggle
       ],
     },
-    // Data & Cache section removed
   ];
 
-  // Removed generic toggles/links in favor of only functional settings
-
-  // Generic select handler removed (no non-theme selects left)
-
-  // Small UI helpers (in-file only)
-  const InfoTip: React.FC<{ title: string; lines: string[] }> = ({
-    title,
-    lines,
-  }) => (
-    <div className="relative group">
-      <Info
-        className="h-4 w-4 cursor-help"
-        style={{ color: "var(--muted-foreground)" }}
-      />
-      <div
-        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3 text-xs rounded-lg shadow-xl z-50 border break-words"
-        style={{
-          backgroundColor: "var(--card)",
-          color: "var(--foreground)",
-          borderColor: "var(--border)",
-          maxWidth: "min(18rem, calc(100vw - 2rem))",
-        }}
-      >
-        <div
-          className="mb-2 font-semibold"
-          style={{ color: "var(--foreground)" }}
-        >
-          {title}
-        </div>
-        <div className="space-y-1" style={{ color: "var(--muted-foreground)" }}>
-          {lines.map((l) => (
-            <div key={l}>• {l}</div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   const SliderRow: React.FC<{
     label: string;
@@ -548,12 +527,17 @@ const SettingsPage = () => {
 
                     <div className="flex items-center">
                       {item.type === "quiz-mode" && (
-                        <div className="space-y-3">
+                        <RadioGroup
+                          value={quizMode}
+                          onValueChange={(v) =>
+                            handleQuizModeChange(v as "multiple-choice" | "typing")
+                          }
+                          className="space-y-2"
+                        >
                           {[
                             {
                               value: "multiple-choice" as const,
                               label: "Multiple Choice",
-                              tipTitle: "Multiple Choice Mode:",
                               tips: [
                                 "Select from 4 options",
                                 "Use keys 1-4 to select",
@@ -564,7 +548,6 @@ const SettingsPage = () => {
                             {
                               value: "typing" as const,
                               label: "Fill in the Blank",
-                              tipTitle: "Fill in the Blank Mode:",
                               tips: [
                                 "Type the English meaning",
                                 "Type your answer",
@@ -573,38 +556,27 @@ const SettingsPage = () => {
                               ],
                             },
                           ].map((opt) => (
-                            <div
-                              className="flex items-center space-x-4"
-                              key={opt.value}
-                            >
-                              <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                  type="radio"
-                                  name="quiz-mode"
-                                  value={opt.value}
-                                  checked={quizMode === opt.value}
-                                  onChange={(e) =>
-                                    handleQuizModeChange(
-                                      e.target.value as typeof opt.value,
-                                    )
-                                  }
-                                  className="w-4 h-4"
-                                  style={{ accentColor: "var(--primary-600)" }}
-                                />
-                                <span
-                                  className="text-sm font-medium"
-                                  style={{ color: "var(--foreground)" }}
-                                >
-                                  {opt.label}
-                                </span>
-                                <InfoTip
-                                  title={opt.tipTitle}
-                                  lines={opt.tips}
-                                />
-                              </label>
+                            <div key={opt.value} className="flex items-center gap-2">
+                              <RadioGroupItem value={opt.value} />
+                              <Label className="text-sm">{opt.label}</Label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Info className="h-4 w-4" style={{ color: "var(--muted-foreground)" }} />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <div className="font-semibold mb-1">{opt.label}</div>
+                                    <ul className="list-disc pl-4 space-y-0.5">
+                                      {opt.tips.map((t) => (
+                                        <li key={t}>{t}</li>
+                                      ))}
+                                    </ul>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </div>
                           ))}
-                        </div>
+                        </RadioGroup>
                       )}
 
                       {item.type === "question-count" && (
@@ -752,33 +724,20 @@ const SettingsPage = () => {
                                   ? timerEnabled
                                   : !!srsReviewMode;
                             return (
-                              <button
-                                onClick={
+                              <Switch
+                                checked={isOn}
+                                onCheckedChange={
                                   item.label === "Auto Advance"
-                                    ? handleAutoAdvanceChange
+                                    ? () => handleAutoAdvanceChange()
                                     : item.label === "Timer"
-                                      ? handleTimerToggle
-                                      : () => {
-                                        const next = !srsReviewMode;
-                                        setSrsReviewMode(next);
-                                        localStorage.setItem(
-                                          "srsReviewMode",
-                                          String(next),
-                                        );
-                                      }
-                                }
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
-                                style={{
-                                  backgroundColor: isOn
-                                    ? "var(--primary-600)"
-                                    : "#d1d5db",
-                                }}
-                                aria-pressed={
-                                  item.label === "Auto Advance"
-                                    ? autoAdvance
-                                    : item.label === "Timer"
-                                      ? timerEnabled
-                                      : !!srsReviewMode
+                                      ? () => handleTimerToggle()
+                                      : (v) => {
+                                          setSrsReviewMode(v);
+                                          localStorage.setItem(
+                                            "srsReviewMode",
+                                            String(v),
+                                          );
+                                        }
                                 }
                                 aria-label={
                                   item.label === "Auto Advance"
@@ -787,13 +746,7 @@ const SettingsPage = () => {
                                       ? "Toggle timer"
                                       : "Toggle SRS review mode"
                                 }
-                              >
-                                <span
-                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                    isOn ? "translate-x-6" : "translate-x-1"
-                                  }`}
-                                />
-                              </button>
+                              />
                             );
                           })()}
                           {item.label === "Auto Advance" ? (
@@ -804,7 +757,7 @@ const SettingsPage = () => {
                               >
                                 Delay:
                               </label>
-                              <input
+                              <Input
                                 type="number"
                                 min={300}
                                 max={5000}
@@ -816,12 +769,7 @@ const SettingsPage = () => {
                                   )
                                 }
                                 disabled={!autoAdvance}
-                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
-                                style={{
-                                  backgroundColor: "var(--card)",
-                                  color: "var(--foreground)",
-                                  borderColor: "var(--border)",
-                                }}
+                                className="w-24"
                                 aria-label="Auto-advance delay in milliseconds"
                               />
                               <span
@@ -839,7 +787,7 @@ const SettingsPage = () => {
                               >
                                 Seconds:
                               </label>
-                              <input
+                              <Input
                                 type="number"
                                 min={5}
                                 max={300}
@@ -851,12 +799,7 @@ const SettingsPage = () => {
                                   )
                                 }
                                 disabled={!timerEnabled}
-                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
-                                style={{
-                                  backgroundColor: "var(--card)",
-                                  color: "var(--foreground)",
-                                  borderColor: "var(--border)",
-                                }}
+                                className="w-24"
                                 aria-label="Timer duration in seconds"
                               />
                               <span
@@ -874,7 +817,7 @@ const SettingsPage = () => {
                               >
                                 Max New per Quiz:
                               </label>
-                              <input
+                              <Input
                                 type="number"
                                 min={1}
                                 max={50}
@@ -892,12 +835,7 @@ const SettingsPage = () => {
                                     String(clamped),
                                   );
                                 }}
-                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
-                                style={{
-                                  backgroundColor: "var(--card)",
-                                  color: "var(--foreground)",
-                                  borderColor: "var(--border)",
-                                }}
+                                className="w-24"
                                 aria-label="SRS new items per quiz"
                               />
                             </div>
@@ -915,17 +853,7 @@ const SettingsPage = () => {
                       {/* Cache controls removed */}
 
                       {item.type === "speech" && (
-                        <button
-                          onClick={() => setIsSpeechOpen(true)}
-                          className="px-4 py-2 rounded-lg font-medium transition-all duration-200 border"
-                          style={{
-                            backgroundColor: "var(--card)",
-                            color: "var(--foreground)",
-                            borderColor: "var(--border)",
-                          }}
-                        >
-                          Open
-                        </button>
+                        <Button onClick={() => setIsSpeechOpen(true)}>Open</Button>
                       )}
                     </div>
                   </div>
@@ -1025,92 +953,41 @@ const SettingsPage = () => {
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
-                    <button
-                      type="button"
-                      aria-haspopup="listbox"
-                      aria-expanded={voiceListOpen}
-                      onClick={() => setVoiceListOpen((o) => !o)}
-                      className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm border"
-                      style={{
-                        backgroundColor: "var(--muted)",
-                        color: "var(--foreground)",
-                        borderColor: "var(--border)",
+                    <Select
+                      value={speechVoiceURI ?? undefined}
+                      onValueChange={(v) => {
+                        setSpeechVoiceURI(v);
+                        setLS("speechVoiceURI", v);
+                        dispatchSpeechChanged();
                       }}
                     >
-                      <span className="truncate text-left">
-                        {selectedVoice
-                          ? `${selectedVoice.name} (${selectedVoice.lang})`
-                          : frenchVoices.length
-                            ? "Choose a French voice"
-                            : "No French voices available"}
-                      </span>
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className={
-                          voiceListOpen
-                            ? "rotate-180 transition-transform"
-                            : "transition-transform"
-                        }
-                      >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
-                    </button>
-                    {voiceListOpen && (
-                      <div
-                        className="absolute z-10 mt-2 w-full max-h-56 overflow-auto rounded-lg border shadow-lg scrollbar-sleek"
-                        style={{
-                          backgroundColor: "var(--card)",
-                          borderColor: "var(--border)",
-                        }}
-                        role="listbox"
-                      >
-                        {frenchVoices.map((v) => {
-                          const selected = v.voiceURI === speechVoiceURI;
-                          return (
-                            <button
-                              key={v.voiceURI}
-                              role="option"
-                              aria-selected={selected}
-                              onClick={() => {
-                                setSpeechVoiceURI(v.voiceURI);
-                                setLS("speechVoiceURI", v.voiceURI);
-                                setVoiceListOpen(false);
-                                dispatchSpeechChanged();
-                              }}
-                              className={`w-full text-left px-3 py-2 text-sm ${
-                                selected ? "bg-[var(--muted)]" : ""
-                              }`}
-                              style={{ color: "var(--foreground)" }}
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="truncate">{v.name}</span>
-                                <span
-                                  className="text-xs"
-                                  style={{ color: "var(--muted-foreground)" }}
-                                >
-                                  {v.lang}
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            selectedVoice
+                              ? `${selectedVoice.name} (${selectedVoice.lang})`
+                              : frenchVoices.length
+                                ? "Choose a French voice"
+                                : "No French voices available"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {frenchVoices.map((v) => (
+                          <SelectItem key={v.voiceURI} value={v.voiceURI}>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate">{v.name}</span>
+                              <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{v.lang}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
                         {frenchVoices.length === 0 && (
-                          <div
-                            className="px-3 py-2 text-sm"
-                            style={{ color: "var(--muted-foreground)" }}
-                          >
+                          <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
                             No French voices found.
                           </div>
                         )}
-                      </div>
-                    )}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <button
                     onClick={testSpeak}
@@ -1206,7 +1083,7 @@ const SettingsPage = () => {
               />
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button
+                <Button
                   onClick={() => {
                     setSpeechVolume(1);
                     setSpeechPitch(1);
@@ -1216,26 +1093,11 @@ const SettingsPage = () => {
                     setLS("speechRate", "1");
                     dispatchSpeechChanged();
                   }}
-                  className="px-4 py-2 rounded-lg text-sm border"
-                  style={{
-                    backgroundColor: "var(--muted)",
-                    color: "var(--foreground)",
-                    borderColor: "var(--border)",
-                  }}
+                  className="border"
                 >
                   Reset
-                </button>
-                <button
-                  onClick={() => setIsSpeechOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm"
-                  style={{
-                    background:
-                      "linear-gradient(to right, var(--cta-grad-from), var(--cta-grad-to))",
-                    color: "#fff",
-                  }}
-                >
-                  Done
-                </button>
+                </Button>
+                <Button onClick={() => setIsSpeechOpen(false)}>Done</Button>
               </div>
             </div>
           </div>
