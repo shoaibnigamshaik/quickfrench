@@ -7,19 +7,36 @@ import { cn } from "@/lib/utils"
 
 function Switch({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+  // Use brand color palette from globals.css, light/dark safe
+  const palette = React.useMemo(() => ({
+    trackOn: "var(--primary-600)",
+    thumbFrom: "var(--primary-100)",
+    thumbTo: "var(--primary-50)",
+  }), [])
+
+  const mergedStyle = React.useMemo<React.CSSProperties>(() => ({
+    // Expose variables for Tailwind arbitrary values to consume
+    ["--switch-track-on" as any]: palette.trackOn,
+    ["--switch-thumb-from" as any]: palette.thumbFrom,
+    ["--switch-thumb-to" as any]: palette.thumbTo,
+    ...(style as React.CSSProperties),
+  }), [palette, style])
+
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
       className={cn(
         "peer inline-flex h-6 w-11 shrink-0 items-center rounded-full border px-0.5 shadow-xs transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border",
-        // Clear, friendly track colors
-        " data-[state=checked]:bg-primary-500 data-[state=unchecked]:bg-muted",
+        // Clear, friendly track colors (dynamic, theme-aware)
+        " data-[state=checked]:bg-[var(--switch-track-on)] data-[state=unchecked]:bg-muted",
         // Hover/Focus affordance
         " hover:shadow-sm focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring",
         className
       )}
+      style={mergedStyle}
       {...props}
     >
       <SwitchPrimitive.Thumb
@@ -35,7 +52,7 @@ function Switch({
             " bg-card data-[state=unchecked]:bg-card"
             +
             // Soft primary gradient when ON + clearer border
-            " data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-primary-200 data-[state=checked]:to-primary-50 data-[state=checked]:border-primary"
+            " data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-[var(--switch-thumb-from)] data-[state=checked]:to-[var(--switch-thumb-to)] data-[state=checked]:[border-color:var(--switch-track-on)]"
             +
             // Default border when OFF
             " border-border"

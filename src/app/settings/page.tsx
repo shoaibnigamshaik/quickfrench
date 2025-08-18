@@ -464,7 +464,7 @@ const SettingsPage = () => {
                 Settings
               </h1>
               <p style={{ color: "var(--muted-foreground)" }}>
-                Customize your quiz experience
+                Customize your learning experience
               </p>
             </div>
           </div>
