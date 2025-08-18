@@ -9,7 +9,9 @@ import {
   Info,
   CheckCircle,
   LucideIcon,
-  Clock,
+  Timer,
+  FastForward,
+  RefreshCw,
   Sliders,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
@@ -36,10 +38,11 @@ const SettingsPage = () => {
     window.dispatchEvent?.(new CustomEvent(SPEECH_EVENT));
   const setLS = (k: string, v: string) => localStorage.setItem(k, v);
 
-  // Theme mode state: Light | Dark | Auto
-  const [themeMode, setThemeMode] = React.useState<"Light" | "Dark" | "Auto">(
-    "Auto",
-  );
+  // Theme: delegate to ThemeSwitcher (single source of truth)
+  const [themeDefault, setThemeDefault] = React.useState<
+    "light" | "dark" | "system"
+  >("system");
+  const [themeReady, setThemeReady] = React.useState(false);
   const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">(
     "multiple-choice",
   );
@@ -113,11 +116,11 @@ const SettingsPage = () => {
 
   // Load saved settings from localStorage
   React.useEffect(() => {
-    // Initialize theme from storage or system
-    const savedTheme = (localStorage.getItem("theme") || "auto").toLowerCase();
-    if (savedTheme === "light") setThemeMode("Light");
-    else if (savedTheme === "dark") setThemeMode("Dark");
-    else setThemeMode("Auto");
+  // Initialize theme switcher default from storage
+  const savedTheme = (localStorage.getItem("theme") || "auto").toLowerCase();
+  const initial = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "system";
+  setThemeDefault(initial as "light" | "dark" | "system");
+  setThemeReady(true);
 
     const savedMode = localStorage.getItem("quizMode") as
       | "multiple-choice"
@@ -262,33 +265,6 @@ const SettingsPage = () => {
     [availableVoices],
   );
 
-  // Keep theme in sync with system when in Auto mode
-  React.useEffect(() => {
-    if (themeMode !== "Auto") return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      document.documentElement.classList.toggle("dark", media.matches);
-    };
-    apply();
-    // Support older browsers
-    if (typeof media.addEventListener === "function") {
-      media.addEventListener("change", apply);
-      return () => media.removeEventListener("change", apply);
-    } else {
-      media.addListener(apply);
-      return () => {
-        media.removeListener(apply);
-      };
-    }
-  }, [themeMode]);
-
-  // Apply theme immediately for Light/Dark modes
-  React.useEffect(() => {
-    if (themeMode === "Auto") return;
-    const root = document.documentElement;
-    root.classList.toggle("dark", themeMode === "Dark");
-  }, [themeMode]);
-
   // Save quiz mode to localStorage when changed
   const handleQuizModeChange = (mode: "multiple-choice" | "typing") => {
     setQuizMode(mode);
@@ -359,14 +335,14 @@ const SettingsPage = () => {
           type: "quiz-mode" as const,
         },
         {
-          icon: Clock,
+          icon: Timer,
           label: "Timer",
           description: "Countdown per question (off by default)",
           type: "auto-advance" as const,
           value: timerEnabled,
         },
         {
-          icon: Clock,
+          icon: RefreshCw,
           label: "Review (Spaced Repetition)",
           description:
             "Prioritize due items first; fallback to practice when nothing is due",
@@ -381,7 +357,7 @@ const SettingsPage = () => {
         },
         // Translation Direction control removed; toggle now lives on TopicSelector
         {
-          icon: Clock,
+          icon: FastForward,
           label: "Auto Advance",
           description:
             "Automatically move to next question after correct answer",
@@ -403,22 +379,6 @@ const SettingsPage = () => {
   // Removed generic toggles/links in favor of only functional settings
 
   // Generic select handler removed (no non-theme selects left)
-
-  const handleThemeSwitch = (t: "light" | "dark" | "system") => {
-    // sync our select state wording with new switcher
-    const mode: "Light" | "Dark" | "Auto" =
-      t === "system" ? "Auto" : t === "light" ? "Light" : "Dark";
-    setThemeMode(mode);
-    const root = document.documentElement;
-    if (t === "system") {
-      localStorage.setItem("theme", "auto");
-      const media = window.matchMedia("(prefers-color-scheme: dark)");
-      root.classList.toggle("dark", media.matches);
-    } else {
-      localStorage.setItem("theme", t);
-      root.classList.toggle("dark", t === "dark");
-    }
-  };
 
   // Small UI helpers (in-file only)
   const InfoTip: React.FC<{ title: string; lines: string[] }> = ({
@@ -552,21 +512,22 @@ const SettingsPage = () => {
                 {/* Cache offline notice removed */}
               </div>
 
-              <div className="p-6 space-y-4">
-                {section.items.map((item) => (
+              <div className="p-4">
+                {section.items.map((item, idx) => (
                   <div
                     key={item.label}
-                    className="flex items-center justify-between p-4 rounded-xl transition-colors duration-200"
-                    style={{ backgroundColor: "var(--muted)" }}
+                    className="flex items-center justify-between py-3"
+                    style={
+                      idx !== section.items.length - 1
+                        ? { borderBottom: "1px solid var(--border)" }
+                        : undefined
+                    }
                   >
                     <div className="flex items-center space-x-4">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: "var(--primary-100)" }}
-                      >
+                      <div className="w-8 h-8 rounded-md flex items-center justify-center">
                         <item.icon
                           className="h-5 w-5"
-                          style={{ color: "var(--primary-600)" }}
+                          style={{ color: "var(--muted-foreground)" }}
                         />
                       </div>
                       <div>
@@ -946,19 +907,10 @@ const SettingsPage = () => {
 
                       {/* Removed generic select; Theme uses ThemeSwitcher below */}
 
-                      {item.type === "select" && item.label === "Theme" && (
-                        <ThemeSwitcher
-                          value={
-                            themeMode === "Auto"
-                              ? "system"
-                              : themeMode === "Light"
-                                ? "light"
-                                : "dark"
-                          }
-                          onChange={handleThemeSwitch}
-                          className="ml-2"
-                        />
-                      )}
+                      {item.type === "select" && item.label === "Theme" &&
+                        themeReady && (
+                          <ThemeSwitcher defaultValue={themeDefault} className="ml-2" />
+                        )}
 
                       {/* Cache controls removed */}
 
@@ -984,7 +936,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between">
+  <div className="mt-6 flex items-center justify-between">
           <span
             className="text-sm"
             style={{ color: "var(--muted-foreground)" }}
@@ -1009,13 +961,6 @@ const SettingsPage = () => {
             >
               Reset Progress
             </button>
-            <Link
-              href="/"
-              className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)] text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
           </div>
         </div>
       </div>
