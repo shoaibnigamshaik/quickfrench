@@ -189,6 +189,9 @@ export interface QuizSettings {
   translationDirection: TranslationDirection;
   autoAdvance: boolean;
   autoAdvanceDelayMs?: number;
+  // Optional per-question timer (client-only)
+  timerEnabled?: boolean; // default off
+  timerDurationSec?: number; // default 30s
   // Optional spaced repetition settings (client-only)
   // When true, question generation prioritizes SRS due items.
   srsReviewMode?: boolean;

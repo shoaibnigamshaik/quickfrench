@@ -51,6 +51,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     translationDirection: "french-to-english",
     autoAdvance: false,
     autoAdvanceDelayMs: 1000,
+  timerEnabled: false,
+  timerDurationSec: 30,
     srsReviewMode: undefined,
     srsMaxPerSession: undefined,
     srsNewPerSession: undefined,
@@ -69,6 +71,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         savedSettings.translationDirection as TranslationDirection,
       autoAdvance: savedSettings.autoAdvance,
       autoAdvanceDelayMs: savedSettings.autoAdvanceDelayMs ?? 1000,
+  timerEnabled: savedSettings.timerEnabled ?? false,
+  timerDurationSec: savedSettings.timerDurationSec ?? 30,
       // SRS toggles (optional): read if present
       srsReviewMode:
         (localStorage.getItem("srsReviewMode") as "true" | "false" | null) ===
@@ -710,6 +714,17 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     localStorage.setItem("autoAdvanceDelayMs", String(ms));
   };
 
+  const updateTimerEnabled = (enabled: boolean) => {
+    setSettings((prev) => ({ ...prev, timerEnabled: enabled }));
+    localStorage.setItem("timerEnabled", String(enabled));
+  };
+
+  const updateTimerDuration = (sec: number) => {
+    const clamped = Math.min(Math.max(sec, 5), 300);
+    setSettings((prev) => ({ ...prev, timerDurationSec: clamped }));
+    localStorage.setItem("timerDurationSec", String(clamped));
+  };
+
   return {
     quizState,
     settings,
@@ -728,5 +743,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateTranslationDirection,
     updateAutoAdvance,
     updateAutoAdvanceDelay,
+  updateTimerEnabled,
+  updateTimerDuration,
   };
 };

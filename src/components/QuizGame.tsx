@@ -34,6 +34,7 @@ export const QuizGame = ({
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const [hasFrenchVoice, setHasFrenchVoice] = React.useState<boolean>(false);
   const [speechVolume, setSpeechVolume] = React.useState<number>(1);
@@ -42,6 +43,7 @@ export const QuizGame = ({
   const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(
     null,
   );
+  const [timeLeft, setTimeLeft] = React.useState<number | null>(null);
 
   // Load speech settings from localStorage and listen for changes from Settings modal
   useEffect(() => {
@@ -280,6 +282,11 @@ export const QuizGame = ({
       clearTimeout(autoAdvanceTimeoutRef.current);
       autoAdvanceTimeoutRef.current = null;
     }
+    // Stop timer while result is showing because time shouldn't tick during review
+    if (quizState.showResult && timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
 
     // Check if we should auto-advance
     if (
@@ -314,6 +321,65 @@ export const QuizGame = ({
     onNextQuestion,
   ]);
 
+  // Timer: per-question countdown when enabled
+  useEffect(() => {
+    // Cleanup any existing interval
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
+    // Reset timeLeft on question change
+    if (
+      settings.timerEnabled &&
+      typeof settings.timerDurationSec === "number" &&
+      !quizState.quizComplete
+    ) {
+      setTimeLeft(settings.timerDurationSec);
+      // Only run timer while answering (not while result showing)
+      if (!quizState.showResult) {
+        timerIntervalRef.current = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev === null) return null;
+            if (prev <= 1) {
+              // Time up: mark as wrong or submit depending on mode
+              clearInterval(timerIntervalRef.current as NodeJS.Timeout);
+              timerIntervalRef.current = null;
+              // In MCQ, select a special sentinel to trigger wrong handling via onIDontKnow
+              if (onIDontKnow) {
+                onIDontKnow();
+              } else if (settings.quizMode === "typing") {
+                // Ensure a submit happens with current typed text (likely empty)
+                onTypedSubmit();
+              }
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+    } else {
+      setTimeLeft(null);
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
+    // Re-run when question index, showResult, or timer settings change
+  }, [
+    quizState.currentQuestion,
+    quizState.showResult,
+    quizState.quizComplete,
+    settings.timerEnabled,
+    settings.timerDurationSec,
+    settings.quizMode,
+    onTypedSubmit,
+    onIDontKnow,
+  ]);
+
   if (quizState.questions.length === 0) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -344,6 +410,16 @@ export const QuizGame = ({
         totalQuestions={quizState.questions.length}
         streak={quizState.streak}
         score={quizState.score}
+        timeLeft={
+          settings.timerEnabled && !quizState.showResult
+            ? timeLeft ?? undefined
+            : undefined
+        }
+        timerTotal={
+          settings.timerEnabled && !quizState.showResult
+            ? settings.timerDurationSec ?? undefined
+            : undefined
+        }
       />
 
       {/* Quiz Card */}

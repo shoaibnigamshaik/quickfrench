@@ -496,6 +496,8 @@ export const saveQuizSettings = (
   translationDirection: TranslationDirection,
   autoAdvance: boolean = false,
   autoAdvanceDelayMs?: number,
+  timerEnabled?: boolean,
+  timerDurationSec?: number,
 ) => {
   localStorage.setItem("quizMode", quizMode);
   localStorage.setItem("questionCount", questionCount.toString());
@@ -503,6 +505,12 @@ export const saveQuizSettings = (
   localStorage.setItem("autoAdvance", autoAdvance.toString());
   if (typeof autoAdvanceDelayMs === "number") {
     localStorage.setItem("autoAdvanceDelayMs", String(autoAdvanceDelayMs));
+  }
+  if (typeof timerEnabled === "boolean") {
+    localStorage.setItem("timerEnabled", String(timerEnabled));
+  }
+  if (typeof timerDurationSec === "number") {
+    localStorage.setItem("timerDurationSec", String(timerDurationSec));
   }
 };
 
@@ -517,6 +525,8 @@ export const loadQuizSettings = () => {
   ) as TranslationDirection | null;
   const savedAutoAdvance = localStorage.getItem("autoAdvance");
   const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
+  const savedTimerEnabled = localStorage.getItem("timerEnabled");
+  const savedTimerDuration = localStorage.getItem("timerDurationSec");
 
   const parseCount = (val: string | null): number | "all" => {
     if (val === "all") return "all";
@@ -536,5 +546,10 @@ export const loadQuizSettings = () => {
       savedAutoAdvanceDelay && !Number.isNaN(parseInt(savedAutoAdvanceDelay))
         ? Math.min(Math.max(parseInt(savedAutoAdvanceDelay, 10), 300), 5000)
         : 1000,
+    timerEnabled: savedTimerEnabled === "true" ? true : false,
+    timerDurationSec:
+      savedTimerDuration && !Number.isNaN(parseInt(savedTimerDuration, 10))
+        ? Math.min(Math.max(parseInt(savedTimerDuration, 10), 5), 300)
+        : 30,
   };
 };

@@ -47,6 +47,8 @@ const SettingsPage = () => {
   const [autoAdvance, setAutoAdvance] = React.useState(false);
   const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] =
     React.useState<number>(1000);
+  const [timerEnabled, setTimerEnabled] = React.useState<boolean>(false);
+  const [timerDurationSec, setTimerDurationSec] = React.useState<number>(30);
   const [showCustomInput, setShowCustomInput] = React.useState(false);
   const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
   // Spaced repetition controls (persisted locally)
@@ -130,6 +132,8 @@ const SettingsPage = () => {
     const savedVol = localStorage.getItem("speechVolume");
     const savedPitch = localStorage.getItem("speechPitch");
     const savedRate = localStorage.getItem("speechRate");
+  const savedTimerEnabled = localStorage.getItem("timerEnabled");
+  const savedTimerDuration = localStorage.getItem("timerDurationSec");
 
     if (savedMode) {
       setQuizMode(savedMode);
@@ -169,6 +173,11 @@ const SettingsPage = () => {
       setSrsMaxPerSession(Math.max(5, Math.min(100, parseInt(savedSrsMax))));
     if (savedSrsNew && !Number.isNaN(parseInt(savedSrsNew)))
       setSrsNewPerSession(Math.max(1, Math.min(50, parseInt(savedSrsNew))));
+    if (savedTimerEnabled !== null) setTimerEnabled(savedTimerEnabled === "true");
+    if (savedTimerDuration && !Number.isNaN(parseInt(savedTimerDuration))) {
+      const secs = Math.min(Math.max(parseInt(savedTimerDuration, 10), 5), 300);
+      setTimerDurationSec(secs);
+    }
   }, []);
 
   // Load speech voices with robust cross-browser strategy
@@ -314,6 +323,18 @@ const SettingsPage = () => {
     localStorage.setItem("autoAdvanceDelayMs", String(clamped));
   };
 
+  const handleTimerToggle = () => {
+    const next = !timerEnabled;
+    setTimerEnabled(next);
+    localStorage.setItem("timerEnabled", String(next));
+  };
+
+  const handleTimerDurationChange = (sec: number) => {
+    const clamped = Math.min(Math.max(sec, 5), 300);
+    setTimerDurationSec(clamped);
+    localStorage.setItem("timerDurationSec", String(clamped));
+  };
+
   const settingsSections: SettingSection[] = [
     // Moved Appearance above Quiz Settings
     {
@@ -336,6 +357,13 @@ const SettingsPage = () => {
           label: "Quiz Mode",
           description: "Choose how you want to answer questions",
           type: "quiz-mode" as const,
+        },
+        {
+          icon: Clock,
+          label: "Timer",
+          description: "Countdown per question (off by default)",
+          type: "auto-advance" as const,
+          value: timerEnabled,
         },
         {
           icon: Clock,
@@ -759,13 +787,17 @@ const SettingsPage = () => {
                             const isOn =
                               item.label === "Auto Advance"
                                 ? autoAdvance
-                                : !!srsReviewMode;
+                                : item.label === "Timer"
+                                  ? timerEnabled
+                                  : !!srsReviewMode;
                             return (
                               <button
                                 onClick={
                                   item.label === "Auto Advance"
                                     ? handleAutoAdvanceChange
-                                    : () => {
+                                    : item.label === "Timer"
+                                      ? handleTimerToggle
+                                      : () => {
                                         const next = !srsReviewMode;
                                         setSrsReviewMode(next);
                                         localStorage.setItem(
@@ -783,12 +815,16 @@ const SettingsPage = () => {
                                 aria-pressed={
                                   item.label === "Auto Advance"
                                     ? autoAdvance
-                                    : !!srsReviewMode
+                                    : item.label === "Timer"
+                                      ? timerEnabled
+                                      : !!srsReviewMode
                                 }
                                 aria-label={
                                   item.label === "Auto Advance"
                                     ? "Toggle auto advance"
-                                    : "Toggle SRS review mode"
+                                    : item.label === "Timer"
+                                      ? "Toggle timer"
+                                      : "Toggle SRS review mode"
                                 }
                               >
                                 <span
@@ -832,6 +868,41 @@ const SettingsPage = () => {
                                 style={{ color: "var(--muted-foreground)" }}
                               >
                                 ms
+                              </span>
+                            </div>
+                          ) : item.label === "Timer" ? (
+                            <div className="flex items-center gap-2">
+                              <label
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
+                                Seconds:
+                              </label>
+                              <input
+                                type="number"
+                                min={5}
+                                max={300}
+                                step={5}
+                                value={timerDurationSec}
+                                onChange={(e) =>
+                                  handleTimerDurationChange(
+                                    parseInt(e.target.value || "30", 10),
+                                  )
+                                }
+                                disabled={!timerEnabled}
+                                className="w-24 px-3 py-1.5 rounded-lg text-sm focus:outline-none border"
+                                style={{
+                                  backgroundColor: "var(--card)",
+                                  color: "var(--foreground)",
+                                  borderColor: "var(--border)",
+                                }}
+                                aria-label="Timer duration in seconds"
+                              />
+                              <span
+                                className="text-sm"
+                                style={{ color: "var(--muted-foreground)" }}
+                              >
+                                s
                               </span>
                             </div>
                           ) : (

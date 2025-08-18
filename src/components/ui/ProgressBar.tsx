@@ -3,6 +3,8 @@ interface ProgressBarProps {
   totalQuestions: number;
   streak: number;
   score: number;
+  timeLeft?: number;
+  timerTotal?: number;
 }
 
 export const ProgressBar = ({
@@ -10,6 +12,8 @@ export const ProgressBar = ({
   totalQuestions,
   streak,
   score,
+  timeLeft,
+  timerTotal,
 }: ProgressBarProps) => {
   return (
     <div className="mb-6">
@@ -21,6 +25,20 @@ export const ProgressBar = ({
           Question {currentQuestion + 1} of {totalQuestions}
         </span>
         <div className="flex items-center space-x-4">
+          {typeof timeLeft === "number" && typeof timerTotal === "number" && (
+            <span
+              className="text-sm font-semibold px-2 py-0.5 rounded-full border"
+              style={{
+                color: "var(--foreground)",
+                borderColor: "var(--border)",
+                backgroundColor: "var(--muted)",
+              }}
+              aria-label={`Time left ${timeLeft}s`}
+              title="Time left"
+            >
+              ⏱ {timeLeft}s
+            </span>
+          )}
           <span
             className="text-sm"
             style={{ color: "var(--muted-foreground)" }}
@@ -45,6 +63,17 @@ export const ProgressBar = ({
           }}
         />
       </div>
+      {typeof timeLeft === "number" && typeof timerTotal === "number" && (
+        <div className="mt-2 w-full rounded-full h-1.5 bg-[var(--muted)] border border-[var(--border)]" aria-hidden>
+          <div
+            className="h-1.5 rounded-full"
+            style={{
+              width: `${Math.max(0, Math.min(100, (timeLeft / timerTotal) * 100))}%`,
+              background: "linear-gradient(90deg, var(--danger-500), var(--warning-500))",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
