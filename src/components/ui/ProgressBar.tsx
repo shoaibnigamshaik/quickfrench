@@ -63,7 +63,7 @@ export const ProgressBar = ({
           }}
         />
       </div>
-  {/* Removed secondary time remaining bar as requested */}
+      {/* Removed secondary time remaining bar as requested */}
     </div>
   );
 };

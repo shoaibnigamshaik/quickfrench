@@ -15,8 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "QuickFrench",
-  description:
-    "French Vocabulary Quiz",
+  description: "French Vocabulary Quiz",
 };
 
 export default function RootLayout({

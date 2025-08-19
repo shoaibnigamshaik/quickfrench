@@ -51,8 +51,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     translationDirection: "french-to-english",
     autoAdvance: false,
     autoAdvanceDelayMs: 1000,
-  timerEnabled: false,
-  timerDurationSec: 30,
+    timerEnabled: false,
+    timerDurationSec: 30,
     srsReviewMode: undefined,
     srsMaxPerSession: undefined,
     srsNewPerSession: undefined,
@@ -71,8 +71,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         savedSettings.translationDirection as TranslationDirection,
       autoAdvance: savedSettings.autoAdvance,
       autoAdvanceDelayMs: savedSettings.autoAdvanceDelayMs ?? 1000,
-  timerEnabled: savedSettings.timerEnabled ?? false,
-  timerDurationSec: savedSettings.timerDurationSec ?? 30,
+      timerEnabled: savedSettings.timerEnabled ?? false,
+      timerDurationSec: savedSettings.timerDurationSec ?? 30,
       // SRS toggles (optional): read if present
       srsReviewMode:
         (localStorage.getItem("srsReviewMode") as "true" | "false" | null) ===
@@ -743,7 +743,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateTranslationDirection,
     updateAutoAdvance,
     updateAutoAdvanceDelay,
-  updateTimerEnabled,
-  updateTimerDuration,
+    updateTimerEnabled,
+    updateTimerDuration,
   };
 };

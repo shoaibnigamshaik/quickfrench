@@ -410,12 +410,10 @@ export const QuizGame = ({
         totalQuestions={quizState.questions.length}
         streak={quizState.streak}
         score={quizState.score}
-        timeLeft={
-          settings.timerEnabled ? timeLeft ?? undefined : undefined
-        }
+        timeLeft={settings.timerEnabled ? (timeLeft ?? undefined) : undefined}
         timerTotal={
           settings.timerEnabled
-            ? settings.timerDurationSec ?? undefined
+            ? (settings.timerDurationSec ?? undefined)
             : undefined
         }
       />
