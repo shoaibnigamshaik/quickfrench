@@ -622,7 +622,6 @@ const SettingsPage = () => {
                                       className="inline-flex items-center justify-center p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-offset-2"
                                       style={{
                                         color: "var(--muted-foreground)",
-                                        //@ts-ignore custom CSS var may not be in TS types
                                         outlineColor: "var(--primary-600)",
                                       }}
                                     >
