@@ -35,6 +35,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface SettingItem {
   id:
@@ -64,365 +70,228 @@ const SettingsPage = () => {
   const dispatchSpeechChanged = () =>
     window.dispatchEvent?.(new CustomEvent(SPEECH_EVENT));
   const setLS = (k: string, v: string) => localStorage.setItem(k, v);
+  const getLS = (k: string) => {
+    if (typeof window === "undefined") return null;
+    try {
+      return localStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  };
 
   // Theme: delegate to ThemeSwitcher (single source of truth)
-  const [themeDefault, setThemeDefault] = React.useState<
-    "light" | "dark" | "system"
-  >("system");
+  const [themeDefault] = React.useState<"light" | "dark" | "system">(() => {
+    const savedTheme = (getLS("theme") || "auto").toLowerCase();
+    return savedTheme === "light" || savedTheme === "dark"
+      ? (savedTheme as "light" | "dark")
+      : "system";
+  });
   const [themeReady, setThemeReady] = React.useState(false);
   const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">(
-    "multiple-choice",
+    () => {
+      const saved = getLS("quizMode");
+      return saved === "typing" || saved === "multiple-choice"
+        ? (saved as "multiple-choice" | "typing")
+        : "multiple-choice";
+    },
   );
-  const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
-  const [autoAdvance, setAutoAdvance] = React.useState(false);
+  const [questionCount, setQuestionCount] = React.useState<number | "all">(
+    () => {
+      const saved = getLS("questionCount");
+      if (!saved) return 10;
+      if (saved === "all") return "all";
+      const n = parseInt(saved, 10);
+      return Number.isNaN(n) ? 10 : Math.max(1, Math.min(50, n));
+    },
+  );
+  const [autoAdvance, setAutoAdvance] = React.useState<boolean>(() => {
+    return getLS("autoAdvance") === "true";
+  });
   // Store UI in seconds for consistency (0.3–5.0 s), persist as ms in localStorage
-  const [autoAdvanceDelaySec, setAutoAdvanceDelaySec] =
-    React.useState<number>(1.0);
-  const [timerEnabled, setTimerEnabled] = React.useState<boolean>(false);
-  const [timerDurationSec, setTimerDurationSec] = React.useState<number>(30);
+  const [autoAdvanceDelaySec, setAutoAdvanceDelaySec] = React.useState<number>(
+    () => {
+      const saved = getLS("autoAdvanceDelayMs");
+      if (!saved) return 1.0;
+      const ms = parseInt(saved, 10);
+      if (Number.isNaN(ms)) return 1.0;
+      const clamped = Math.min(Math.max(ms, 300), 5000);
+      return clamped / 1000;
+    },
+  );
+  const [timerEnabled, setTimerEnabled] = React.useState<boolean>(() => {
+    return getLS("timerEnabled") === "true";
+  });
+  const [timerDurationSec, setTimerDurationSec] = React.useState<number>(() => {
+    const saved = getLS("timerDurationSec");
+    if (!saved) return 30;
+    const n = parseInt(saved, 10);
+    if (Number.isNaN(n)) return 30;
+    return Math.min(Math.max(n, 5), 300);
+  });
   const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
-  const modalRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Focus trap + ESC close for Speech modal
-  React.useEffect(() => {
-    if (!isSpeechOpen) return;
-    const root = modalRef.current;
-    if (!root) return;
-
-    const previouslyFocused = (document.activeElement as HTMLElement | null) || null;
-    // Try to focus the first focusable element inside the modal
-    const focusableSelectors = [
-      'button',
-      '[href]',
-      'input',
-      'select',
-      'textarea',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',');
-    const focusables = Array.from(root.querySelectorAll<HTMLElement>(focusableSelectors)).filter(
-      (el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'),
-    );
-    if (focusables.length > 0) focusables[0].focus();
-    else root.focus();
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!isSpeechOpen) return;
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setIsSpeechOpen(false);
-        return;
-      }
-      if (e.key === 'Tab') {
-        if (focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const current = document.activeElement as HTMLElement | null;
-        if (e.shiftKey) {
-          if (current === first || !root.contains(current)) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (current === last || !root.contains(current)) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus?.();
-    };
-  }, [isSpeechOpen]);
+  // Radix Dialog manages focus and escape handling; no custom trap needed
   // Spaced repetition controls (persisted locally)
   const [srsReviewMode, setSrsReviewMode] = React.useState<boolean | undefined>(
-    undefined,
+    () => {
+      const v = getLS("srsReviewMode");
+      return v === null ? undefined : v === "true";
+    },
   );
-  const [, setSrsMaxPerSession] = React.useState<number | undefined>(undefined);
   const [srsNewPerSession, setSrsNewPerSession] = React.useState<
     number | undefined
-  >(undefined);
+  >(() => {
+    const v = getLS("srsNewPerSession");
+    if (!v) return 10;
+    const n = parseInt(v, 10);
+    return Number.isNaN(n) ? 10 : Math.max(1, Math.min(50, n));
+  });
 
-  // Speech settings
+  // Speech-related state
+  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(
+    () => getLS("speechVoiceURI"),
+  );
+  const [speechVolume, setSpeechVolume] = React.useState<number>(() => {
+    const v = getLS("speechVolume");
+    return v ? parseFloat(v) : 1;
+  });
+  const [speechPitch, setSpeechPitch] = React.useState<number>(() => {
+    const v = getLS("speechPitch");
+    return v ? parseFloat(v) : 1;
+  });
+  const [speechRate, setSpeechRate] = React.useState<number>(() => {
+    const v = getLS("speechRate");
+    return v ? parseFloat(v) : 1;
+  });
+
+  // Speech synthesis setup
   const [availableVoices, setAvailableVoices] = React.useState<
     SpeechSynthesisVoice[]
   >([]);
-  const [speechVoiceURI, setSpeechVoiceURI] = React.useState<string | null>(
-    null,
+  const frenchVoices = availableVoices.filter((v) =>
+    v.lang.toLowerCase().startsWith("fr"),
   );
-  const [speechVolume, setSpeechVolume] = React.useState<number>(1);
-  const [speechPitch, setSpeechPitch] = React.useState<number>(1);
-  const [speechRate, setSpeechRate] = React.useState<number>(1);
-  const isFirefoxLike = React.useMemo(() => {
-    if (typeof navigator === "undefined") return false;
-    const ua = navigator.userAgent || "";
-    // Basic detection for Firefox/Gecko and Zen-like variants
-    return (
-      /firefox|gecko|zen\//i.test(ua) && !/chrome|chromium|edg\//i.test(ua)
-    );
-  }, []);
+  const selectedVoice = frenchVoices.find((v) => v.voiceURI === speechVoiceURI);
+  const isFirefoxLike =
+    typeof navigator !== "undefined" &&
+    (navigator.userAgent.includes("Firefox") ||
+      navigator.userAgent.includes("Zen"));
 
-  // Speech helpers
-  const selectedVoice = React.useMemo(
-    () => availableVoices.find((v) => v.voiceURI === speechVoiceURI) || null,
-    [availableVoices, speechVoiceURI],
-  );
-  const updateSpeechSetting = (
-    key: "speechVolume" | "speechPitch" | "speechRate",
-    value: number,
-  ) => {
-    if (key === "speechVolume") setSpeechVolume(value);
-    if (key === "speechPitch") setSpeechPitch(value);
-    if (key === "speechRate") setSpeechRate(value);
-    setLS(key, String(value));
-    dispatchSpeechChanged();
-  };
-  const testSpeak = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    const synth = window.speechSynthesis;
-    const utter = new SpeechSynthesisUtterance("Bonjour !");
-    const voice = selectedVoice;
-    if (voice) utter.voice = voice;
-    else utter.lang = "fr-FR";
-    utter.volume = speechVolume;
-    utter.pitch = speechPitch;
-    utter.rate = speechRate;
-    if (synth.speaking) synth.cancel();
-    synth.speak(utter);
-  };
-
-  // Cache management removed
-
-  // Load saved settings from localStorage
+  // Load available voices
   React.useEffect(() => {
-  // Initialize theme switcher default from storage
-  const savedTheme = (localStorage.getItem("theme") || "auto").toLowerCase();
-  const initial = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "system";
-  setThemeDefault(initial as "light" | "dark" | "system");
-  setThemeReady(true);
-
-    const savedMode = localStorage.getItem("quizMode") as
-      | "multiple-choice"
-      | "typing";
-    const savedCount = localStorage.getItem("questionCount");
-    const savedAutoAdvance = localStorage.getItem("autoAdvance");
-  const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
-    const savedVoiceURI = localStorage.getItem("speechVoiceURI");
-    const savedSrsReview = localStorage.getItem("srsReviewMode");
-    const savedSrsMax = localStorage.getItem("srsMaxPerSession");
-    const savedSrsNew = localStorage.getItem("srsNewPerSession");
-    const savedVol = localStorage.getItem("speechVolume");
-    const savedPitch = localStorage.getItem("speechPitch");
-    const savedRate = localStorage.getItem("speechRate");
-  const savedTimerEnabled = localStorage.getItem("timerEnabled");
-  const savedTimerDuration = localStorage.getItem("timerDurationSec");
-
-    if (savedMode) {
-      setQuizMode(savedMode);
-    }
-  if (savedCount) {
-      const count = savedCount === "all" ? "all" : parseInt(savedCount);
-      setQuestionCount(count);
-    }
-    if (savedAutoAdvance !== null) {
-      setAutoAdvance(savedAutoAdvance === "true");
-    }
-    if (
-      savedAutoAdvanceDelay &&
-      !Number.isNaN(parseInt(savedAutoAdvanceDelay))
-    ) {
-      const ms = Math.min(
-        Math.max(parseInt(savedAutoAdvanceDelay, 10), 300),
-        5000,
-      );
-      setAutoAdvanceDelaySec(ms / 1000);
-    }
-
-    if (savedVoiceURI) setSpeechVoiceURI(savedVoiceURI);
-    if (savedVol)
-      setSpeechVolume(Math.min(Math.max(parseFloat(savedVol), 0), 1));
-    if (savedPitch)
-      setSpeechPitch(Math.min(Math.max(parseFloat(savedPitch), 0), 2));
-    if (savedRate)
-      setSpeechRate(Math.min(Math.max(parseFloat(savedRate), 0.5), 2));
-
-    if (savedSrsReview === "true") setSrsReviewMode(true);
-    if (savedSrsMax && !Number.isNaN(parseInt(savedSrsMax)))
-      setSrsMaxPerSession(Math.max(5, Math.min(100, parseInt(savedSrsMax))));
-    if (savedSrsNew && !Number.isNaN(parseInt(savedSrsNew)))
-      setSrsNewPerSession(Math.max(1, Math.min(50, parseInt(savedSrsNew))));
-    if (savedTimerEnabled !== null) setTimerEnabled(savedTimerEnabled === "true");
-    if (savedTimerDuration && !Number.isNaN(parseInt(savedTimerDuration))) {
-      const secs = Math.min(Math.max(parseInt(savedTimerDuration, 10), 5), 300);
-      setTimerDurationSec(secs);
-    }
-  }, []);
-
-  // Load speech voices with robust cross-browser strategy
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    const synth = window.speechSynthesis;
-
-    const pickInitialFrench = (voices: SpeechSynthesisVoice[]) => {
-      if (speechVoiceURI || !voices.length) return;
-      // Prefer exact fr-FR, then any fr-*
-      const preferred = voices.find(
-        (v) => (v.lang || "").toLowerCase() === "fr-fr",
-      );
-      const anyFr = voices.find((v) =>
-        (v.lang || "").toLowerCase().startsWith("fr"),
-      );
-      const chosen = preferred || anyFr || null;
-      if (chosen) {
-        setSpeechVoiceURI(chosen.voiceURI);
+    const loadVoices = () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        const voices = speechSynthesis.getVoices();
+        setAvailableVoices(voices);
       }
     };
 
-    const update = (voices: SpeechSynthesisVoice[]) => {
-      setAvailableVoices(voices);
-      pickInitialFrench(voices);
-    };
+    loadVoices();
 
-    const waitForVoices = (): Promise<SpeechSynthesisVoice[]> => {
-      return new Promise((resolve) => {
-        const existing = synth.getVoices?.() || [];
-        if (existing.length) return resolve(existing);
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      speechSynthesis.addEventListener("voiceschanged", loadVoices);
+      return () =>
+        speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+    }
+  }, []);
 
-        let resolved = false;
-        const tryResolve = () => {
-          if (resolved) return;
-          const arr = synth.getVoices?.() || [];
-          if (arr.length) {
-            resolved = true;
-            cleanup();
-            resolve(arr);
-          }
-        };
+  // Theme ready effect
+  React.useEffect(() => {
+    setThemeReady(true);
+  }, []);
 
-        const onVoicesChanged = () => tryResolve();
-        const interval = setInterval(tryResolve, 250);
-        const timeout = setTimeout(() => {
-          if (!resolved) {
-            resolved = true;
-            cleanup();
-            resolve(synth.getVoices?.() || []);
-          }
-        }, 5000);
-        const cleanup = () => {
-          clearInterval(interval);
-          clearTimeout(timeout);
-          synth.removeEventListener?.("voiceschanged", onVoicesChanged);
-        };
-        synth.addEventListener?.("voiceschanged", onVoicesChanged);
-        tryResolve();
-      });
-    };
+  // Handler functions
+  const updateSpeechSetting = (key: string, value: number) => {
+    if (key === "speechVolume") setSpeechVolume(value);
+    else if (key === "speechPitch") setSpeechPitch(value);
+    else if (key === "speechRate") setSpeechRate(value);
 
-    let disposed = false;
-    (async () => {
-      const voices = await waitForVoices();
-      if (disposed) return;
-      update(voices);
-    })();
+    setLS(key, value.toString());
+    dispatchSpeechChanged();
+  };
 
-    return () => {
-      disposed = true;
-    };
-  }, [speechVoiceURI]);
+  const testSpeak = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
-  const frenchVoices = React.useMemo(
-    () =>
-      availableVoices.filter((v) => {
-        const lang = (v.lang || "").toLowerCase();
-        const name = (v.name || "").toLowerCase();
-        return lang.startsWith("fr") || /fr(ancais|ançais)?|french/.test(name);
-      }),
-    [availableVoices],
-  );
+    const utterance = new SpeechSynthesisUtterance(
+      "Bonjour, comment allez-vous?",
+    );
+    if (selectedVoice) utterance.voice = selectedVoice;
+    utterance.volume = speechVolume;
+    utterance.pitch = speechPitch;
+    utterance.rate = speechRate;
 
-  // Save quiz mode to localStorage when changed
+    speechSynthesis.speak(utterance);
+  };
+
   const handleQuizModeChange = (mode: "multiple-choice" | "typing") => {
     setQuizMode(mode);
-    localStorage.setItem("quizMode", mode);
+    setLS("quizMode", mode);
   };
 
-  // Save question count to localStorage when changed
   const handleQuestionCountChange = (count: number | "all") => {
     setQuestionCount(count);
-    localStorage.setItem("questionCount", count.toString());
+    setLS("questionCount", count.toString());
   };
 
-
-  // Save auto advance to localStorage when changed
   const handleAutoAdvanceChange = () => {
-    const newAutoAdvance = !autoAdvance;
-    setAutoAdvance(newAutoAdvance);
-    localStorage.setItem("autoAdvance", newAutoAdvance.toString());
+    const newValue = !autoAdvance;
+    setAutoAdvance(newValue);
+    setLS("autoAdvance", newValue.toString());
   };
 
   const handleAutoAdvanceDelayChangeSec = (sec: number) => {
-    const clampedSec = Math.min(Math.max(sec, 0.3), 5.0);
-    setAutoAdvanceDelaySec(clampedSec);
-    const ms = Math.round(clampedSec * 1000);
-    localStorage.setItem("autoAdvanceDelayMs", String(ms));
+    const clamped = Math.max(0.3, Math.min(5.0, sec));
+    setAutoAdvanceDelaySec(clamped);
+    setLS("autoAdvanceDelayMs", (clamped * 1000).toString());
   };
 
   const handleTimerToggle = () => {
-    const next = !timerEnabled;
-    setTimerEnabled(next);
-    localStorage.setItem("timerEnabled", String(next));
+    const newValue = !timerEnabled;
+    setTimerEnabled(newValue);
+    setLS("timerEnabled", newValue.toString());
   };
 
-  const handleTimerDurationChange = (sec: number) => {
-    const clamped = Math.min(Math.max(sec, 5), 300);
+  const handleTimerDurationChange = (duration: number) => {
+    const clamped = Math.max(5, Math.min(300, duration));
     setTimerDurationSec(clamped);
-    localStorage.setItem("timerDurationSec", String(clamped));
+    setLS("timerDurationSec", clamped.toString());
   };
 
+  // Settings sections configuration
   const settingsSections: SettingSection[] = [
-    // Moved Appearance above Quiz Settings
     {
-      title: "Appearance",
-      items: [
-        {
-          id: "theme",
-          icon: Palette,
-          label: "Theme",
-          description: "Choose your preferred theme",
-          type: "select",
-          options: ["Light", "Dark", "Auto"],
-        },
-      ],
-    },
-    {
-      title: "Quiz Settings",
+      title: "Quiz Preferences",
       items: [
         {
           id: "quiz-mode",
           icon: CheckCircle,
           label: "Quiz Mode",
-          description: "Choose how you want to answer questions",
+          description: "Choose between multiple choice or typing questions",
           type: "quiz-mode" as const,
+        },
+        {
+          id: "question-count",
+          icon: HelpCircle,
+          label: "Question Count",
+          description: "Number of questions per quiz session",
+          type: "question-count" as const,
+        },
+        {
+          id: "theme",
+          icon: Palette,
+          label: "Theme",
+          description: "Choose your preferred color scheme",
+          type: "select" as const,
         },
         {
           id: "timer",
           icon: Timer,
           label: "Timer",
-          description: "Countdown per question (off by default)",
+          description: "Add time pressure to your quiz sessions",
           type: "auto-advance" as const,
           value: timerEnabled,
         },
-        {
-          id: "question-count",
-          icon: HelpCircle,
-          label: "Questions per Quiz",
-          description: "Choose how many questions per quiz",
-          type: "question-count" as const,
-        },
-        // Translation Direction control removed; toggle now lives on TopicSelector
         {
           id: "auto-advance",
           icon: FastForward,
@@ -456,7 +325,6 @@ const SettingsPage = () => {
       ],
     },
   ];
-
 
   const SliderRow: React.FC<{
     label: string;
@@ -542,7 +410,10 @@ const SettingsPage = () => {
             <section key={section.title} className="space-y-2">
               <h2
                 className="text-xl font-bold pb-2 border-b"
-                style={{ color: "var(--foreground)", borderColor: "var(--border)" }}
+                style={{
+                  color: "var(--foreground)",
+                  borderColor: "var(--border)",
+                }}
               >
                 {section.title}
               </h2>
@@ -584,7 +455,9 @@ const SettingsPage = () => {
                         <RadioGroup
                           value={quizMode}
                           onValueChange={(v) =>
-                            handleQuizModeChange(v as "multiple-choice" | "typing")
+                            handleQuizModeChange(
+                              v as "multiple-choice" | "typing",
+                            )
                           }
                           className="space-y-2"
                         >
@@ -610,7 +483,10 @@ const SettingsPage = () => {
                               ],
                             },
                           ].map((opt) => (
-                            <div key={opt.value} className="flex items-center gap-2">
+                            <div
+                              key={opt.value}
+                              className="flex items-center gap-2"
+                            >
                               <RadioGroupItem value={opt.value} />
                               <Label className="text-sm">{opt.label}</Label>
                               <TooltipProvider>
@@ -636,7 +512,9 @@ const SettingsPage = () => {
                                       borderColor: "var(--border)",
                                     }}
                                   >
-                                    <div className="font-semibold mb-1">{opt.label}</div>
+                                    <div className="font-semibold mb-1">
+                                      {opt.label}
+                                    </div>
                                     <ul className="list-disc pl-4 space-y-0.5">
                                       {opt.tips.map((t) => (
                                         <li key={t}>{t}</li>
@@ -712,12 +590,20 @@ const SettingsPage = () => {
                               min={1}
                               max={50}
                               value={
-                                typeof questionCount === "number" ? questionCount : 10
+                                typeof questionCount === "number"
+                                  ? questionCount
+                                  : 10
                               }
                               onChange={(e) => {
-                                const value = parseInt(e.target.value || "10", 10);
+                                const value = parseInt(
+                                  e.target.value || "10",
+                                  10,
+                                );
                                 if (!Number.isNaN(value)) {
-                                  const clamped = Math.max(1, Math.min(50, value));
+                                  const clamped = Math.max(
+                                    1,
+                                    Math.min(50, value),
+                                  );
                                   handleQuestionCountChange(clamped);
                                 }
                               }}
@@ -742,7 +628,7 @@ const SettingsPage = () => {
                               className="text-xs"
                               style={{ color: "var(--muted-foreground)" }}
                             >
-                              Selected: {" "}
+                              Selected:{" "}
                               <strong>
                                 {questionCount === "all"
                                   ? "All available questions"
@@ -805,8 +691,9 @@ const SettingsPage = () => {
                                 step={0.1}
                                 value={autoAdvanceDelaySec}
                                 onChange={(e) => {
-                                  const v = parseFloat(e.target.value || '1');
-                                  if (!Number.isNaN(v)) handleAutoAdvanceDelayChangeSec(v);
+                                  const v = parseFloat(e.target.value || "1");
+                                  if (!Number.isNaN(v))
+                                    handleAutoAdvanceDelayChangeSec(v);
                                 }}
                                 disabled={!autoAdvance}
                                 className="w-24"
@@ -836,7 +723,7 @@ const SettingsPage = () => {
                                 value={timerDurationSec}
                                 onChange={(e) =>
                                   handleTimerDurationChange(
-                                    parseInt(e.target.value || '30', 10),
+                                    parseInt(e.target.value || "30", 10),
                                   )
                                 }
                                 disabled={!timerEnabled}
@@ -866,10 +753,16 @@ const SettingsPage = () => {
                                 step={1}
                                 value={srsNewPerSession ?? 10}
                                 onChange={(e) => {
-                                  const n = parseInt(e.target.value || "10", 10);
+                                  const n = parseInt(
+                                    e.target.value || "10",
+                                    10,
+                                  );
                                   const clamped = Math.max(1, Math.min(50, n));
                                   setSrsNewPerSession(clamped);
-                                  localStorage.setItem("srsNewPerSession", String(clamped));
+                                  localStorage.setItem(
+                                    "srsNewPerSession",
+                                    String(clamped),
+                                  );
                                 }}
                                 className="w-24"
                                 aria-label="SRS new items per quiz"
@@ -882,15 +775,21 @@ const SettingsPage = () => {
 
                       {/* Removed generic select; Theme uses ThemeSwitcher below */}
 
-                      {item.type === "select" && item.label === "Theme" &&
+                      {item.type === "select" &&
+                        item.label === "Theme" &&
                         themeReady && (
-                          <ThemeSwitcher defaultValue={themeDefault} className="ml-2" />
+                          <ThemeSwitcher
+                            defaultValue={themeDefault}
+                            className="ml-2"
+                          />
                         )}
 
                       {/* Cache controls removed */}
 
                       {item.type === "speech" && (
-                        <Button onClick={() => setIsSpeechOpen(true)}>Open</Button>
+                        <Button onClick={() => setIsSpeechOpen(true)}>
+                          Open
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -901,7 +800,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Footer */}
-  <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between">
           <span
             className="text-sm"
             style={{ color: "var(--muted-foreground)" }}
@@ -930,236 +829,203 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      {/* Speech Settings Modal */}
-      {isSpeechOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                    aria-modal
-                    role="dialog"
-        >
-          <div
-            className="absolute inset-0"
-            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
-            onClick={() => setIsSpeechOpen(false)}
-          />
-
-          <div
-            className="relative w-full max-w-lg rounded-2xl shadow-2xl border"
+      {/* Speech Settings Dialog */}
+      <div className="dialog-overlay-opaque">
+        <Dialog open={isSpeechOpen} onOpenChange={setIsSpeechOpen}>
+          <DialogContent
+            className="max-w-lg"
             style={{
               backgroundColor: "var(--card)",
-              borderColor: "var(--border)",
+              border: "1px solid var(--border)",
+              boxShadow: "0 25px 50px rgba(0, 0, 0, 0.4)",
             }}
-            ref={modalRef}
-            aria-labelledby="speech-modal-title"
-            aria-describedby="speech-modal-desc"
-            tabIndex={-1}
           >
-            <div
-              className="flex items-center justify-between px-6 py-4 border-b"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <div className="flex items-center gap-2">
-                <Sliders
-                  className="h-5 w-5"
-                  style={{ color: "var(--primary-600)" }}
-                />
-                <h3
-                  className="text-lg font-semibold"
-                  id="speech-modal-title"
-                  style={{ color: "var(--foreground)" }}
-                >
-                  Speech Settings
-                </h3>
-              </div>
-              <Button
-                onClick={() => setIsSpeechOpen(false)}
-                className="px-3 py-1.5 rounded-lg text-sm border"
-                style={{
-                  backgroundColor: "var(--muted)",
-                  color: "var(--muted-foreground)",
-                  borderColor: "var(--border)",
-                }}
-                aria-label="Close speech settings"
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sliders className="h-5 w-5" />
+                <span>Speech Settings</span>
+              </DialogTitle>
+            </DialogHeader>
+
+            {/* Voice picker */}
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium"
+                style={{ color: "var(--foreground)" }}
+                id="voice-label"
               >
-                Close
-              </Button>
-            </div>
-
-            {/* Hidden description for screen readers */}
-            <p id="speech-modal-desc" className="sr-only">
-              Choose a French voice and adjust volume, pitch, and speed. Press Escape to close.
-            </p>
-
-            <div className="px-6 py-5 space-y-5">
-              {/* Voice picker */}
-              <div className="space-y-2">
-                <label
-                  className="text-sm font-medium"
-                  style={{ color: "var(--foreground)" }}
-                  id="voice-label"
-                >
-                  Voice (French only)
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <Select
-                      value={speechVoiceURI ?? undefined}
-                      onValueChange={(v) => {
-                        setSpeechVoiceURI(v);
-                        setLS("speechVoiceURI", v);
-                        dispatchSpeechChanged();
+                Voice (French only)
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Select
+                    value={speechVoiceURI ?? undefined}
+                    onValueChange={(v) => {
+                      setSpeechVoiceURI(v);
+                      setLS("speechVoiceURI", v);
+                      dispatchSpeechChanged();
+                    }}
+                  >
+                    <SelectTrigger
+                      aria-labelledby="voice-label"
+                      aria-label="French voice selector"
+                    >
+                      <SelectValue
+                        placeholder={
+                          selectedVoice
+                            ? `${selectedVoice.name} (${selectedVoice.lang})`
+                            : frenchVoices.length
+                              ? "Choose a French voice"
+                              : "No French voices available"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent
+                      className="border"
+                      style={{
+                        backgroundColor: "var(--card)",
+                        color: "var(--foreground)",
+                        borderColor: "var(--border)",
                       }}
                     >
-                      <SelectTrigger aria-labelledby="voice-label" aria-label="French voice selector">
-                        <SelectValue
-                          placeholder={
-                            selectedVoice
-                              ? `${selectedVoice.name} (${selectedVoice.lang})`
-                              : frenchVoices.length
-                                ? "Choose a French voice"
-                                : "No French voices available"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent
-                        className="border"
-                        style={{
-                          backgroundColor: "var(--card)",
-                          color: "var(--foreground)",
-                          borderColor: "var(--border)",
-                        }}
-                      >
-                        {frenchVoices.map((v) => (
-                          <SelectItem key={v.voiceURI} value={v.voiceURI}>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="truncate">{v.name}</span>
-                              <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{v.lang}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                        {frenchVoices.length === 0 && (
-                          <div className="px-3 py-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                            No French voices found.
+                      {frenchVoices.map((v) => (
+                        <SelectItem key={v.voiceURI} value={v.voiceURI}>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="truncate">{v.name}</span>
+                            <span
+                              className="text-xs"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
+                              {v.lang}
+                            </span>
                           </div>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    onClick={testSpeak}
-                    disabled={frenchVoices.length === 0}
-                    className={`px-3 py-2 rounded-lg text-sm border ${
-                      frenchVoices.length === 0
-                        ? "opacity-60 cursor-not-allowed"
-                        : ""
-                    }`}
-                    style={{
-                      backgroundColor: "var(--primary-100)",
-                      color: "var(--primary-700)",
-                      borderColor: "var(--border)",
-                    }}
-                    aria-disabled={frenchVoices.length === 0}
-                  >
-                    Test
-                  </Button>
+                        </SelectItem>
+                      ))}
+                      {frenchVoices.length === 0 && (
+                        <div
+                          className="px-3 py-2 text-sm"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
+                          No French voices found.
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-                {availableVoices.length === 0 && (
-                  <p
-                    className="text-xs"
-                    style={{ color: "var(--muted-foreground)" }}
-                  >
-                    Loading voices… If none appear, your browser may block or
-                    not fully support the Speech Synthesis API (e.g., some
-                    Firefox-based browsers require system voices).
-                  </p>
-                )}
-                {availableVoices.length === 0 && isFirefoxLike && (
-                  <div
-                    className="mt-2 text-xs space-y-1"
-                    style={{ color: "var(--muted-foreground)" }}
-                  >
-                    <div>Tip for Firefox/Zen:</div>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>
-                        Install a French system TTS voice (required by Firefox).
-                      </li>
-                      <li>
-                        Linux: install speech-dispatcher + a French voice (e.g.,
-                        espeak-ng + mbrola-fr) then restart Firefox.
-                      </li>
-                      <li>
-                        Windows: Settings → Time & Language → Speech → Manage
-                        voices → Add voices → French.
-                      </li>
-                      <li>
-                        macOS: System Settings → Accessibility → Spoken Content
-                        → System Voice → Add… → French.
-                      </li>
-                      <li>
-                        Android: Settings → System/Accessibility →
-                        Text-to-speech → Install French voice data.
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* Sliders */}
-              <SliderRow
-                label="Volume"
-                value={speechVolume}
-                min={0}
-                max={1}
-                step={0.01}
-                format={(v) => v.toFixed(2)}
-                fillPct={(v) => v * 100}
-                onChange={(v) => updateSpeechSetting("speechVolume", v)}
-                aria="Speech volume"
-              />
-              <SliderRow
-                label="Pitch"
-                value={speechPitch}
-                min={0}
-                max={2}
-                step={0.01}
-                format={(v) => v.toFixed(2)}
-                fillPct={(v) => (v / 2) * 100}
-                onChange={(v) => updateSpeechSetting("speechPitch", v)}
-                aria="Speech pitch"
-              />
-              <SliderRow
-                label="Speed"
-                value={speechRate}
-                min={0.5}
-                max={2}
-                step={0.01}
-                format={(v) => `${v.toFixed(2)}x`}
-                fillPct={(v) => ((v - 0.5) / 1.5) * 100}
-                onChange={(v) => updateSpeechSetting("speechRate", v)}
-                aria="Speech speed"
-              />
-
-              <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
-                  onClick={() => {
-                    setSpeechVolume(1);
-                    setSpeechPitch(1);
-                    setSpeechRate(1);
-                    setLS("speechVolume", "1");
-                    setLS("speechPitch", "1");
-                    setLS("speechRate", "1");
-                    dispatchSpeechChanged();
+                  onClick={testSpeak}
+                  disabled={frenchVoices.length === 0}
+                  className={`px-3 py-2 rounded-lg text-sm border ${
+                    frenchVoices.length === 0
+                      ? "opacity-60 cursor-not-allowed"
+                      : ""
+                  }`}
+                  style={{
+                    backgroundColor: "var(--primary-100)",
+                    color: "var(--primary-700)",
+                    borderColor: "var(--border)",
                   }}
-                  className="border"
+                  aria-disabled={frenchVoices.length === 0}
                 >
-                  Reset
+                  Test
                 </Button>
-                <Button onClick={() => setIsSpeechOpen(false)}>Done</Button>
               </div>
+              {availableVoices.length === 0 && (
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
+                  Loading voices… If none appear, your browser may block or not
+                  fully support the Speech Synthesis API (e.g., some
+                  Firefox-based browsers require system voices).
+                </p>
+              )}
+              {availableVoices.length === 0 && isFirefoxLike && (
+                <div
+                  className="mt-2 text-xs space-y-1"
+                  style={{ color: "var(--muted-foreground)" }}
+                >
+                  <div>Tip for Firefox/Zen:</div>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                      Install a French system TTS voice (required by Firefox).
+                    </li>
+                    <li>
+                      Linux: install speech-dispatcher + a French voice (e.g.,
+                      espeak-ng + mbrola-fr) then restart Firefox.
+                    </li>
+                    <li>
+                      Windows: Settings → Time & Language → Speech → Manage
+                      voices → Add voices → French.
+                    </li>
+                    <li>
+                      macOS: System Settings → Accessibility → Spoken Content →
+                      System Voice → Add… → French.
+                    </li>
+                    <li>
+                      Android: Settings → System/Accessibility → Text-to-speech
+                      → Install French voice data.
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Sliders */}
+            <SliderRow
+              label="Volume"
+              value={speechVolume}
+              min={0}
+              max={1}
+              step={0.01}
+              format={(v) => v.toFixed(2)}
+              fillPct={(v) => v * 100}
+              onChange={(v) => updateSpeechSetting("speechVolume", v)}
+              aria="Speech volume"
+            />
+            <SliderRow
+              label="Pitch"
+              value={speechPitch}
+              min={0}
+              max={2}
+              step={0.01}
+              format={(v) => v.toFixed(2)}
+              fillPct={(v) => (v / 2) * 100}
+              onChange={(v) => updateSpeechSetting("speechPitch", v)}
+              aria="Speech pitch"
+            />
+            <SliderRow
+              label="Speed"
+              value={speechRate}
+              min={0.5}
+              max={2}
+              step={0.01}
+              format={(v) => `${v.toFixed(2)}x`}
+              fillPct={(v) => ((v - 0.5) / 1.5) * 100}
+              onChange={(v) => updateSpeechSetting("speechRate", v)}
+              aria="Speech speed"
+            />
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                onClick={() => {
+                  setSpeechVolume(1);
+                  setSpeechPitch(1);
+                  setSpeechRate(1);
+                  setLS("speechVolume", "1");
+                  setLS("speechPitch", "1");
+                  setLS("speechRate", "1");
+                  dispatchSpeechChanged();
+                }}
+                className="border"
+              >
+                Reset
+              </Button>
+              <Button onClick={() => setIsSpeechOpen(false)}>Done</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

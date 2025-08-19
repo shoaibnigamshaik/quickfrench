@@ -147,3 +147,13 @@ body {
 button {
   cursor: pointer;
 }
+
+/* Make dialog backdrop opaque */
+[data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Ensure dialog backdrop is fully opaque */
+.dialog-overlay-opaque {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
