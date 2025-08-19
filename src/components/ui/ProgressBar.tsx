@@ -63,17 +63,7 @@ export const ProgressBar = ({
           }}
         />
       </div>
-      {typeof timeLeft === "number" && typeof timerTotal === "number" && (
-        <div className="mt-2 w-full rounded-full h-1.5 bg-[var(--muted)] border border-[var(--border)]" aria-hidden>
-          <div
-            className="h-1.5 rounded-full"
-            style={{
-              width: `${Math.max(0, Math.min(100, (timeLeft / timerTotal) * 100))}%`,
-              background: "linear-gradient(90deg, var(--danger-500), var(--warning-500))",
-            }}
-          />
-        </div>
-      )}
+  {/* Removed secondary time remaining bar as requested */}
     </div>
   );
 };

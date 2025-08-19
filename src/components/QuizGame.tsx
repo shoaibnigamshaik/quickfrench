@@ -335,9 +335,9 @@ export const QuizGame = ({
       typeof settings.timerDurationSec === "number" &&
       !quizState.quizComplete
     ) {
-      setTimeLeft(settings.timerDurationSec);
-      // Only run timer while answering (not while result showing)
+      // Initialize timeLeft on question change but don't reset when showing result.
       if (!quizState.showResult) {
+        setTimeLeft(settings.timerDurationSec);
         timerIntervalRef.current = setInterval(() => {
           setTimeLeft((prev) => {
             if (prev === null) return null;
@@ -411,12 +411,10 @@ export const QuizGame = ({
         streak={quizState.streak}
         score={quizState.score}
         timeLeft={
-          settings.timerEnabled && !quizState.showResult
-            ? timeLeft ?? undefined
-            : undefined
+          settings.timerEnabled ? timeLeft ?? undefined : undefined
         }
         timerTotal={
-          settings.timerEnabled && !quizState.showResult
+          settings.timerEnabled
             ? settings.timerDurationSec ?? undefined
             : undefined
         }
