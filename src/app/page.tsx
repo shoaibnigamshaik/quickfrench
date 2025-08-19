@@ -7,6 +7,7 @@ import { QuizComplete } from "@/components/QuizComplete";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useQuizState } from "@/hooks/useQuizState";
 import { topics } from "@/data/topics";
+import { Button } from "@/components/ui/button";
 
 const FrenchVocabularyQuiz = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("");
@@ -344,7 +345,7 @@ const FrenchVocabularyQuiz = () => {
           <p className="mb-4" style={{ color: "var(--muted-foreground)" }}>
             {error}
           </p>
-          <button
+          <Button
             className="inline-flex items-center px-5 py-2.5 rounded-lg border"
             style={{
               backgroundColor: "var(--muted)",
@@ -357,7 +358,7 @@ const FrenchVocabularyQuiz = () => {
             }}
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );

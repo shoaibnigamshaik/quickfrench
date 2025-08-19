@@ -539,42 +539,30 @@ const SettingsPage = () => {
         {/* Settings Content */}
         <div className="space-y-8">
           {settingsSections.map((section) => (
-            <div
-              key={section.title}
-              className="rounded-3xl shadow-lg border overflow-hidden"
-              style={{
-                backgroundColor: "var(--card)",
-                borderColor: "var(--border)",
-              }}
-            >
-              <div className="bg-gradient-to-r p-6 from-[var(--section-grad-from)] to-[var(--section-grad-to)] rounded-t-3xl">
-                <h2
-                  className="text-xl font-bold"
-                  style={{ color: "var(--foreground)" }}
-                >
-                  {section.title}
-                </h2>
-                {/* Cache offline notice removed */}
-              </div>
+            <section key={section.title} className="space-y-2">
+              <h2
+                className="text-xl font-bold pb-2 border-b"
+                style={{ color: "var(--foreground)", borderColor: "var(--border)" }}
+              >
+                {section.title}
+              </h2>
 
-      <div className="p-4">
+              <div className="">
                 {section.items.map((item, idx) => (
                   <div
                     key={item.label}
-        className="py-3 space-y-3 md:space-y-0 md:flex md:items-center md:justify-between"
+                    className="py-4 grid grid-cols-1 md:grid-cols-2 gap-3"
                     style={
                       idx !== section.items.length - 1
                         ? { borderBottom: "1px solid var(--border)" }
                         : undefined
                     }
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-8 h-8 rounded-md flex items-center justify-center">
-                        <item.icon
-                          className="h-5 w-5"
-                          style={{ color: "var(--muted-foreground)" }}
-                        />
-                      </div>
+                    <div className="flex items-start gap-3">
+                      <item.icon
+                        className="h-5 w-5 mt-0.5"
+                        style={{ color: "var(--muted-foreground)" }}
+                      />
                       <div>
                         <h3
                           className="font-semibold"
@@ -591,7 +579,7 @@ const SettingsPage = () => {
                       </div>
                     </div>
 
-        <div className="flex items-center md:justify-end">
+                    <div className="flex items-center justify-end md:justify-self-end">
                       {item.type === "quiz-mode" && (
                         <RadioGroup
                           value={quizMode}
@@ -628,7 +616,7 @@ const SettingsPage = () => {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <button
+                                    <Button
                                       type="button"
                                       aria-label={`More info: ${opt.label}`}
                                       className="inline-flex items-center justify-center p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-offset-2"
@@ -639,7 +627,7 @@ const SettingsPage = () => {
                                       }}
                                     >
                                       <Info className="h-4 w-4" aria-hidden />
-                                    </button>
+                                    </Button>
                                   </TooltipTrigger>
                                   <TooltipContent
                                     className="border"
@@ -668,45 +656,48 @@ const SettingsPage = () => {
                           {/* Segmented control */}
                           <div className="flex flex-wrap gap-2 md:justify-end">
                             {[5, 10, 15, 20].map((count) => (
-                              <button
+                              <Button
                                 key={count}
                                 onClick={() => handleQuestionCountChange(count)}
                                 className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                  questionCount === count ? "shadow-lg" : "border"
+                                  questionCount === count ? "border" : "border"
                                 }`}
                                 style={
                                   questionCount === count
                                     ? {
-                                        backgroundColor: "var(--primary-600)",
-                                        color: "#fff",
+                                        backgroundColor: "transparent",
+                                        color: "var(--foreground)",
+                                        borderColor: "var(--primary-600)",
                                       }
                                     : {
-                                        backgroundColor: "var(--card)",
+                                        backgroundColor: "transparent",
                                         color: "var(--foreground)",
                                         borderColor: "var(--border)",
                                       }
                                 }
                               >
                                 {count}
-                              </button>
+                              </Button>
                             ))}
-                            <button
+                            <Button
                               onClick={() => handleQuestionCountChange("all")}
-                              className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                questionCount === "all" ? "shadow-lg" : "border"
-                              }`}
+                              className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 border`}
                               style={
                                 questionCount === "all"
-                                  ? { backgroundColor: "#7c3aed", color: "#fff" }
+                                  ? {
+                                      backgroundColor: "transparent",
+                                      color: "var(--foreground)",
+                                      borderColor: "var(--primary-600)",
+                                    }
                                   : {
-                                      backgroundColor: "var(--card)",
+                                      backgroundColor: "transparent",
                                       color: "var(--foreground)",
                                       borderColor: "var(--border)",
                                     }
                               }
                             >
                               All
-                            </button>
+                            </Button>
                           </div>
 
                           {/* Always-visible numeric field */}
@@ -906,7 +897,7 @@ const SettingsPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           ))}
         </div>
 
@@ -919,7 +910,7 @@ const SettingsPage = () => {
             Changes will take effect immediately
           </span>
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={() => {
                 if (
                   confirm("Reset all learning progress? This cannot be undone.")
@@ -935,7 +926,7 @@ const SettingsPage = () => {
               }}
             >
               Reset Progress
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -981,7 +972,7 @@ const SettingsPage = () => {
                   Speech Settings
                 </h3>
               </div>
-              <button
+              <Button
                 onClick={() => setIsSpeechOpen(false)}
                 className="px-3 py-1.5 rounded-lg text-sm border"
                 style={{
@@ -992,7 +983,7 @@ const SettingsPage = () => {
                 aria-label="Close speech settings"
               >
                 Close
-              </button>
+              </Button>
             </div>
 
             {/* Hidden description for screen readers */}
@@ -1055,7 +1046,7 @@ const SettingsPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <button
+                  <Button
                     onClick={testSpeak}
                     disabled={frenchVoices.length === 0}
                     className={`px-3 py-2 rounded-lg text-sm border ${
@@ -1071,7 +1062,7 @@ const SettingsPage = () => {
                     aria-disabled={frenchVoices.length === 0}
                   >
                     Test
-                  </button>
+                  </Button>
                 </div>
                 {availableVoices.length === 0 && (
                   <p
