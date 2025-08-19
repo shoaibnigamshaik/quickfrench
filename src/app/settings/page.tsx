@@ -37,6 +37,14 @@ import {
 } from "@/components/ui/tooltip";
 
 interface SettingItem {
+  id:
+    | "theme"
+    | "quiz-mode"
+    | "timer"
+    | "srs-review"
+    | "question-count"
+    | "auto-advance"
+    | "speech";
   icon: LucideIcon;
   label: string;
   description: string;
@@ -67,12 +75,68 @@ const SettingsPage = () => {
   );
   const [questionCount, setQuestionCount] = React.useState<number | "all">(10);
   const [autoAdvance, setAutoAdvance] = React.useState(false);
-  const [autoAdvanceDelayMs, setAutoAdvanceDelayMs] =
-    React.useState<number>(1000);
+  // Store UI in seconds for consistency (0.3–5.0 s), persist as ms in localStorage
+  const [autoAdvanceDelaySec, setAutoAdvanceDelaySec] =
+    React.useState<number>(1.0);
   const [timerEnabled, setTimerEnabled] = React.useState<boolean>(false);
   const [timerDurationSec, setTimerDurationSec] = React.useState<number>(30);
-  const [showCustomInput, setShowCustomInput] = React.useState(false);
   const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
+  const modalRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Focus trap + ESC close for Speech modal
+  React.useEffect(() => {
+    if (!isSpeechOpen) return;
+    const root = modalRef.current;
+    if (!root) return;
+
+    const previouslyFocused = (document.activeElement as HTMLElement | null) || null;
+    // Try to focus the first focusable element inside the modal
+    const focusableSelectors = [
+      'button',
+      '[href]',
+      'input',
+      'select',
+      'textarea',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+    const focusables = Array.from(root.querySelectorAll<HTMLElement>(focusableSelectors)).filter(
+      (el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'),
+    );
+    if (focusables.length > 0) focusables[0].focus();
+    else root.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isSpeechOpen) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsSpeechOpen(false);
+        return;
+      }
+      if (e.key === 'Tab') {
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const current = document.activeElement as HTMLElement | null;
+        if (e.shiftKey) {
+          if (current === first || !root.contains(current)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (current === last || !root.contains(current)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [isSpeechOpen]);
   // Spaced repetition controls (persisted locally)
   const [srsReviewMode, setSrsReviewMode] = React.useState<boolean | undefined>(
     undefined,
@@ -145,7 +209,7 @@ const SettingsPage = () => {
       | "typing";
     const savedCount = localStorage.getItem("questionCount");
     const savedAutoAdvance = localStorage.getItem("autoAdvance");
-    const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
+  const savedAutoAdvanceDelay = localStorage.getItem("autoAdvanceDelayMs");
     const savedVoiceURI = localStorage.getItem("speechVoiceURI");
     const savedSrsReview = localStorage.getItem("srsReviewMode");
     const savedSrsMax = localStorage.getItem("srsMaxPerSession");
@@ -159,13 +223,9 @@ const SettingsPage = () => {
     if (savedMode) {
       setQuizMode(savedMode);
     }
-    if (savedCount) {
+  if (savedCount) {
       const count = savedCount === "all" ? "all" : parseInt(savedCount);
       setQuestionCount(count);
-      // Show custom input if the saved value isn't one of the preset buttons
-      if (typeof count === "number" && ![5, 10, 15, 20].includes(count)) {
-        setShowCustomInput(true);
-      }
     }
     if (savedAutoAdvance !== null) {
       setAutoAdvance(savedAutoAdvance === "true");
@@ -178,7 +238,7 @@ const SettingsPage = () => {
         Math.max(parseInt(savedAutoAdvanceDelay, 10), 300),
         5000,
       );
-      setAutoAdvanceDelayMs(ms);
+      setAutoAdvanceDelaySec(ms / 1000);
     }
 
     if (savedVoiceURI) setSpeechVoiceURI(savedVoiceURI);
@@ -293,16 +353,8 @@ const SettingsPage = () => {
   const handleQuestionCountChange = (count: number | "all") => {
     setQuestionCount(count);
     localStorage.setItem("questionCount", count.toString());
-    // Hide custom input if selecting a preset value
-    if (count === "all" || [5, 10, 15, 20].includes(count as number)) {
-      setShowCustomInput(false);
-    }
   };
 
-  // Handle custom button click
-  const handleCustomClick = () => {
-    setShowCustomInput(true);
-  };
 
   // Save auto advance to localStorage when changed
   const handleAutoAdvanceChange = () => {
@@ -311,10 +363,11 @@ const SettingsPage = () => {
     localStorage.setItem("autoAdvance", newAutoAdvance.toString());
   };
 
-  const handleAutoAdvanceDelayChange = (ms: number) => {
-    const clamped = Math.min(Math.max(ms, 300), 5000);
-    setAutoAdvanceDelayMs(clamped);
-    localStorage.setItem("autoAdvanceDelayMs", String(clamped));
+  const handleAutoAdvanceDelayChangeSec = (sec: number) => {
+    const clampedSec = Math.min(Math.max(sec, 0.3), 5.0);
+    setAutoAdvanceDelaySec(clampedSec);
+    const ms = Math.round(clampedSec * 1000);
+    localStorage.setItem("autoAdvanceDelayMs", String(ms));
   };
 
   const handleTimerToggle = () => {
@@ -335,6 +388,7 @@ const SettingsPage = () => {
       title: "Appearance",
       items: [
         {
+          id: "theme",
           icon: Palette,
           label: "Theme",
           description: "Choose your preferred theme",
@@ -347,12 +401,14 @@ const SettingsPage = () => {
       title: "Quiz Settings",
       items: [
         {
+          id: "quiz-mode",
           icon: CheckCircle,
           label: "Quiz Mode",
           description: "Choose how you want to answer questions",
           type: "quiz-mode" as const,
         },
         {
+          id: "timer",
           icon: Timer,
           label: "Timer",
           description: "Countdown per question (off by default)",
@@ -360,14 +416,7 @@ const SettingsPage = () => {
           value: timerEnabled,
         },
         {
-          icon: RefreshCw,
-          label: "Review (Spaced Repetition)",
-          description:
-            "Prioritize due items first; fallback to practice when nothing is due",
-          type: "auto-advance" as const, // reuse toggle visuals
-          value: !!srsReviewMode,
-        },
-        {
+          id: "question-count",
           icon: HelpCircle,
           label: "Questions per Quiz",
           description: "Choose how many questions per quiz",
@@ -375,6 +424,7 @@ const SettingsPage = () => {
         },
         // Translation Direction control removed; toggle now lives on TopicSelector
         {
+          id: "auto-advance",
           icon: FastForward,
           label: "Auto Advance",
           description:
@@ -383,10 +433,25 @@ const SettingsPage = () => {
           value: autoAdvance,
         },
         {
+          id: "speech",
           icon: Sliders,
           label: "Speech",
           description: "Choose voice and fine-tune volume, pitch, speed",
           type: "speech" as const,
+        },
+      ],
+    },
+    {
+      title: "Review Preferences",
+      items: [
+        {
+          id: "srs-review",
+          icon: RefreshCw,
+          label: "Review (Spaced Repetition)",
+          description:
+            "Prioritize due items first; fallback to practice when nothing is due",
+          type: "auto-advance" as const, // reuse toggle visuals
+          value: !!srsReviewMode,
         },
       ],
     },
@@ -455,6 +520,7 @@ const SettingsPage = () => {
                 className="h-6 w-6"
                 style={{ color: "var(--muted-foreground)" }}
               />
+              <span className="sr-only">Back</span>
             </Link>
             <div>
               <h1
@@ -491,11 +557,11 @@ const SettingsPage = () => {
                 {/* Cache offline notice removed */}
               </div>
 
-              <div className="p-4">
+      <div className="p-4">
                 {section.items.map((item, idx) => (
                   <div
                     key={item.label}
-                    className="flex items-center justify-between py-3"
+        className="py-3 space-y-3 md:space-y-0 md:flex md:items-center md:justify-between"
                     style={
                       idx !== section.items.length - 1
                         ? { borderBottom: "1px solid var(--border)" }
@@ -525,7 +591,7 @@ const SettingsPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center">
+        <div className="flex items-center md:justify-end">
                       {item.type === "quiz-mode" && (
                         <RadioGroup
                           value={quizMode}
@@ -561,10 +627,28 @@ const SettingsPage = () => {
                               <Label className="text-sm">{opt.label}</Label>
                               <TooltipProvider>
                                 <Tooltip>
-                                  <TooltipTrigger>
-                                    <Info className="h-4 w-4" style={{ color: "var(--muted-foreground)" }} />
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      aria-label={`More info: ${opt.label}`}
+                                      className="inline-flex items-center justify-center p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                      style={{
+                                        color: "var(--muted-foreground)",
+                                        //@ts-ignore custom CSS var may not be in TS types
+                                        outlineColor: "var(--primary-600)",
+                                      }}
+                                    >
+                                      <Info className="h-4 w-4" aria-hidden />
+                                    </button>
                                   </TooltipTrigger>
-                                  <TooltipContent>
+                                  <TooltipContent
+                                    className="border"
+                                    style={{
+                                      backgroundColor: "var(--card)",
+                                      color: "var(--foreground)",
+                                      borderColor: "var(--border)",
+                                    }}
+                                  >
                                     <div className="font-semibold mb-1">{opt.label}</div>
                                     <ul className="list-disc pl-4 space-y-0.5">
                                       {opt.tips.map((t) => (
@@ -580,17 +664,15 @@ const SettingsPage = () => {
                       )}
 
                       {item.type === "question-count" && (
-                        <div className="space-y-4">
-                          {/* Quick Select Buttons */}
-                          <div className="flex flex-wrap gap-2 justify-end">
+                        <div className="space-y-3 w-full md:w-auto">
+                          {/* Segmented control */}
+                          <div className="flex flex-wrap gap-2 md:justify-end">
                             {[5, 10, 15, 20].map((count) => (
                               <button
                                 key={count}
                                 onClick={() => handleQuestionCountChange(count)}
-                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                  questionCount === count
-                                    ? "shadow-lg"
-                                    : "border"
+                                className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 ${
+                                  questionCount === count ? "shadow-lg" : "border"
                                 }`}
                                 style={
                                   questionCount === count
@@ -610,15 +692,12 @@ const SettingsPage = () => {
                             ))}
                             <button
                               onClick={() => handleQuestionCountChange("all")}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                              className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 ${
                                 questionCount === "all" ? "shadow-lg" : "border"
                               }`}
                               style={
                                 questionCount === "all"
-                                  ? {
-                                      backgroundColor: "#7c3aed",
-                                      color: "#fff",
-                                    }
+                                  ? { backgroundColor: "#7c3aed", color: "#fff" }
                                   : {
                                       backgroundColor: "var(--card)",
                                       color: "var(--foreground)",
@@ -628,80 +707,52 @@ const SettingsPage = () => {
                             >
                               All
                             </button>
-                            <button
-                              onClick={handleCustomClick}
-                              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                showCustomInput &&
-                                typeof questionCount === "number" &&
-                                ![5, 10, 15, 20].includes(questionCount)
-                                  ? "shadow-lg"
-                                  : "border"
-                              }`}
-                              style={
-                                showCustomInput &&
-                                typeof questionCount === "number" &&
-                                ![5, 10, 15, 20].includes(questionCount)
-                                  ? {
-                                      backgroundColor: "var(--accent-600)",
-                                      color: "#fff",
-                                    }
-                                  : {
-                                      backgroundColor: "var(--card)",
-                                      color: "var(--foreground)",
-                                      borderColor: "var(--border)",
-                                    }
-                              }
-                            >
-                              Custom
-                            </button>
                           </div>
 
-                          {/* Custom Input - Only shown when custom button is clicked */}
-                          {showCustomInput && (
-                            <div className="flex items-center justify-end space-x-2">
-                              <label
-                                className="text-sm"
-                                style={{ color: "var(--muted-foreground)" }}
-                              >
-                                Enter amount:
-                              </label>
-                              <input
-                                type="number"
-                                min="1"
-                                max="50"
-                                value={
-                                  typeof questionCount === "number"
-                                    ? questionCount
-                                    : ""
+                          {/* Always-visible numeric field */}
+                          <div className="flex items-center md:justify-end gap-2">
+                            <label
+                              className="text-sm"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
+                              Or enter a number:
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              max={50}
+                              value={
+                                typeof questionCount === "number" ? questionCount : 10
+                              }
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value || "10", 10);
+                                if (!Number.isNaN(value)) {
+                                  const clamped = Math.max(1, Math.min(50, value));
+                                  handleQuestionCountChange(clamped);
                                 }
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value);
-                                  if (value >= 1 && value <= 50) {
-                                    handleQuestionCountChange(value);
-                                  }
-                                }}
-                                placeholder={
-                                  typeof questionCount === "number"
-                                    ? questionCount.toString()
-                                    : "10"
-                                }
-                                className="w-20 px-3 py-2 rounded-lg text-sm focus:outline-none"
-                                style={{
-                                  backgroundColor: "var(--card)",
-                                  color: "var(--foreground)",
-                                  border: `1px solid var(--border)`,
-                                }}
-                                autoFocus
-                              />
-                            </div>
-                          )}
+                              }}
+                              className="w-24 px-3 py-2 rounded-lg text-sm focus:outline-none"
+                              style={{
+                                backgroundColor: "var(--card)",
+                                color: "var(--foreground)",
+                                border: `1px solid var(--border)`,
+                              }}
+                              aria-label="Custom question count"
+                            />
+                            <span
+                              className="text-xs"
+                              style={{ color: "var(--muted-foreground)" }}
+                            >
+                              (1–50)
+                            </span>
+                          </div>
 
                           <div className="text-right">
                             <p
                               className="text-xs"
                               style={{ color: "var(--muted-foreground)" }}
                             >
-                              Selected:{" "}
+                              Selected: {" "}
                               <strong>
                                 {questionCount === "all"
                                   ? "All available questions"
@@ -749,37 +800,37 @@ const SettingsPage = () => {
                               />
                             );
                           })()}
-                          {item.label === "Auto Advance" ? (
+                          {item.id === "auto-advance" ? (
                             <div className="flex items-center gap-2">
                               <label
                                 className="text-sm"
                                 style={{ color: "var(--muted-foreground)" }}
                               >
-                                Delay:
+                                Delay (s):
                               </label>
                               <Input
                                 type="number"
-                                min={300}
-                                max={5000}
-                                step={100}
-                                value={autoAdvanceDelayMs}
-                                onChange={(e) =>
-                                  handleAutoAdvanceDelayChange(
-                                    parseInt(e.target.value || "1000", 10),
-                                  )
-                                }
+                                min={0.3}
+                                max={5.0}
+                                step={0.1}
+                                value={autoAdvanceDelaySec}
+                                onChange={(e) => {
+                                  const v = parseFloat(e.target.value || '1');
+                                  if (!Number.isNaN(v)) handleAutoAdvanceDelayChangeSec(v);
+                                }}
                                 disabled={!autoAdvance}
                                 className="w-24"
-                                aria-label="Auto-advance delay in milliseconds"
+                                aria-label="Auto-advance delay in seconds"
+                                aria-labelledby={`setting-${section.title}-${idx}`}
                               />
                               <span
                                 className="text-sm"
                                 style={{ color: "var(--muted-foreground)" }}
                               >
-                                ms
+                                s
                               </span>
                             </div>
-                          ) : item.label === "Timer" ? (
+                          ) : item.id === "timer" ? (
                             <div className="flex items-center gap-2">
                               <label
                                 className="text-sm"
@@ -795,12 +846,13 @@ const SettingsPage = () => {
                                 value={timerDurationSec}
                                 onChange={(e) =>
                                   handleTimerDurationChange(
-                                    parseInt(e.target.value || "30", 10),
+                                    parseInt(e.target.value || '30', 10),
                                   )
                                 }
                                 disabled={!timerEnabled}
                                 className="w-24"
                                 aria-label="Timer duration in seconds"
+                                aria-labelledby={`setting-${section.title}-${idx}`}
                               />
                               <span
                                 className="text-sm"
@@ -815,7 +867,7 @@ const SettingsPage = () => {
                                 className="text-sm"
                                 style={{ color: "var(--muted-foreground)" }}
                               >
-                                Max New per Quiz:
+                                Max new per quiz:
                               </label>
                               <Input
                                 type="number"
@@ -824,19 +876,14 @@ const SettingsPage = () => {
                                 step={1}
                                 value={srsNewPerSession ?? 10}
                                 onChange={(e) => {
-                                  const n = parseInt(
-                                    e.target.value || "10",
-                                    10,
-                                  );
+                                  const n = parseInt(e.target.value || "10", 10);
                                   const clamped = Math.max(1, Math.min(50, n));
                                   setSrsNewPerSession(clamped);
-                                  localStorage.setItem(
-                                    "srsNewPerSession",
-                                    String(clamped),
-                                  );
+                                  localStorage.setItem("srsNewPerSession", String(clamped));
                                 }}
                                 className="w-24"
                                 aria-label="SRS new items per quiz"
+                                disabled={!srsReviewMode}
                               />
                             </div>
                           )}
@@ -897,8 +944,8 @@ const SettingsPage = () => {
       {isSpeechOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          aria-modal
-          role="dialog"
+                    aria-modal
+                    role="dialog"
         >
           <div
             className="absolute inset-0"
@@ -912,6 +959,10 @@ const SettingsPage = () => {
               backgroundColor: "var(--card)",
               borderColor: "var(--border)",
             }}
+            ref={modalRef}
+            aria-labelledby="speech-modal-title"
+            aria-describedby="speech-modal-desc"
+            tabIndex={-1}
           >
             <div
               className="flex items-center justify-between px-6 py-4 border-b"
@@ -924,6 +975,7 @@ const SettingsPage = () => {
                 />
                 <h3
                   className="text-lg font-semibold"
+                  id="speech-modal-title"
                   style={{ color: "var(--foreground)" }}
                 >
                   Speech Settings
@@ -937,10 +989,16 @@ const SettingsPage = () => {
                   color: "var(--muted-foreground)",
                   borderColor: "var(--border)",
                 }}
+                aria-label="Close speech settings"
               >
                 Close
               </button>
             </div>
+
+            {/* Hidden description for screen readers */}
+            <p id="speech-modal-desc" className="sr-only">
+              Choose a French voice and adjust volume, pitch, and speed. Press Escape to close.
+            </p>
 
             <div className="px-6 py-5 space-y-5">
               {/* Voice picker */}
@@ -948,6 +1006,7 @@ const SettingsPage = () => {
                 <label
                   className="text-sm font-medium"
                   style={{ color: "var(--foreground)" }}
+                  id="voice-label"
                 >
                   Voice (French only)
                 </label>
@@ -961,7 +1020,7 @@ const SettingsPage = () => {
                         dispatchSpeechChanged();
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger aria-labelledby="voice-label" aria-label="French voice selector">
                         <SelectValue
                           placeholder={
                             selectedVoice
@@ -972,7 +1031,14 @@ const SettingsPage = () => {
                           }
                         />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent
+                        className="border"
+                        style={{
+                          backgroundColor: "var(--card)",
+                          color: "var(--foreground)",
+                          borderColor: "var(--border)",
+                        }}
+                      >
                         {frenchVoices.map((v) => (
                           <SelectItem key={v.voiceURI} value={v.voiceURI}>
                             <div className="flex items-center justify-between gap-2">
@@ -1002,6 +1068,7 @@ const SettingsPage = () => {
                       color: "var(--primary-700)",
                       borderColor: "var(--border)",
                     }}
+                    aria-disabled={frenchVoices.length === 0}
                   >
                     Test
                   </button>
