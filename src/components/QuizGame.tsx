@@ -380,50 +380,69 @@ export const QuizGame = ({
         <div
           className="p-5 sm:p-6 text-center"
           style={{
+            // Keep ONLY the primary gradient layer for the question banner
             background:
               "linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))",
           }}
         >
-          <div className="inline-flex flex-wrap justify-center items-center gap-2">
-            <div
-              className="text-3xl sm:text-4xl font-bold text-white rounded-2xl py-3 sm:py-4 px-5 sm:px-6 inline-flex flex-wrap justify-center items-center gap-2"
-              style={{
-                background:
-                  "linear-gradient(90deg, var(--section-grad-from), var(--section-grad-to))",
-              }}
-            >
-              {wordParts.map((part, idx) => {
-                const trimmed = part.trim();
-                return (
-                  <React.Fragment key={`wp-${idx}-${trimmed}`}>
-                    <span className="inline-flex items-center gap-1">
-                      <span>{trimmed}</span>
-                      {settings.translationDirection ===
-                        "french-to-english" && (
-                        <button
-                          type="button"
-                          aria-label={`Pronounce: ${trimmed}`}
-                          title={
-                            hasFrenchVoice
-                              ? `Pronounce: ${trimmed}`
-                              : "Pronunciation unavailable: no French voice in this browser"
-                          }
-                          onClick={() => hasFrenchVoice && speakFrench(trimmed)}
-                          disabled={!hasFrenchVoice}
-                          className={`inline-flex items-center justify-center rounded-full p-1.5 focus:outline-none focus:ring-2 focus:ring-white/70 ${!hasFrenchVoice ? "opacity-60 cursor-not-allowed" : ""}`}
-                          style={{ color: "white" }}
-                        >
-                          <Volume2 className="h-5 w-5" />
-                        </button>
-                      )}
-                    </span>
-                    {idx < wordParts.length - 1 && (
-                      <span className="px-1">/</span>
+          <div className="inline-flex flex-wrap justify-center items-center gap-3 max-w-full">
+            {/* Word variants rendered as chips (previously slash-separated) */}
+            {wordParts.map((part, idx) => {
+              const raw = part.trim();
+              // Extract gender markers like (m), (f), (mpl), (fpl)
+              const genderMatches = raw.match(/\((?:m|f|mpl|fpl)\)/gi) || [];
+              const genders = Array.from(
+                new Set(
+                  genderMatches.map((g) => g.replace(/[()]/g, "").toLowerCase()),
+                ),
+              );
+              // Clean the display text by removing the gender markers
+              const display = raw.replace(/\((?:m|f|mpl|fpl)\)/gi, "").trim();
+              return (
+                <div
+                  key={`chip-${idx}-${raw}`}
+                  className="group relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-white text-2xl sm:text-3xl font-semibold shadow-lg"
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    backdropFilter: "blur(4px)",
+                    border: "1px solid rgba(255,255,255,0.25)",
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="leading-none break-words">{display}</span>
+                    {genders.length > 0 && (
+                      <span className="flex items-center gap-1">
+                        {genders.map((g) => (
+                          <span
+                            key={g}
+                            className="text-[10px] font-bold uppercase tracking-wide rounded-full px-1.5 py-0.5 border border-white/40 bg-white/15 text-white/90"
+                          >
+                            {g}
+                          </span>
+                        ))}
+                      </span>
                     )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
+                  </span>
+                  {settings.translationDirection === "french-to-english" && (
+                    <button
+                      type="button"
+                      aria-label={`Pronounce: ${display}`}
+                      title={
+                        hasFrenchVoice
+                          ? `Pronounce: ${display}`
+                          : "Pronunciation unavailable: no French voice in this browser"
+                      }
+                      onClick={() => hasFrenchVoice && speakFrench(display)}
+                      disabled={!hasFrenchVoice}
+                      className={`inline-flex items-center justify-center rounded-full p-1.5 focus:outline-none focus:ring-2 focus:ring-white/70 transition-colors bg-white/10 hover:bg-white/20 ${!hasFrenchVoice ? "opacity-60 cursor-not-allowed" : ""}`}
+                      style={{ color: "white" }}
+                    >
+                      <Volume2 className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
