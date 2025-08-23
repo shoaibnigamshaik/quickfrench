@@ -94,7 +94,6 @@ export const QuizGame = ({
     onIDontKnow,
   });
 
-
   // Prepare a French voice or saved voice if available
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -393,7 +392,9 @@ export const QuizGame = ({
               const genderMatches = raw.match(/\((?:m|f|mpl|fpl)\)/gi) || [];
               const genders = Array.from(
                 new Set(
-                  genderMatches.map((g) => g.replace(/[()]/g, "").toLowerCase()),
+                  genderMatches.map((g) =>
+                    g.replace(/[()]/g, "").toLowerCase(),
+                  ),
                 ),
               );
               // Clean the display text by removing the gender markers

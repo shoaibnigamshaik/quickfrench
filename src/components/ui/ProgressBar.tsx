@@ -15,6 +15,13 @@ export const ProgressBar = ({
   timeLeft,
   timerTotal,
 }: ProgressBarProps) => {
+  const showTimer =
+    typeof timeLeft === "number" && typeof timerTotal === "number";
+  const timeFraction = showTimer
+    ? Math.max(0, Math.min(1, timeLeft! / timerTotal!))
+    : 0;
+  // We'll use a normalized 100-length circumference for easy dashoffset math
+  const circleDashOffset = (1 - timeFraction) * 100;
   return (
     <div className="mb-6">
       <div className="flex justify-between items-center mb-1">
@@ -25,19 +32,67 @@ export const ProgressBar = ({
           Question {currentQuestion + 1} of {totalQuestions}
         </span>
         <div className="flex items-center space-x-4">
-          {typeof timeLeft === "number" && typeof timerTotal === "number" && (
-            <span
-              className="text-sm font-semibold px-2 py-0.5 rounded-full border"
+          {showTimer && (
+            <div
+              className="flex items-center gap-2 text-sm font-semibold px-2 py-0.5 rounded-full border select-none"
               style={{
                 color: "var(--foreground)",
                 borderColor: "var(--border)",
                 backgroundColor: "var(--muted)",
               }}
-              aria-label={`Time left ${timeLeft}s`}
+              aria-label={`Time left ${timeLeft}s out of ${timerTotal}s`}
               title="Time left"
             >
-              ⏱ {timeLeft}s
-            </span>
+              <div className="relative w-6 h-6" aria-hidden="true">
+                <svg
+                  viewBox="0 0 36 36"
+                  className="w-6 h-6 rotate-[-90deg]"
+                  role="presentation"
+                >
+                  {/* Track */}
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="none"
+                    stroke="var(--border)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    opacity={0.35}
+                  />
+                  {/* Progress */}
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="none"
+                    stroke="url(#timerGradient)"
+                    strokeWidth="3"
+                    strokeDasharray="100 100"
+                    strokeDashoffset={circleDashOffset}
+                    strokeLinecap="round"
+                    style={{ transition: "stroke-dashoffset 0.4s linear" }}
+                  />
+                  <defs>
+                    <linearGradient
+                      id="timerGradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="0%"
+                    >
+                      <stop offset="0%" stopColor="var(--cta-grad-from)" />
+                      <stop offset="100%" stopColor="var(--cta-grad-to)" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                {/* Inner icon (stopwatch emoji) */}
+                <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
+                  ⏱
+                </div>
+              </div>
+              <span>{timeLeft}s</span>
+            </div>
           )}
           <span
             className="text-sm"
