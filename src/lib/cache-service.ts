@@ -22,6 +22,11 @@ import type {
   ShoppingCategory,
   EducationCategory,
   WorkCategory,
+  Colour,
+  Hobby,
+  WardrobeItem,
+  ICTItem,
+  Culture,
 } from "@/types/quiz";
 
 class VocabularyCacheService {
@@ -56,6 +61,12 @@ class VocabularyCacheService {
   public getFamily = () => this.fetchFromApi<FamilyItem[]>("/data/family.json");
   public getHome = () => this.fetchFromApi<HomeItem[]>("/data/home.json");
   public getNature = () => this.fetchFromApi<NatureItem[]>("/data/nature.json");
+  public getColours = () => this.fetchFromApi<Colour[]>("/data/colours.json");
+  public getHobbies = () => this.fetchFromApi<Hobby[]>("/data/hobbies.json");
+  public getWardrobe = () =>
+    this.fetchFromApi<WardrobeItem[]>("/data/wardrobe.json");
+  public getICT = () => this.fetchFromApi<ICTItem[]>("/data/ict.json");
+  public getCulture = () => this.fetchFromApi<Culture[]>("/data/culture.json");
   public getShoppingCategories = () =>
     this.fetchFromApi<ShoppingCategory[]>("/data/shopping-categories.json");
   public getEducationCategories = () =>
