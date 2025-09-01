@@ -1,3 +1,5 @@
+import { Flame } from "lucide-react";
+
 interface ProgressBarProps {
   currentQuestion: number;
   totalQuestions: number;
@@ -95,10 +97,11 @@ export const ProgressBar = ({
             </div>
           )}
           <span
-            className="text-sm"
-            style={{ color: "var(--muted-foreground)" }}
+            className="inline-flex items-center gap-1 text-sm font-semibold"
+            style={{ color: "var(--primary-600)" }}
           >
-            Streak: {streak}
+            <Flame className="h-3 w-3" />
+            {streak}
           </span>
           <span
             className="text-sm font-semibold"
