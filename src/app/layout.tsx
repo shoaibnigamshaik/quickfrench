@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React from "react";
+import { ThemeInitializer } from "@/components/ui/ThemeInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,26 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Theme setup to avoid FOUC */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(() => { try {
-              const storageKey = 'theme';
-              const root = document.documentElement;
-              const stored = localStorage.getItem(storageKey);
-              const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              const shouldDark = stored === 'dark' || (stored === 'auto' || !stored) && prefersDark;
-              root.classList.toggle('dark', shouldDark);
-            } catch (_) {} })();`,
-          }}
-        />
-        {/* Ensure any previously-installed service workers are unregistered */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations?.().then(regs => regs.forEach(r => r.unregister())).catch(() => {}); } catch(_) {} }",
-          }}
-        />
+        <ThemeInitializer />
         <div className="min-h-[100dvh] bg-[var(--background)]">
           <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
             {children}

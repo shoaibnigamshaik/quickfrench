@@ -374,7 +374,7 @@ export const QuizGame = ({
 
       {/* Quiz Card */}
       <div
-        className="rounded-3xl shadow-2xl overflow-hidden border"
+        className="rounded-3xl overflow-hidden border"
         style={{
           backgroundColor: "var(--card)",
           borderColor: "var(--border)",
