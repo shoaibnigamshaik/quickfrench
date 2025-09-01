@@ -323,6 +323,7 @@ export const QuizGame = ({
     settings.quizMode,
     onTypedSubmit,
     onIDontKnow,
+    quizState.quizComplete,
   ]);
 
   // Pause timer when showing result
