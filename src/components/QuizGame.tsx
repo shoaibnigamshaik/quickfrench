@@ -284,29 +284,27 @@ export const QuizGame = ({
       typeof settings.timerDurationSec === "number" &&
       !quizState.quizComplete
     ) {
-      // Initialize timeLeft on question change but don't reset when showing result.
-      if (!quizState.showResult) {
-        setTimeLeft(settings.timerDurationSec);
-        timerIntervalRef.current = setInterval(() => {
-          setTimeLeft((prev) => {
-            if (prev === null) return null;
-            if (prev <= 1) {
-              // Time up: mark as wrong or submit depending on mode
-              clearInterval(timerIntervalRef.current as NodeJS.Timeout);
-              timerIntervalRef.current = null;
-              // In MCQ, select a special sentinel to trigger wrong handling via onIDontKnow
-              if (onIDontKnow) {
-                onIDontKnow();
-              } else if (settings.quizMode === "typing") {
-                // Ensure a submit happens with current typed text (likely empty)
-                onTypedSubmit();
-              }
-              return 0;
+      // Initialize timeLeft on question change
+      setTimeLeft(settings.timerDurationSec);
+      timerIntervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev === null) return null;
+          if (prev <= 1) {
+            // Time up: mark as wrong or submit depending on mode
+            clearInterval(timerIntervalRef.current as NodeJS.Timeout);
+            timerIntervalRef.current = null;
+            // In MCQ, select a special sentinel to trigger wrong handling via onIDontKnow
+            if (onIDontKnow) {
+              onIDontKnow();
+            } else if (settings.quizMode === "typing") {
+              // Ensure a submit happens with current typed text (likely empty)
+              onTypedSubmit();
             }
-            return prev - 1;
-          });
-        }, 1000);
-      }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } else {
       setTimeLeft(null);
     }
@@ -317,17 +315,23 @@ export const QuizGame = ({
         timerIntervalRef.current = null;
       }
     };
-    // Re-run when question index, showResult, or timer settings change
+    // Only re-run when question index or timer settings change
   }, [
     quizState.currentQuestion,
-    quizState.showResult,
-    quizState.quizComplete,
     settings.timerEnabled,
     settings.timerDurationSec,
     settings.quizMode,
     onTypedSubmit,
     onIDontKnow,
   ]);
+
+  // Pause timer when showing result
+  useEffect(() => {
+    if (quizState.showResult && timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+  }, [quizState.showResult]);
 
   if (quizState.questions.length === 0) {
     return (

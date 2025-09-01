@@ -44,8 +44,7 @@ export const useVocabulary = () => {
               vocabularyService.getHobbies() as Promise<VocabularyItem[]>,
             wardrobe: () =>
               vocabularyService.getWardrobe() as Promise<VocabularyItem[]>,
-            ict: () =>
-              vocabularyService.getICT() as Promise<VocabularyItem[]>,
+            ict: () => vocabularyService.getICT() as Promise<VocabularyItem[]>,
             shopping: () =>
               vocabularyService.getShopping() as Promise<VocabularyItem[]>,
             education: () =>
