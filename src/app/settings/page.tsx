@@ -105,7 +105,8 @@ const SettingsPage = () => {
     },
   );
   const [autoAdvance, setAutoAdvance] = React.useState<boolean>(() => {
-    return getLS("autoAdvance") === "true";
+    const saved = getLS("autoAdvance");
+    return saved === null ? true : saved === "true";
   });
   // Store UI in seconds for consistency (0.3–5.0 s), persist as ms in localStorage
   const [autoAdvanceDelaySec, setAutoAdvanceDelaySec] = React.useState<number>(
