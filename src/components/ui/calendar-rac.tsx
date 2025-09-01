@@ -67,27 +67,40 @@ const CalendarGridComponent = ({
           <CalendarCellRac
             date={date}
             className={cn(
-              "relative flex size-9 items-center justify-center whitespace-nowrap rounded-lg border border-transparent p-0 text-sm font-normal text-foreground outline-offset-2 duration-150 [transition-property:color,background-color,border-radius,box-shadow] focus:outline-none data-[disabled]:pointer-events-none data-[unavailable]:pointer-events-none data-[focus-visible]:z-10 data-[hovered]:bg-accent data-[selected]:bg-primary data-[hovered]:text-foreground data-[selected]:text-primary-foreground data-[unavailable]:line-through data-[disabled]:opacity-30 data-[unavailable]:opacity-30 data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring/70",
-              // Range-specific styles
-              isRange &&
-                "data-[selected]:rounded-none data-[selection-end]:rounded-e-lg data-[selection-start]:rounded-s-lg data-[invalid]:bg-red-100 data-[selected]:bg-accent data-[selected]:text-foreground data-[invalid]:data-[selection-end]:[&:not([data-hover])]:bg-destructive data-[invalid]:data-[selection-start]:[&:not([data-hover])]:bg-destructive data-[selection-end]:bg-accent data-[selection-start]:bg-accent data-[selection-end]:text-foreground data-[selection-start]:text-foreground data-[selection-end]:after:pointer-events-none data-[selection-start]:after:pointer-events-none data-[selection-end]:after:absolute data-[selection-start]:after:absolute data-[selection-end]:after:top-1 data-[selection-start]:after:top-1 data-[selection-end]:after:start-1/2 data-[selection-start]:after:start-1/2 data-[selection-end]:after:-translate-x-1/2 data-[selection-start]:after:-translate-x-1/2 data-[selection-end]:after:size-[5px] data-[selection-start]:after:size-[5px] data-[selection-end]:after:rounded-full data-[selection-start]:after:rounded-full data-[selection-end]:after:bg-[var(--primary-600)] data-[selection-start]:after:bg-[var(--primary-600)]",
-              // Today indicator styles (no border, keep bottom dot)
-              date.compare(now) === 0 &&
-                cn(
-                  "after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary",
-                  isRange
-                    ? "data-[selection-end]:[&:not([data-hover])]:after:bg-background data-[selection-start]:[&:not([data-hover])]:after:bg-background"
-                    : "data-[selected]:after:bg-background",
-                ),
-              // Completed day marker (small dot at top-right). Use before: to not clash with today 'after:' dot.
+              // Base styles
+              "relative flex size-9 items-center justify-center whitespace-nowrap rounded-lg border border-transparent p-0 text-sm font-normal text-foreground outline-offset-2 duration-150 transition-colors focus:outline-none",
+              "data-[disabled]:pointer-events-none data-[unavailable]:pointer-events-none data-[focus-visible]:z-10 data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring/70",
+              "data-[hovered]:bg-accent data-[selected]:bg-primary data-[hovered]:text-foreground data-[selected]:text-primary-foreground",
+              "data-[unavailable]:line-through data-[disabled]:opacity-30 data-[unavailable]:opacity-30",
+
+              // Range-specific styles - simplified
+              isRange && [
+                "data-[selected]:bg-accent data-[selected]:text-foreground",
+                "data-[selection-start]:rounded-l-lg data-[selection-end]:rounded-r-lg",
+                "data-[selection-start]:bg-accent data-[selection-end]:bg-accent",
+                "data-[selection-start]:text-foreground data-[selection-end]:text-foreground",
+                // Selection indicators
+                "data-[selection-start]:before:absolute data-[selection-start]:before:top-1 data-[selection-start]:before:left-1/2 data-[selection-start]:before:-translate-x-1/2 data-[selection-start]:before:w-1 data-[selection-start]:before:h-1 data-[selection-start]:before:rounded-full data-[selection-start]:before:bg-primary data-[selection-start]:before:z-10",
+                "data-[selection-end]:after:absolute data-[selection-end]:after:top-1 data-[selection-end]:after:left-1/2 data-[selection-end]:after:-translate-x-1/2 data-[selection-end]:after:w-1 data-[selection-end]:after:h-1 data-[selection-end]:after:rounded-full data-[selection-end]:after:bg-primary data-[selection-end]:after:z-10",
+              ],
+
+              // Today indicator - simplified
+              date.compare(now) === 0 && [
+                "after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary after:z-10",
+                isRange
+                  ? "data-[selection-start]:after:bg-background data-[selection-end]:after:bg-background"
+                  : "data-[selected]:after:bg-background",
+              ],
+
+              // Completed day marker - simplified
               (() => {
                 const y = String(date.year).padStart(4, "0");
                 const m = String(date.month).padStart(2, "0");
                 const d = String(date.day).padStart(2, "0");
                 const key = `${y}-${m}-${d}`;
                 return markedDates.includes(key)
-                  ? "before:pointer-events-none before:absolute before:top-1 before:right-1 before:z-10 before:size-[5px] before:rounded-full before:bg-[var(--success-600)]"
-                  : undefined;
+                  ? "before:absolute before:top-1 before:right-1 before:w-1 before:h-1 before:rounded-full before:bg-green-500 before:z-10"
+                  : "";
               })(),
             )}
           />
