@@ -23,6 +23,7 @@ import {
   generateQuestionsSrs,
   checkTypedAnswer,
   loadQuizSettings,
+  shuffleArray,
 } from "@/lib/quiz-utils";
 import {
   recordAttempt,
@@ -95,6 +96,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   // Generate questions when topic is selected
   useEffect(() => {
     if (settings.selectedTopic && vocabulary.length > 0) {
+      const shuffledVocabulary = shuffleArray(vocabulary);
       const nowTs = Date.now();
       const maybeUseSrs = (() => {
         // If explicit toggle, honor it; else enable if there are any due items
@@ -117,7 +119,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       if (topic === "adverbs") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as Adverb[],
+              shuffledVocabulary as Adverb[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -130,7 +132,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
               },
             )
           : generateQuestionsProgressAware(
-              vocabulary as Adverb[],
+              shuffledVocabulary as Adverb[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -138,14 +140,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "food") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as Food[],
+              shuffledVocabulary as Food[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as Food[],
+              shuffledVocabulary as Food[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -153,14 +155,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "body") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as BodyItem[],
+              shuffledVocabulary as BodyItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as BodyItem[],
+              shuffledVocabulary as BodyItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -168,14 +170,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "family") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as FamilyItem[],
+              shuffledVocabulary as FamilyItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as FamilyItem[],
+              shuffledVocabulary as FamilyItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -183,14 +185,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "home") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as HomeItem[],
+              shuffledVocabulary as HomeItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as HomeItem[],
+              shuffledVocabulary as HomeItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -198,14 +200,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "nature") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as NatureItem[],
+              shuffledVocabulary as NatureItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as NatureItem[],
+              shuffledVocabulary as NatureItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -214,14 +216,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         // ICT behaves like nature: category-based options
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as ICTItem[],
+              shuffledVocabulary as ICTItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as ICTItem[],
+              shuffledVocabulary as ICTItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -229,14 +231,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "shopping") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as ShoppingItem[],
+              shuffledVocabulary as ShoppingItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as ShoppingItem[],
+              shuffledVocabulary as ShoppingItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -244,14 +246,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "education") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as EducationItem[],
+              shuffledVocabulary as EducationItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as EducationItem[],
+              shuffledVocabulary as EducationItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -259,14 +261,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else if (topic === "work") {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary as WorkItem[],
+              shuffledVocabulary as WorkItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary as WorkItem[],
+              shuffledVocabulary as WorkItem[],
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -274,14 +276,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       } else {
         questions = maybeUseSrs
           ? generateQuestionsSrs(
-              vocabulary,
+              shuffledVocabulary,
               settings.questionCount,
               settings.translationDirection,
               topic,
               { maxNew: settings.srsNewPerSession, nowTs },
             )
           : generateQuestionsProgressAware(
-              vocabulary,
+              shuffledVocabulary,
               settings.questionCount,
               settings.translationDirection,
               topic,
@@ -457,6 +459,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     // Trigger regeneration by toggling selectedTopic (noop) to same value, or recompute directly
     // Recompute questions immediately based on current vocabulary, topic, and settings
     // Note: This relies on the latest `vocabulary` and `topic` from hook scope
+    const shuffledVocabulary = shuffleArray(vocabulary);
     const nowTs = Date.now();
     const maybeUseSrs = (() => {
       if (typeof settings.srsReviewMode === "boolean")
@@ -477,14 +480,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     if (topic === "adverbs") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as Adverb[],
+            shuffledVocabulary as unknown as Adverb[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as Adverb[],
+            shuffledVocabulary as unknown as Adverb[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -492,14 +495,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "food") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as Food[],
+            shuffledVocabulary as unknown as Food[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as Food[],
+            shuffledVocabulary as unknown as Food[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -507,14 +510,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "body") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as BodyItem[],
+            shuffledVocabulary as unknown as BodyItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as BodyItem[],
+            shuffledVocabulary as unknown as BodyItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -522,14 +525,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "family") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as FamilyItem[],
+            shuffledVocabulary as unknown as FamilyItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as FamilyItem[],
+            shuffledVocabulary as unknown as FamilyItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -537,14 +540,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "home") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as HomeItem[],
+            shuffledVocabulary as unknown as HomeItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as HomeItem[],
+            shuffledVocabulary as unknown as HomeItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -552,14 +555,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "nature") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as NatureItem[],
+            shuffledVocabulary as unknown as NatureItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as NatureItem[],
+            shuffledVocabulary as unknown as NatureItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -567,14 +570,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "ict") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as ICTItem[],
+            shuffledVocabulary as unknown as ICTItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as ICTItem[],
+            shuffledVocabulary as unknown as ICTItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -582,14 +585,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "shopping") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as ShoppingItem[],
+            shuffledVocabulary as unknown as ShoppingItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as ShoppingItem[],
+            shuffledVocabulary as unknown as ShoppingItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -597,14 +600,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "education") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as EducationItem[],
+            shuffledVocabulary as unknown as EducationItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as EducationItem[],
+            shuffledVocabulary as unknown as EducationItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -612,14 +615,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else if (topic === "work") {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary as unknown as WorkItem[],
+            shuffledVocabulary as unknown as WorkItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary as unknown as WorkItem[],
+            shuffledVocabulary as unknown as WorkItem[],
             settings.questionCount,
             settings.translationDirection,
             topic,
@@ -627,14 +630,14 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } else {
       questions = maybeUseSrs
         ? generateQuestionsSrs(
-            vocabulary,
+            shuffledVocabulary,
             settings.questionCount,
             settings.translationDirection,
             topic,
             { maxNew: settings.srsNewPerSession, nowTs },
           )
         : generateQuestionsProgressAware(
-            vocabulary,
+            shuffledVocabulary,
             settings.questionCount,
             settings.translationDirection,
             topic,
