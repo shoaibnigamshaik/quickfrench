@@ -34,27 +34,12 @@ export const useVocabulary = () => {
               >,
             buildings: () =>
               vocabularyService.getBuildings() as Promise<VocabularyItem[]>,
-            home: () =>
-              vocabularyService.getHome() as Promise<VocabularyItem[]>,
-            nature: () =>
-              vocabularyService.getNature() as Promise<VocabularyItem[]>,
             colours: () =>
               vocabularyService.getColours() as Promise<VocabularyItem[]>,
             hobbies: () =>
               vocabularyService.getHobbies() as Promise<VocabularyItem[]>,
             wardrobe: () =>
               vocabularyService.getWardrobe() as Promise<VocabularyItem[]>,
-            ict: () => vocabularyService.getICT() as Promise<VocabularyItem[]>,
-            shopping: () =>
-              vocabularyService.getShopping() as Promise<VocabularyItem[]>,
-            education: () =>
-              vocabularyService.getEducation() as Promise<VocabularyItem[]>,
-            work: () =>
-              vocabularyService.getWork() as Promise<VocabularyItem[]>,
-            family: () =>
-              vocabularyService.getFamily() as Promise<VocabularyItem[]>,
-            body: () =>
-              vocabularyService.getBody() as Promise<VocabularyItem[]>,
             culture: () =>
               vocabularyService.getCulture() as Promise<VocabularyItem[]>,
           };
@@ -64,6 +49,14 @@ export const useVocabulary = () => {
           () => Promise<VocabularyItem[]>
         > = {
           food: () => vocabularyService.getFood() as Promise<VocabularyItem[]>,
+          body: () => vocabularyService.getBody() as Promise<VocabularyItem[]>,
+          family: () => vocabularyService.getFamily() as Promise<VocabularyItem[]>,
+          home: () => vocabularyService.getHome() as Promise<VocabularyItem[]>,
+          nature: () => vocabularyService.getNature() as Promise<VocabularyItem[]>,
+          ict: () => vocabularyService.getICT() as Promise<VocabularyItem[]>,
+          shopping: () => vocabularyService.getShopping() as Promise<VocabularyItem[]>,
+          education: () => vocabularyService.getEducation() as Promise<VocabularyItem[]>,
+          work: () => vocabularyService.getWork() as Promise<VocabularyItem[]>,
         };
 
         if (topic in simpleFetchers) {

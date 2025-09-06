@@ -40,7 +40,7 @@ const TOPIC_COUNTS: Record<string, number> = {
   verbs: 116,
   adverbs: 28,
   food: 183,
-  transportation: 101,
+  transportation: 81,
   body: 119,
   family: 194,
   home: 240,
