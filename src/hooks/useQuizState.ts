@@ -86,51 +86,59 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   }, []);
 
   // Helper to decide SRS usage
-  const shouldUseSrs = useCallback((
-    explicitFlag: boolean | undefined,
-    topicId: string,
-    direction: TranslationDirection,
-  ): boolean => {
-    if (typeof explicitFlag === "boolean") return explicitFlag;
-    try {
-      const due = getDueFrenchKeys({
-        topicId,
-        direction,
-        now: Date.now(),
-      });
-      return due.length > 0;
-    } catch {
-      return false;
-    }
-  }, []);
+  const shouldUseSrs = useCallback(
+    (
+      explicitFlag: boolean | undefined,
+      topicId: string,
+      direction: TranslationDirection,
+    ): boolean => {
+      if (typeof explicitFlag === "boolean") return explicitFlag;
+      try {
+        const due = getDueFrenchKeys({
+          topicId,
+          direction,
+          now: Date.now(),
+        });
+        return due.length > 0;
+      } catch {
+        return false;
+      }
+    },
+    [],
+  );
 
   // Build questions for current topic (SRS + progress aware) in one place
-  const buildQuestions = useCallback((
-    vocab: VocabularyItem[],
-    topicId: string,
-    cfg: QuizSettings,
-  ) => {
-    const shuffled = shuffleArray(vocab);
-    const nowTs = Date.now();
-    const useSrs = shouldUseSrs(cfg.srsReviewMode, topicId, cfg.translationDirection);
-    const maxNew =
-      typeof cfg.srsNewPerSession === "number" ? cfg.srsNewPerSession : undefined;
-    if (useSrs) {
-      return generateQuestionsSrs(
+  const buildQuestions = useCallback(
+    (vocab: VocabularyItem[], topicId: string, cfg: QuizSettings) => {
+      const shuffled = shuffleArray(vocab);
+      const nowTs = Date.now();
+      const useSrs = shouldUseSrs(
+        cfg.srsReviewMode,
+        topicId,
+        cfg.translationDirection,
+      );
+      const maxNew =
+        typeof cfg.srsNewPerSession === "number"
+          ? cfg.srsNewPerSession
+          : undefined;
+      if (useSrs) {
+        return generateQuestionsSrs(
+          shuffled,
+          cfg.questionCount,
+          cfg.translationDirection,
+          topicId,
+          { maxNew, nowTs },
+        );
+      }
+      return generateQuestionsProgressAware(
         shuffled,
         cfg.questionCount,
         cfg.translationDirection,
         topicId,
-        { maxNew, nowTs },
       );
-    }
-    return generateQuestionsProgressAware(
-      shuffled,
-      cfg.questionCount,
-      cfg.translationDirection,
-      topicId,
-    );
-  }, [shouldUseSrs]);
+    },
+    [shouldUseSrs],
+  );
 
   // Generate questions when topic or relevant settings change
   useEffect(() => {

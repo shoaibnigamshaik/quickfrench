@@ -343,27 +343,76 @@ export const recordSessionComplete = (args: { topicId: string }) => {
 
 export const getTopicProgress = (topicId: string) => {
   const p = load();
-  const t = p.topics[topicId];
-  return t || { attempts: 0, correct: 0, learnedCount: 0, masteredCount: 0 };
+  // Aggregate progress from main topic and all its subtopics
+  let totalAttempts = 0;
+  let totalCorrect = 0;
+  let totalLearned = 0;
+  let totalMastered = 0;
+
+  // Check main topic
+  const mainTopic = p.topics[topicId];
+  if (mainTopic) {
+    totalAttempts += mainTopic.attempts;
+    totalCorrect += mainTopic.correct;
+    totalLearned += mainTopic.learnedCount;
+    totalMastered += mainTopic.masteredCount;
+  }
+
+  // Check all subtopics (topicId::subtopic format)
+  for (const [key, stats] of Object.entries(p.topics)) {
+    if (key.startsWith(`${topicId}::`)) {
+      totalAttempts += stats.attempts;
+      totalCorrect += stats.correct;
+      totalLearned += stats.learnedCount;
+      totalMastered += stats.masteredCount;
+    }
+  }
+
+  return totalAttempts > 0
+    ? { attempts: totalAttempts, correct: totalCorrect, learnedCount: totalLearned, masteredCount: totalMastered }
+    : { attempts: 0, correct: 0, learnedCount: 0, masteredCount: 0 };
 };
 
 export const getTopicSummary = (topicId: string) => {
   const p = load();
-  const t = p.topics[topicId] || {
-    attempts: 0,
-    correct: 0,
-    learnedCount: 0,
-    masteredCount: 0,
-  };
+  // Aggregate topic stats from main topic and all its subtopics
+  let totalAttempts = 0;
+  let totalCorrect = 0;
+  let totalLearned = 0;
+  let totalMastered = 0;
+
+  // Check main topic
+  const mainTopic = p.topics[topicId];
+  if (mainTopic) {
+    totalAttempts += mainTopic.attempts;
+    totalCorrect += mainTopic.correct;
+    totalLearned += mainTopic.learnedCount;
+    totalMastered += mainTopic.masteredCount;
+  }
+
+  // Check all subtopics (topicId::subtopic format)
+  for (const [key, stats] of Object.entries(p.topics)) {
+    if (key.startsWith(`${topicId}::`)) {
+      totalAttempts += stats.attempts;
+      totalCorrect += stats.correct;
+      totalLearned += stats.learnedCount;
+      totalMastered += stats.masteredCount;
+    }
+  }
+
+  // Count unique correct words from main topic and subtopics
   let uniqueCorrect = 0;
   for (const w of Object.values(p.words)) {
-    if (w.topicId === topicId && (w.correct || 0) > 0) uniqueCorrect += 1;
+    if (w.topicId === topicId || w.topicId.startsWith(`${topicId}::`)) {
+      if ((w.correct || 0) > 0) uniqueCorrect += 1;
+    }
   }
+
   return {
-    attempts: t.attempts,
-    correct: t.correct,
-    learnedCount: t.learnedCount,
-    masteredCount: t.masteredCount,
+    attempts: totalAttempts,
+    correct: totalCorrect,
+    learnedCount: totalLearned,
+    masteredCount: totalMastered,
     uniqueCorrect,
   } as const;
 };

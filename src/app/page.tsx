@@ -73,10 +73,11 @@ const FrenchVocabularyQuiz = () => {
 
   // Generic subtopic selection handler (DRY)
   const handleSubtopicSelect = async (topic: SubtopicKey, category: string) => {
-    setSelectedTopic(topic); // ensure selectedTopic mirrors active quiz topic
+    const combinedTopicId = `${topic}::${category}`;
+    setSelectedTopic(combinedTopicId); // ensure selectedTopic mirrors active quiz topic
     setSelectedSubtopics((prev) => ({ ...prev, [topic]: category }));
     await fetchVocabulary(topic, category);
-    startQuiz(topic);
+    startQuiz(combinedTopicId);
   };
 
   // Handle back from food subtopics
@@ -87,6 +88,13 @@ const FrenchVocabularyQuiz = () => {
   };
 
   const getTopicDisplayName = () => {
+    // Handle combined topicId format for subtopics (e.g., "food::Fruits")
+    if (selectedTopic.includes("::")) {
+      const [mainTopic, subtopic] = selectedTopic.split("::");
+      const label = mainTopic.charAt(0).toUpperCase() + mainTopic.slice(1);
+      return `${subtopic} (${label})`;
+    }
+
     if (SUBTOPIC_TOPICS.includes(selectedTopic as SubtopicKey)) {
       const sub = selectedSubtopics[selectedTopic as SubtopicKey];
       if (sub) {

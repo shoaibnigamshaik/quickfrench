@@ -232,7 +232,12 @@ export const QuizGame = ({
     if (isTypingMode && inputRef.current && !quizState.showResult) {
       inputRef.current.focus();
     }
-  }, [quizState.currentQuestion, settings.quizMode, quizState.showResult, quizState.hybridRevealed]);
+  }, [
+    quizState.currentQuestion,
+    settings.quizMode,
+    quizState.showResult,
+    quizState.hybridRevealed,
+  ]);
 
   // Auto-advance to next question when correct answer is given
   useEffect(() => {
