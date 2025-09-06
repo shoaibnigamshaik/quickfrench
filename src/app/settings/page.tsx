@@ -475,7 +475,7 @@ const SettingsPage = () => {
                             },
                             {
                               value: "typing" as const,
-                              label: "Fill in the Blank",
+                              label: "Typing",
                               tips: [
                                 "Type the English meaning",
                                 "Type your answer",
