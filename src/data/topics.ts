@@ -103,6 +103,19 @@ export const topics: Topic[] = [
   },
 ];
 
+// Topics that have subcategories
+export const SUBTOPIC_TOPICS = [
+  "food",
+  "body",
+  "family",
+  "home",
+  "nature",
+  "ict",
+  "shopping",
+  "education",
+  "work",
+] as const;
+
 export const TOPIC_COUNTS: Record<string, number> = {
   adjectives: 96,
   numbers: 27,

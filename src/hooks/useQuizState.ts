@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   QuizState,
   QuizSettings,
@@ -86,7 +86,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
   }, []);
 
   // Helper (DRY) to decide SRS usage
-  const shouldUseSrs = (
+  const shouldUseSrs = useCallback((
     explicitFlag: boolean | undefined,
     topicId: string,
     direction: TranslationDirection,
@@ -102,10 +102,10 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     } catch {
       return false;
     }
-  };
+  }, []);
 
   // Build questions for current topic (SRS + progress aware) in one place
-  const buildQuestions = (
+  const buildQuestions = useCallback((
     vocab: VocabularyItem[],
     topicId: string,
     cfg: QuizSettings,
@@ -130,7 +130,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       cfg.translationDirection,
       topicId,
     );
-  };
+  }, [shouldUseSrs]);
 
   // Generate questions when topic or relevant settings change
   useEffect(() => {
@@ -146,6 +146,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     topic,
     settings.srsReviewMode,
     settings.srsNewPerSession,
+    buildQuestions,
+    settings,
   ]);
 
   const handleAnswerSelect = (answer: string) => {
