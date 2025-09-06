@@ -50,12 +50,16 @@ export const useVocabulary = () => {
         > = {
           food: () => vocabularyService.getFood() as Promise<VocabularyItem[]>,
           body: () => vocabularyService.getBody() as Promise<VocabularyItem[]>,
-          family: () => vocabularyService.getFamily() as Promise<VocabularyItem[]>,
+          family: () =>
+            vocabularyService.getFamily() as Promise<VocabularyItem[]>,
           home: () => vocabularyService.getHome() as Promise<VocabularyItem[]>,
-          nature: () => vocabularyService.getNature() as Promise<VocabularyItem[]>,
+          nature: () =>
+            vocabularyService.getNature() as Promise<VocabularyItem[]>,
           ict: () => vocabularyService.getICT() as Promise<VocabularyItem[]>,
-          shopping: () => vocabularyService.getShopping() as Promise<VocabularyItem[]>,
-          education: () => vocabularyService.getEducation() as Promise<VocabularyItem[]>,
+          shopping: () =>
+            vocabularyService.getShopping() as Promise<VocabularyItem[]>,
+          education: () =>
+            vocabularyService.getEducation() as Promise<VocabularyItem[]>,
           work: () => vocabularyService.getWork() as Promise<VocabularyItem[]>,
         };
 

@@ -65,14 +65,18 @@ export const TopicSelector = ({
 }: TopicSelectorProps) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [, setProgressTick] = React.useState(false);
-  const [daily, setDaily] = React.useState(() => getDailyStreakSummary());
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [daily, setDaily] = React.useState(() => ({
+    currentStreak: 0,
+    bestStreak: 0,
+    todayCompleted: false,
+    lastCompletionDate: undefined as string | undefined,
+  }));
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   const [streakRange, setStreakRange] = React.useState<
     { start: string; end: string } | undefined
-  >(() => getCurrentStreakRange());
-  const [markedDates, setMarkedDates] = React.useState<string[]>(() =>
-    getDailyCompletionDates(),
-  );
+  >(undefined);
+  const [markedDates, setMarkedDates] = React.useState<string[]>([]);
 
   // Close modal on Escape key
   React.useEffect(() => {
@@ -91,6 +95,13 @@ export const TopicSelector = ({
 
   // Refresh when progress updates
   React.useEffect(() => {
+    // Mark mounted, then load progress data.
+    setIsMounted(true);
+    try {
+      setDaily(getDailyStreakSummary());
+      setStreakRange(getCurrentStreakRange());
+      setMarkedDates(getDailyCompletionDates());
+    } catch {}
     const handler = () => {
       setProgressTick((x) => !x);
       try {
@@ -250,7 +261,15 @@ export const TopicSelector = ({
                   const itemCount = TOPIC_COUNTS[topic.id];
                   const isSelected = selectedId === topic.id;
                   const _hasSub = hasSubtopics(topic.id);
-                  const summary = getTopicSummary(topic.id);
+                  const summary = isMounted
+                    ? getTopicSummary(topic.id)
+                    : {
+                        attempts: 0,
+                        correct: 0,
+                        learnedCount: 0,
+                        masteredCount: 0,
+                        uniqueCorrect: 0,
+                      };
                   const uniqueCorrect = summary.uniqueCorrect || 0;
                   const total = itemCount ?? 0;
                   const pct =
