@@ -1,5 +1,6 @@
 import { Check, X, HelpCircle } from "lucide-react";
 import { Question } from "@/types/quiz";
+import { stripGenderMarkers } from "@/lib/quiz-utils";
 
 interface MultipleChoiceOptionsProps {
   question: Question;
@@ -80,7 +81,7 @@ export const MultipleChoiceOptions = ({
                   >
                     {index + 1}
                   </span>
-                  {option}
+                  {stripGenderMarkers(option)}
                 </span>
                 {showResult && option === question.correct && (
                   <Check

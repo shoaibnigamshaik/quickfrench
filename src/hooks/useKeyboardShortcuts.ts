@@ -141,8 +141,8 @@ export const useKeyboardShortcuts = ({
         return;
       }
 
-      // Space or Enter to go to next question (when result is shown)
-      if ((e.key === " " || e.key === "Enter") && showResult) {
+      // Space or Enter to go to next question (when result is shown and not typing in input)
+      if ((e.key === " " || e.key === "Enter") && showResult && !isEditable) {
         e.preventDefault();
         onNextQuestion();
         return;

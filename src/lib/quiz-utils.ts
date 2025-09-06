@@ -311,6 +311,13 @@ export const generateBodyQuestions = (
 ): Question[] =>
   generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
+export const stripGenderMarkers = (text: string): string => {
+  return text
+    .replace(/\(\s*(?:m|f|mpl|fpl)\s*\)/gi, "")
+    .replace(/\b(?:mpl|fpl)\b/gi, "")
+    .trim();
+};
+
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
   // drop punctuation, collapse spaces.

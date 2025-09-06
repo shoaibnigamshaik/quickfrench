@@ -8,6 +8,7 @@ import { QuizResult } from "./QuizResult";
 import { QuizState, QuizSettings } from "@/types/quiz";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { expandGenderedParentheticalsForSpeech } from "@/lib/utils";
+import { checkTypedAnswer, stripGenderMarkers } from "@/lib/quiz-utils";
 
 interface QuizGameProps {
   quizState: QuizState;
@@ -238,12 +239,16 @@ export const QuizGame = ({
     }
 
     // Check if we should auto-advance
+    const currentQuestion = quizState.questions[quizState.currentQuestion];
+    const isCorrect = currentQuestion
+      ? checkTypedAnswer(currentQuestion.correct, quizState.selectedAnswer)
+      : false;
+
     if (
       settings.autoAdvance &&
       quizState.showResult &&
       !quizState.quizComplete &&
-      quizState.selectedAnswer ===
-        quizState.questions[quizState.currentQuestion]?.correct
+      isCorrect
     ) {
       // Set timeout to auto-advance after configured delay
       autoAdvanceTimeoutRef.current = setTimeout(() => {
@@ -393,17 +398,8 @@ export const QuizGame = ({
             {/* Word variants rendered as chips (previously slash-separated) */}
             {wordParts.map((part, idx) => {
               const raw = part.trim();
-              // Extract gender markers like (m), (f), (mpl), (fpl)
-              const genderMatches = raw.match(/\((?:m|f|mpl|fpl)\)/gi) || [];
-              const genders = Array.from(
-                new Set(
-                  genderMatches.map((g) =>
-                    g.replace(/[()]/g, "").toLowerCase(),
-                  ),
-                ),
-              );
               // Clean the display text by removing the gender markers
-              const display = raw.replace(/\((?:m|f|mpl|fpl)\)/gi, "").trim();
+              const display = stripGenderMarkers(raw);
               return (
                 <div
                   key={`chip-${idx}-${raw}`}
@@ -416,18 +412,6 @@ export const QuizGame = ({
                 >
                   <span className="flex items-center gap-2">
                     <span className="leading-none break-words">{display}</span>
-                    {genders.length > 0 && (
-                      <span className="flex items-center gap-1">
-                        {genders.map((g) => (
-                          <span
-                            key={g}
-                            className="text-[10px] font-bold uppercase tracking-wide rounded-full px-1.5 py-0.5 border border-white/40 bg-white/15 text-white/90"
-                          >
-                            {g}
-                          </span>
-                        ))}
-                      </span>
-                    )}
                   </span>
                   {settings.translationDirection === "french-to-english" && (
                     <button

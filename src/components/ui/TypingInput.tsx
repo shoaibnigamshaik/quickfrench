@@ -1,5 +1,5 @@
 import React from "react";
-import { checkTypedAnswer } from "@/lib/quiz-utils";
+import { checkTypedAnswer, stripGenderMarkers } from "@/lib/quiz-utils";
 
 interface TypingInputProps {
   typedAnswer: string;
@@ -147,7 +147,7 @@ export const TypingInput = ({
               className="font-semibold"
               style={{ color: "var(--success-600)" }}
             >
-              {correctAnswer}
+              {stripGenderMarkers(correctAnswer)}
             </div>
           </div>
         </div>
