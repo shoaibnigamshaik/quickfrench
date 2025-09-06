@@ -216,5 +216,7 @@ export const useKeyboardShortcuts = ({
     onTypedSubmit,
     onNextQuestion,
     onIDontKnow,
+    hybridRevealedCurrent,
+    onRevealHybrid,
   ]);
 };
