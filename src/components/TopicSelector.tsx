@@ -47,6 +47,7 @@ export const TopicSelector = ({
     { start: string; end: string } | undefined
   >(undefined);
   const [markedDates, setMarkedDates] = React.useState<string[]>([]);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   // Close modal on Escape key
   React.useEffect(() => {
@@ -89,6 +90,36 @@ export const TopicSelector = ({
     if (selectedId)
       localStorage.setItem("topicSelector:selectedId", selectedId);
   }, [selectedId]);
+
+  // Save scroll position when component unmounts or when starting a quiz
+  React.useEffect(() => {
+    const handleSaveScroll = () => {
+      if (scrollContainerRef.current) {
+        localStorage.setItem(
+          "topicSelector:scrollTop",
+          scrollContainerRef.current.scrollTop.toString(),
+        );
+      }
+    };
+
+    // Save scroll position before unmounting
+    return () => {
+      handleSaveScroll();
+    };
+  }, []);
+
+  // Restore scroll position when component mounts
+  React.useEffect(() => {
+    const savedScrollTop = localStorage.getItem("topicSelector:scrollTop");
+    if (savedScrollTop && scrollContainerRef.current) {
+      // Use setTimeout to ensure DOM is ready
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = parseInt(savedScrollTop, 10);
+        }
+      }, 0);
+    }
+  }, []);
 
   const selectedTopic: Topic | null = selectedId
     ? topics.find((t) => t.id === selectedId) || null
@@ -206,6 +237,7 @@ export const TopicSelector = ({
           <div className="lg:col-span-1 lg:sticky lg:top-6 lg:self-start">
             {/* Scroll only within the topic list on desktop to keep actions in view */}
             <div
+              ref={scrollContainerRef}
               className="lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek"
               aria-label="Topics list (scrollable)"
               tabIndex={0}
@@ -249,7 +281,16 @@ export const TopicSelector = ({
                           if (isDesktop) setSelectedId(topic.id);
                           else {
                             if (_hasSub) setSelectedId(topic.id);
-                            else onStartQuiz(topic.id);
+                            else {
+                              // Save scroll position before starting quiz
+                              if (scrollContainerRef.current) {
+                                localStorage.setItem(
+                                  "topicSelector:scrollTop",
+                                  scrollContainerRef.current.scrollTop.toString(),
+                                );
+                              }
+                              onStartQuiz(topic.id);
+                            }
                           }
                         }}
                         aria-label={`${topic.name}${_hasSub ? " (has subtopics)" : ""}`}
@@ -338,7 +379,16 @@ export const TopicSelector = ({
                     <button
                       type="button"
                       aria-label="Start quiz"
-                      onClick={() => onStartQuiz(selectedTopic.id)}
+                      onClick={() => {
+                        // Save scroll position before starting quiz
+                        if (scrollContainerRef.current) {
+                          localStorage.setItem(
+                            "topicSelector:scrollTop",
+                            scrollContainerRef.current.scrollTop.toString(),
+                          );
+                        }
+                        onStartQuiz(selectedTopic.id);
+                      }}
                       className="inline-flex items-center justify-center rounded-lg border h-9 w-9"
                       style={{
                         backgroundColor: "var(--muted)",
@@ -363,7 +413,16 @@ export const TopicSelector = ({
                       <button
                         type="button"
                         aria-label="Start quiz for entire topic"
-                        onClick={() => onStartQuiz(selectedTopic.id)}
+                        onClick={() => {
+                          // Save scroll position before starting quiz
+                          if (scrollContainerRef.current) {
+                            localStorage.setItem(
+                              "topicSelector:scrollTop",
+                              scrollContainerRef.current.scrollTop.toString(),
+                            );
+                          }
+                          onStartQuiz(selectedTopic.id);
+                        }}
                         className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs"
                         style={{
                           backgroundColor: "var(--muted)",
@@ -385,11 +444,20 @@ export const TopicSelector = ({
                         <li key={sub}>
                           <button
                             type="button"
-                            onClick={() =>
-                              onStartSubtopic
-                                ? onStartSubtopic(selectedTopic.id, sub)
-                                : onStartQuiz(selectedTopic.id)
-                            }
+                            onClick={() => {
+                              // Save scroll position before starting subtopic quiz
+                              if (scrollContainerRef.current) {
+                                localStorage.setItem(
+                                  "topicSelector:scrollTop",
+                                  scrollContainerRef.current.scrollTop.toString(),
+                                );
+                              }
+                              if (onStartSubtopic) {
+                                onStartSubtopic(selectedTopic.id, sub);
+                              } else {
+                                onStartQuiz(selectedTopic.id);
+                              }
+                            }}
                             className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
                             style={{ color: "var(--foreground)" }}
                             aria-label={`Start ${selectedTopic.name} – ${sub}`}

@@ -103,7 +103,6 @@ export const topics: Topic[] = [
   },
 ];
 
-
 export const TOPIC_COUNTS: Record<string, number> = {
   adjectives: 96,
   numbers: 27,
