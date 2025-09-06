@@ -40,6 +40,7 @@ const FrenchVocabularyQuiz = () => {
     startQuiz,
     updateTypedAnswer,
     updateTranslationDirection,
+  revealCurrentQuestionOptions,
   } = useQuizState(vocabulary, selectedTopic);
 
   // Prevent page scroll while selecting topics (desktop UX)
@@ -438,6 +439,7 @@ const FrenchVocabularyQuiz = () => {
       onResetQuiz={handleResetQuiz}
       onRestartQuiz={resetQuiz}
       onUpdateTypedAnswer={updateTypedAnswer}
+  onRevealHybrid={revealCurrentQuestionOptions}
     />
   );
 };

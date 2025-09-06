@@ -16,6 +16,8 @@ interface UseKeyboardShortcutsProps {
   onTypedSubmit: () => void;
   onNextQuestion: () => void;
   onIDontKnow?: () => void;
+  onRevealHybrid?: () => void;
+  hybridRevealedCurrent?: boolean; // for hybrid mode: has current question been revealed to MCQ?
 }
 
 export const useKeyboardShortcuts = ({
@@ -33,6 +35,8 @@ export const useKeyboardShortcuts = ({
   onTypedSubmit,
   onNextQuestion,
   onIDontKnow,
+  onRevealHybrid,
+  hybridRevealedCurrent,
 }: UseKeyboardShortcutsProps) => {
   useEffect(() => {
     if (!enabled) {
@@ -158,7 +162,12 @@ export const useKeyboardShortcuts = ({
 
       if (showTopicSelector || quizComplete) return;
 
-      if (quizMode === "multiple-choice" && !showResult && !isEditable) {
+      if (
+        (quizMode === "multiple-choice" ||
+          (quizMode === "hybrid" && hybridRevealedCurrent)) &&
+        !showResult &&
+        !isEditable
+      ) {
         const idx = getOptionIndexFromEvent(e);
         if (idx >= 0 && questions[currentQuestion]?.options[idx]) {
           e.preventDefault();
@@ -166,18 +175,25 @@ export const useKeyboardShortcuts = ({
           return;
         }
 
-        // 0 / Numpad0 / '?' triggers I don't know
+        // 0 / Numpad0 / '?' : in hybrid typing phase -> reveal; in MCQ phase -> I don't know
         if (
-          typeof onIDontKnow === "function" &&
-          (e.key === "0" ||
-            e.key === "?" ||
-            e.code === "Digit0" ||
-            e.code === "Numpad0" ||
-            e.keyCode === 48 ||
-            e.keyCode === 96)
+          e.key === "0" ||
+          e.key === "?" ||
+          e.code === "Digit0" ||
+          e.code === "Numpad0" ||
+          e.keyCode === 48 ||
+          e.keyCode === 96
         ) {
           e.preventDefault();
-          onIDontKnow();
+          if (
+            quizMode === "hybrid" &&
+            !hybridRevealedCurrent &&
+            typeof onRevealHybrid === "function"
+          ) {
+            onRevealHybrid();
+          } else if (typeof onIDontKnow === "function") {
+            onIDontKnow();
+          }
           return;
         }
       }

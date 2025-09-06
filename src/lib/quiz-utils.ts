@@ -498,7 +498,7 @@ export const getScoreMessage = (
 };
 
 export const saveQuizSettings = (
-  quizMode: "multiple-choice" | "typing",
+  quizMode: "multiple-choice" | "typing" | "hybrid",
   questionCount: number | "all",
   translationDirection: TranslationDirection,
   autoAdvance: boolean = false,
@@ -525,6 +525,7 @@ export const loadQuizSettings = () => {
   const savedMode = localStorage.getItem("quizMode") as
     | "multiple-choice"
     | "typing"
+    | "hybrid"
     | null;
   const savedCount = localStorage.getItem("questionCount");
   const savedDirection = localStorage.getItem(

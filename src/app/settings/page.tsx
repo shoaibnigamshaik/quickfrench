@@ -87,14 +87,16 @@ const SettingsPage = () => {
       : "system";
   });
   const [themeReady, setThemeReady] = React.useState(false);
-  const [quizMode, setQuizMode] = React.useState<"multiple-choice" | "typing">(
-    () => {
-      const saved = getLS("quizMode");
-      return saved === "typing" || saved === "multiple-choice"
-        ? (saved as "multiple-choice" | "typing")
-        : "multiple-choice";
-    },
-  );
+  const [quizMode, setQuizMode] = React.useState<
+    "multiple-choice" | "typing" | "hybrid"
+  >(() => {
+    const saved = getLS("quizMode");
+    return saved === "typing" ||
+      saved === "multiple-choice" ||
+      saved === "hybrid"
+      ? (saved as "multiple-choice" | "typing" | "hybrid")
+      : "multiple-choice";
+  });
   const [questionCount, setQuestionCount] = React.useState<number | "all">(
     () => {
       const saved = getLS("questionCount");
@@ -225,7 +227,9 @@ const SettingsPage = () => {
     speechSynthesis.speak(utterance);
   };
 
-  const handleQuizModeChange = (mode: "multiple-choice" | "typing") => {
+  const handleQuizModeChange = (
+    mode: "multiple-choice" | "typing" | "hybrid",
+  ) => {
     setQuizMode(mode);
     setLS("quizMode", mode);
   };
@@ -457,7 +461,7 @@ const SettingsPage = () => {
                           value={quizMode}
                           onValueChange={(v) =>
                             handleQuizModeChange(
-                              v as "multiple-choice" | "typing",
+                              v as "multiple-choice" | "typing" | "hybrid",
                             )
                           }
                           className="space-y-2"
@@ -481,6 +485,16 @@ const SettingsPage = () => {
                                 "Type your answer",
                                 "Enter to submit",
                                 "Space for next question",
+                              ],
+                            },
+                            {
+                              value: "hybrid" as const,
+                              label: "Hybrid",
+                              tips: [
+                                "Start by typing",
+                                "Press 0/? or click to show options",
+                                "Then answer like MCQ",
+                                "Best for active recall",
                               ],
                             },
                           ].map((opt) => (

@@ -165,7 +165,11 @@ export interface Topic {
   icon: string;
 }
 
-export type QuizMode = "multiple-choice" | "typing";
+// QuizMode:
+//  - multiple-choice: always show options
+//  - typing: user must type every answer
+//  - hybrid: start each question in typing mode; user can reveal / switch to MCQ if stuck
+export type QuizMode = "multiple-choice" | "typing" | "hybrid";
 
 export type TranslationDirection = "french-to-english" | "english-to-french";
 
@@ -180,6 +184,8 @@ export interface QuizState {
   maxStreak: number;
   typedAnswer: string;
   wrongAnswers: WrongAnswer[];
+  // In hybrid mode: which question indices have been switched from typing to MCQ display
+  hybridRevealed?: number[];
 }
 
 export interface QuizSettings {

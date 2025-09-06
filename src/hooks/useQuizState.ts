@@ -43,6 +43,8 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     maxStreak: 0,
     typedAnswer: "",
     wrongAnswers: [],
+    hybridRevealed: [],
+    // hybridRevealed: track which question indices the user switched to MCQ
   });
 
   const [settings, setSettings] = useState<QuizSettings>({
@@ -455,6 +457,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       maxStreak: 0,
       typedAnswer: "",
       wrongAnswers: [],
+      hybridRevealed: [],
     }));
     // Trigger regeneration by toggling selectedTopic (noop) to same value, or recompute directly
     // Recompute questions immediately based on current vocabulary, topic, and settings
@@ -662,6 +665,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       typedAnswer: "",
       wrongAnswers: [],
       questions: [],
+      hybridRevealed: [],
     }));
     setSettings((prev) => ({ ...prev, selectedTopic: "" }));
     setShowTopicSelector(true);
@@ -685,6 +689,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
       typedAnswer: "",
       wrongAnswers: [],
       questions,
+      hybridRevealed: [],
     }));
     setShowTopicSelector(false);
   };
@@ -695,6 +700,20 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
 
   const updateQuizMode = (mode: QuizMode) => {
     setSettings((prev) => ({ ...prev, quizMode: mode }));
+  };
+
+  // Hybrid specific: user gives up typing and wants MCQ options for current question
+  const revealCurrentQuestionOptions = () => {
+    setQuizState((prev) => {
+      if (prev.hybridRevealed?.includes(prev.currentQuestion)) return prev;
+      return {
+        ...prev,
+        hybridRevealed: [...(prev.hybridRevealed || []), prev.currentQuestion],
+        // Clear any partial typed answer when switching to MCQ to reduce confusion
+        typedAnswer: "",
+        selectedAnswer: "",
+      };
+    });
   };
 
   const updateQuestionCount = (count: number | "all") => {
@@ -748,5 +767,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     updateAutoAdvanceDelay,
     updateTimerEnabled,
     updateTimerDuration,
+    revealCurrentQuestionOptions,
   };
 };

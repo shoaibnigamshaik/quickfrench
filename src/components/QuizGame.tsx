@@ -20,6 +20,7 @@ interface QuizGameProps {
   onRestartQuiz: () => void;
   onUpdateTypedAnswer: (answer: string) => void;
   onIDontKnow?: () => void;
+  onRevealHybrid?: () => void;
 }
 
 export const QuizGame = ({
@@ -32,6 +33,7 @@ export const QuizGame = ({
   onRestartQuiz,
   onUpdateTypedAnswer,
   onIDontKnow,
+  onRevealHybrid,
 }: QuizGameProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -93,6 +95,10 @@ export const QuizGame = ({
     onTypedSubmit,
     onNextQuestion,
     onIDontKnow,
+    hybridRevealedCurrent: quizState.hybridRevealed?.includes(
+      quizState.currentQuestion,
+    ),
+    onRevealHybrid,
   });
 
   // Prepare a French voice or saved voice if available
@@ -438,31 +444,50 @@ export const QuizGame = ({
 
         {/* Options */}
         <div className="p-6">
-          {settings.quizMode === "multiple-choice" ? (
-            <MultipleChoiceOptions
-              question={currentQuestion}
-              selectedAnswer={quizState.selectedAnswer}
-              showResult={quizState.showResult}
-              onAnswerSelect={onAnswerSelect}
-              onIDontKnow={onIDontKnow}
-            />
-          ) : (
-            <TypingInput
-              typedAnswer={quizState.typedAnswer}
-              showResult={quizState.showResult}
-              selectedAnswer={quizState.selectedAnswer}
-              correctAnswer={currentQuestion.correct}
-              onTypedAnswerChange={onUpdateTypedAnswer}
-              onSubmit={onTypedSubmit}
-              inputRef={inputRef}
-              onIDontKnow={onIDontKnow}
-              placeholder={
-                settings.translationDirection === "french-to-english"
-                  ? "Type the English meaning..."
-                  : "Tape le mot en français..."
-              }
-            />
-          )}
+          {(() => {
+            // Determine effective mode per-question when hybrid
+            const isHybrid = settings.quizMode === "hybrid";
+            const hybridRevealed = quizState.hybridRevealed?.includes(
+              quizState.currentQuestion,
+            );
+            const renderMCQ =
+              settings.quizMode === "multiple-choice" ||
+              (isHybrid && hybridRevealed);
+            if (renderMCQ) {
+              return (
+                <MultipleChoiceOptions
+                  question={currentQuestion}
+                  selectedAnswer={quizState.selectedAnswer}
+                  showResult={quizState.showResult}
+                  onAnswerSelect={onAnswerSelect}
+                  onIDontKnow={onIDontKnow}
+                />
+              );
+            }
+            // Else typing (pure typing mode or hybrid before reveal)
+            return (
+              <TypingInput
+                typedAnswer={quizState.typedAnswer}
+                showResult={quizState.showResult}
+                selectedAnswer={quizState.selectedAnswer}
+                correctAnswer={currentQuestion.correct}
+                onTypedAnswerChange={onUpdateTypedAnswer}
+                onSubmit={onTypedSubmit}
+                inputRef={inputRef}
+                // In hybrid typing phase, repurpose I don't know to reveal options
+                onIDontKnow={
+                  isHybrid && !hybridRevealed && !quizState.showResult
+                    ? onRevealHybrid
+                    : onIDontKnow
+                }
+                placeholder={
+                  settings.translationDirection === "french-to-english"
+                    ? "Type the English meaning..."
+                    : "Tape le mot en français..."
+                }
+              />
+            );
+          })()}
 
           {/* Next Button */}
           {quizState.showResult && (
