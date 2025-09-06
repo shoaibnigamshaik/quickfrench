@@ -222,14 +222,17 @@ export const QuizGame = ({
 
   // Focus input in typing mode
   useEffect(() => {
-    if (
-      settings.quizMode === "typing" &&
-      inputRef.current &&
-      !quizState.showResult
-    ) {
+    const isHybrid = settings.quizMode === "hybrid";
+    const hybridRevealed = (quizState.hybridRevealed || []).includes(
+      quizState.currentQuestion,
+    );
+    const isTypingMode =
+      settings.quizMode === "typing" || (isHybrid && !hybridRevealed);
+
+    if (isTypingMode && inputRef.current && !quizState.showResult) {
       inputRef.current.focus();
     }
-  }, [quizState.currentQuestion, settings.quizMode, quizState.showResult]);
+  }, [quizState.currentQuestion, settings.quizMode, quizState.showResult, quizState.hybridRevealed]);
 
   // Auto-advance to next question when correct answer is given
   useEffect(() => {
@@ -332,9 +335,9 @@ export const QuizGame = ({
     settings.timerEnabled,
     settings.timerDurationSec,
     settings.quizMode,
-    onTypedSubmit,
-    onIDontKnow,
     quizState.quizComplete,
+    onIDontKnow,
+    onTypedSubmit,
   ]);
 
   // Pause timer when showing result

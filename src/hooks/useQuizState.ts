@@ -85,7 +85,7 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     }));
   }, []);
 
-  // Helper (DRY) to decide SRS usage
+  // Helper to decide SRS usage
   const shouldUseSrs = useCallback((
     explicitFlag: boolean | undefined,
     topicId: string,
