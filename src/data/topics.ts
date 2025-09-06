@@ -102,3 +102,27 @@ export const topics: Topic[] = [
     icon: "🎭",
   },
 ];
+
+
+export const TOPIC_COUNTS: Record<string, number> = {
+  adjectives: 96,
+  numbers: 27,
+  prepositions: 26,
+  verbs: 116,
+  adverbs: 28,
+  food: 183,
+  transportation: 81,
+  body: 119,
+  family: 194,
+  home: 240,
+  nature: 137,
+  ict: 90,
+  colours: 17,
+  hobbies: 87,
+  wardrobe: 66,
+  buildings: 60,
+  shopping: 72,
+  education: 115,
+  culture: 30,
+  work: 73,
+};

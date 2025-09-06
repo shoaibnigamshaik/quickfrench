@@ -3,17 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { BookOpen, Settings, ChevronRight, Play, Flame } from "lucide-react";
-import {
-  BODY_SUBTOPICS,
-  FOOD_SUBTOPICS,
-  FAMILY_SUBTOPICS,
-  HOME_SUBTOPICS,
-  NATURE_SUBTOPICS,
-  ICT_SUBTOPICS,
-  SHOPPING_SUBTOPICS,
-  EDUCATION_SUBTOPICS,
-  WORK_SUBTOPICS,
-} from "@/data/subtopics";
+import { SUBTOPIC_MAP } from "@/data/subtopics";
+import { TOPIC_COUNTS } from "@/data/topics";
 import { Topic, TranslationDirection } from "@/types/quiz";
 import {
   getTopicSummary,
@@ -33,28 +24,7 @@ interface TopicSelectorProps {
   onToggleDirection: () => void;
 }
 
-const TOPIC_COUNTS: Record<string, number> = {
-  adjectives: 96,
-  numbers: 27,
-  prepositions: 26,
-  verbs: 116,
-  adverbs: 28,
-  food: 183,
-  transportation: 81,
-  body: 119,
-  family: 194,
-  home: 240,
-  nature: 137,
-  ict: 90,
-  colours: 17,
-  hobbies: 87,
-  wardrobe: 66,
-  buildings: 60,
-  shopping: 72,
-  education: 115,
-  culture: 30,
-  work: 73,
-};
+// (Counts and subtopic map now imported from data modules.)
 
 export const TopicSelector = ({
   topics,
@@ -123,18 +93,6 @@ export const TopicSelector = ({
   const selectedTopic: Topic | null = selectedId
     ? topics.find((t) => t.id === selectedId) || null
     : null;
-
-  const SUBTOPIC_MAP: Record<string, readonly string[]> = {
-    food: FOOD_SUBTOPICS,
-    body: BODY_SUBTOPICS,
-    family: FAMILY_SUBTOPICS,
-    home: HOME_SUBTOPICS,
-    nature: NATURE_SUBTOPICS,
-    ict: ICT_SUBTOPICS,
-    shopping: SHOPPING_SUBTOPICS,
-    education: EDUCATION_SUBTOPICS,
-    work: WORK_SUBTOPICS,
-  };
 
   const hasSubtopics = (id: string) => Boolean(SUBTOPIC_MAP[id]);
   const subtopicsFor = (id: string): readonly string[] =>

@@ -70,3 +70,16 @@ export const WORK_SUBTOPICS = [
   "Professions",
   "Verbs and Expressions",
 ] as const;
+
+// Map of topic id -> subtopic array for convenient lookup
+export const SUBTOPIC_MAP: Record<string, readonly string[]> = {
+  food: FOOD_SUBTOPICS,
+  body: BODY_SUBTOPICS,
+  family: FAMILY_SUBTOPICS,
+  home: HOME_SUBTOPICS,
+  nature: NATURE_SUBTOPICS,
+  ict: ICT_SUBTOPICS,
+  shopping: SHOPPING_SUBTOPICS,
+  education: EDUCATION_SUBTOPICS,
+  work: WORK_SUBTOPICS,
+};
