@@ -369,7 +369,12 @@ export const getTopicProgress = (topicId: string) => {
   }
 
   return totalAttempts > 0
-    ? { attempts: totalAttempts, correct: totalCorrect, learnedCount: totalLearned, masteredCount: totalMastered }
+    ? {
+        attempts: totalAttempts,
+        correct: totalCorrect,
+        learnedCount: totalLearned,
+        masteredCount: totalMastered,
+      }
     : { attempts: 0, correct: 0, learnedCount: 0, masteredCount: 0 };
 };
 

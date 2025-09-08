@@ -297,8 +297,11 @@ export const TopicSelector = ({
                         className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]`}
                         style={{ color: "var(--foreground)" }}
                       >
-                        <span className="text-2xl" aria-hidden>
-                          {topic.icon}
+                        <span
+                          className="text-2xl"
+                          aria-label={`${topic.name} icon`}
+                        >
+                          <topic.icon className="h-6 w-6" />
                         </span>
                         {isSelected && (
                           <span
@@ -363,8 +366,11 @@ export const TopicSelector = ({
                   className={`flex items-start justify-between gap-4 ${hasSubtopics(selectedTopic.id) ? "mb-4" : "mb-2"}`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl" aria-hidden>
-                      {selectedTopic.icon}
+                    <span
+                      className="text-3xl"
+                      aria-label={`${selectedTopic.name} icon`}
+                    >
+                      <selectedTopic.icon className="h-8 w-8" />
                     </span>
                     <div>
                       <h3

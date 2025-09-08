@@ -162,7 +162,7 @@ export interface BodyCategory {
 export interface Topic {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 // QuizMode:
