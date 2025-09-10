@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import React from "react";
 import { ThemeInitializer } from "@/components/ui/ThemeInitializer";
@@ -30,32 +30,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-8R5KN1G08L"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-8R5KN1G08L');
-          `}
-        </Script>
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-8R5KN1G08L"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-8R5KN1G08L');
-          `}
-        </Script>
-
         <ThemeInitializer />
         <div className="min-h-[100dvh] bg-[var(--background)]">
           <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
@@ -63,6 +37,7 @@ export default function RootLayout({
           </main>
         </div>
       </body>
+      <GoogleAnalytics gaId="G-8R5KN1G08L" />
     </html>
   );
 }
