@@ -335,14 +335,13 @@ export const QuizGame = ({
       }
     };
     // Only re-run when question index or timer settings change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     quizState.currentQuestion,
     settings.timerEnabled,
     settings.timerDurationSec,
     settings.quizMode,
     quizState.quizComplete,
-    onIDontKnow,
-    onTypedSubmit,
   ]);
 
   // Pause timer when showing result
