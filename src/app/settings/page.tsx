@@ -833,9 +833,9 @@ const SettingsPage = () => {
               }}
               className="inline-flex items-center px-4 py-2 rounded-lg border text-sm"
               style={{
-                backgroundColor: "var(--muted)",
-                color: "var(--foreground)",
-                borderColor: "var(--border)",
+                backgroundColor: "var(--danger-100)",
+                color: "var(--danger-600)",
+                borderColor: "var(--danger-500)",
               }}
             >
               Reset Progress
