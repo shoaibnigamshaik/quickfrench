@@ -16,8 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QuickFrench",
+  title: "French Quizzes | QuickFrench",
   description: "French Vocabulary Quiz",
+  applicationName: "QuickFrench",
+  openGraph: {
+    siteName: "QuickFrench",
+  },
 };
 
 export default function RootLayout({
