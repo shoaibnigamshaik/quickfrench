@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   title: "French Quizzes | QuickFrench",
   description: "French Vocabulary Quiz",
   applicationName: "QuickFrench",
+  metadataBase: new URL("https://quickfrench.vercel.app"),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     siteName: "QuickFrench",
   },
