@@ -91,9 +91,6 @@ export const TypingInput = ({
                 className="max-w-md mx-auto p-4 rounded-xl border mb-3"
                 style={{
                   backgroundColor: "var(--muted)",
-                  borderColor: isCorrect
-                    ? "var(--success-600)"
-                    : "var(--danger-600)",
                 }}
               >
                 <div

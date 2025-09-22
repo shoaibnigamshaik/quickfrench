@@ -1,21 +1,15 @@
-import { turso } from "../../../lib/turso";
+import { handleApiQuery } from "../../../lib/api-utils";
 export const revalidate = 1296000;
 
 export async function GET() {
-  try {
-    const result = await turso.execute({
+  return handleApiQuery(
+    {
       sql: `
         SELECT e.word, e.meaning, ec.name as category
         FROM education e
         LEFT JOIN education_categories ec ON e.category_id = ec.id
       `,
-    });
-    return Response.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching education:", error);
-    return Response.json(
-      { error: "Failed to fetch education" },
-      { status: 500 },
-    );
-  }
+    },
+    "Error fetching education",
+  );
 }
