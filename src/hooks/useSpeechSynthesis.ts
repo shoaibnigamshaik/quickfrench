@@ -4,9 +4,9 @@ import { getStorageItem, setStorageItem } from "@/lib/storage";
 
 export function useSpeechSynthesis() {
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>(
-    [],
-  );
+  const [availableVoices, setAvailableVoices] = useState<
+    SpeechSynthesisVoice[]
+  >([]);
   const [speechVolume, setSpeechVolume] = useState<number>(1);
   const [speechPitch, setSpeechPitch] = useState<number>(1);
   const [speechRate, setSpeechRate] = useState<number>(1);
@@ -126,7 +126,9 @@ export function useSpeechSynthesis() {
     const synth = window.speechSynthesis;
     try {
       if (synth.speaking) synth.cancel();
-      const expandedForSpeech = expandGenderedParentheticalsForSpeech(text || "");
+      const expandedForSpeech = expandGenderedParentheticalsForSpeech(
+        text || "",
+      );
       const cleaned = expandedForSpeech
         .replace(/\(\s*(?:mpl|fpl)\s*\)/gi, "")
         .replace(/\b(?:mpl|fpl)\b/gi, "")

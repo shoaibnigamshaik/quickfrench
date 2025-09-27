@@ -14,7 +14,13 @@ import { useQuizState } from "@/hooks/useQuizState";
 import { topics, SUBTOPIC_TOPICS } from "@/data/topics";
 
 const FrenchVocabularyQuiz = () => {
-  const { selectedTopic, selectedSubtopics, handleStartQuiz: handleStartQuizHook, handleSubtopicSelect: handleSubtopicSelectHook, handleResetQuiz: handleResetQuizHook } = useTopicSelection();
+  const {
+    selectedTopic,
+    selectedSubtopics,
+    handleStartQuiz: handleStartQuizHook,
+    handleSubtopicSelect: handleSubtopicSelectHook,
+    handleResetQuiz: handleResetQuizHook,
+  } = useTopicSelection();
 
   const { vocabulary, loading, error, fetchVocabulary } = useVocabulary();
   const {

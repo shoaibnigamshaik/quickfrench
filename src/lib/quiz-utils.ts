@@ -322,7 +322,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
   // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
   // drop punctuation, collapse spaces, and remove articles.
   const normalizeText = (text: string): string => {
-    let normalized = text
+    const normalized = text
       .toLowerCase()
       .trim()
       // Remove common gender markers like (m), (f), (mpl), (fpl)
@@ -336,10 +336,10 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
       .trim();
 
     // Remove definite and indefinite articles
-    const articles = ['le', 'la', 'l', 'les', 'un', 'une', 'des'];
+    const articles = ["le", "la", "l", "les", "un", "une", "des"];
     const words = normalized.split(/\s+/);
-    const filtered = words.filter(word => !articles.includes(word));
-    return filtered.join(' ').trim();
+    const filtered = words.filter((word) => !articles.includes(word));
+    return filtered.join(" ").trim();
   };
 
   // Extract possible alternatives from the correct answer. Supports:
@@ -390,6 +390,31 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
 
   const typedNorm = normalizeText(typed);
   if (!typedNorm) return false;
+
+  // If both correct answer and typed answer contain paired alternatives
+  // (e.g. "acteur / actrice" or "actor / actress"), treat them as
+  // element-wise pairs and accept when all corresponding elements match
+  // after normalization. This handles user input like "acteur / actrice"
+  // where the previous logic only checked single atomic alternatives.
+  const pairSplit = /\s*(?:\/|,|\||;|\bor\b)\s*/i;
+  if (pairSplit.test(correct) && pairSplit.test(typed)) {
+    const correctParts = correct
+      .split(pairSplit)
+      .map((s) => normalizeText(s))
+      .filter((s) => s.length > 0);
+    const typedParts = typed
+      .split(pairSplit)
+      .map((s) => normalizeText(s))
+      .filter((s) => s.length > 0);
+
+    if (
+      correctParts.length > 1 &&
+      correctParts.length === typedParts.length &&
+      correctParts.every((c, i) => c === typedParts[i])
+    ) {
+      return true;
+    }
+  }
 
   const candidates = extractAlternatives(correct);
 
