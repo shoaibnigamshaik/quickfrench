@@ -405,13 +405,26 @@ export const getTopicSummary = (topicId: string) => {
     }
   }
 
-  // Count unique correct words from main topic and subtopics
-  let uniqueCorrect = 0;
-  for (const w of Object.values(p.words)) {
+  // Count unique correct words from main topic and subtopics.
+  // Words may have separate progress entries for a main topic and its
+  // subtopics (e.g. "food::Fruits::pomme" and "food::pomme"). To avoid
+  // double-counting the same French word, deduplicate by the normalized
+  // French key (the suffix after the last '::' in the progress key).
+  const uniqueSet = new Set<string>();
+  for (const [key, w] of Object.entries(p.words)) {
     if (w.topicId === topicId || w.topicId.startsWith(`${topicId}::`)) {
-      if ((w.correct || 0) > 0) uniqueCorrect += 1;
+      if ((w.correct || 0) > 0) {
+        // Extract the normalized French part from the storage key. The key
+        // format is '<topicId>::<normalizedFrench>' but topicId itself may
+        // contain '::' when it's a subtopic like 'food::Fruits'. So take
+        // the substring after the last '::'.
+        const idx = key.lastIndexOf("::");
+        const frenchNorm = idx >= 0 ? key.substring(idx + 2) : key;
+        if (frenchNorm) uniqueSet.add(frenchNorm);
+      }
     }
   }
+  const uniqueCorrect = uniqueSet.size;
 
   return {
     attempts: totalAttempts,
