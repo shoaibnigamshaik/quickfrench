@@ -35,7 +35,13 @@ export const TypingInput = ({
             onTypedAnswerChange(e.target.value)
           }
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && e.ctrlKey) {
+              // Ctrl+Enter triggers "I don't know"
+              if (!showResult && onIDontKnow) {
+                e.preventDefault();
+                onIDontKnow();
+              }
+            } else if (e.key === "Enter") {
               // Only submit when enabled and no result is shown
               if (!showResult && typedAnswer.trim()) {
                 onSubmit();
