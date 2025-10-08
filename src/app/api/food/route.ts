@@ -1,4 +1,4 @@
-import { handleApiQuery } from "../../../lib/api-utils";
+import { handleApiQuery } from "@/lib/api-utils";
 export const revalidate = 1296000; // 24 hours
 
 export async function GET() {

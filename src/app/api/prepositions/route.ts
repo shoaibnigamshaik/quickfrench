@@ -1,4 +1,4 @@
-import { turso } from "../../../lib/turso";
+import { turso } from "@/lib/turso";
 export const dynamic = "force-static";
 export const revalidate = 1296000;
 

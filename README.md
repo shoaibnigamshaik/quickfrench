@@ -119,7 +119,6 @@ Your preferences (mode, count, direction, auto‑advance) are saved locally.
 - `bun build` — Production build
 - `bun start` — Run production server
 - `bun lint` — ESLint
-- `bun run typecheck` — TypeScript typecheck
 
 ## Contributing
 

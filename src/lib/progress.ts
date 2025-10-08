@@ -102,14 +102,33 @@ const load = (): ProgressState => {
   }
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (!raw) throw new Error("no progress");
+    if (!raw) {
+      return {
+        version: 1,
+        totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },
+        topics: {},
+        words: {},
+        daily: { currentStreak: 0, bestStreak: 0, completions: [] },
+      };
+    }
+
     const parsed = JSON.parse(raw) as ProgressState;
-    if (!parsed || parsed.version !== 1) throw new Error("bad version");
+    if (!parsed || parsed.version !== 1) {
+      return {
+        version: 1,
+        totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },
+        topics: {},
+        words: {},
+        daily: { currentStreak: 0, bestStreak: 0, completions: [] },
+      };
+    }
+
     // Ensure new fields for older saves
     parsed.daily ||= { currentStreak: 0, bestStreak: 0, completions: [] };
     parsed.daily.completions ||= [];
     return parsed;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return {
       version: 1,
       totals: { attempts: 0, correct: 0, sessionsCompleted: 0 },

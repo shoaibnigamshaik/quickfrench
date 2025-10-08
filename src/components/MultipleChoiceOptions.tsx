@@ -1,6 +1,7 @@
 import { Check, X, HelpCircle } from "lucide-react";
 import { Question } from "@/types/quiz";
 import { stripGenderMarkers } from "@/lib/quiz-utils";
+import React from "react";
 
 interface MultipleChoiceOptionsProps {
   question: Question;
