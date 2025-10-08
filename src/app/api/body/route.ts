@@ -1,18 +1,21 @@
-import { turso } from "@/lib/turso";
+import { turso } from '@/lib/turso';
 export const revalidate = 1296000;
 
 export async function GET() {
-  try {
-    const result = await turso.execute({
-      sql: `
+    try {
+        const result = await turso.execute({
+            sql: `
         SELECT b.word, b.meaning, bc.name as category
         FROM body b
         LEFT JOIN body_categories bc ON b.category_id = bc.id
       `,
-    });
-    return Response.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching body:", error);
-    return Response.json({ error: "Failed to fetch body" }, { status: 500 });
-  }
+        });
+        return Response.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching body:', error);
+        return Response.json(
+            { error: 'Failed to fetch body' },
+            { status: 500 },
+        );
+    }
 }

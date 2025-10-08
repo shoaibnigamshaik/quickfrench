@@ -1,47 +1,47 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import "./globals.css";
-import React from "react";
-import { ThemeInitializer } from "@/components/ui/ThemeInitializer";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import './globals.css';
+import React from 'react';
+import { ThemeInitializer } from '@/components/ui/ThemeInitializer';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+    variable: '--font-geist-sans',
+    subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+    variable: '--font-geist-mono',
+    subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "French Quizzes | QuickFrench",
-  description: "French Vocabulary Quiz",
-  applicationName: "QuickFrench",
-  openGraph: {
-    siteName: "QuickFrench",
-  },
+    title: 'French Quizzes | QuickFrench',
+    description: 'French Vocabulary Quiz',
+    applicationName: 'QuickFrench',
+    openGraph: {
+        siteName: 'QuickFrench',
+    },
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeInitializer />
-        <div className="min-h-[100dvh] bg-[var(--background)]">
-          <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
-            {children}
-          </main>
-        </div>
-      </body>
-      <GoogleAnalytics gaId="G-J9S34LGB79" />
-    </html>
-  );
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+                <ThemeInitializer />
+                <div className="min-h-[100dvh] bg-[var(--background)]">
+                    <main className="w-full mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
+                        {children}
+                    </main>
+                </div>
+            </body>
+            <GoogleAnalytics gaId="G-J9S34LGB79" />
+        </html>
+    );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { getStorageItem as getLS, setStorageItem as setLS } from "@/lib/storage";
+
 import React from "react";
 import Link from "next/link";
 import {
@@ -14,8 +16,10 @@ import {
   RefreshCw,
   Sliders,
 } from "lucide-react";
+
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { resetProgress } from "@/lib/progress";
+
 // shadcn/ui components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,15 +73,6 @@ const SettingsPage = () => {
   const SPEECH_EVENT = "quickfrench:speechSettingsChanged" as const;
   const dispatchSpeechChanged = () =>
     window.dispatchEvent?.(new CustomEvent(SPEECH_EVENT));
-  const setLS = (k: string, v: string) => localStorage.setItem(k, v);
-  const getLS = (k: string) => {
-    if (typeof window === "undefined") return null;
-    try {
-      return localStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  };
 
   // Theme: delegate to ThemeSwitcher (single source of truth)
   const [themeDefault] = React.useState<"light" | "dark" | "system">(() => {
@@ -110,7 +105,6 @@ const SettingsPage = () => {
     const saved = getLS("autoAdvance");
     return saved === null ? true : saved === "true";
   });
-  // Store UI in seconds for consistency (0.3–5.0 s), persist as ms in localStorage
   const [autoAdvanceDelaySec, setAutoAdvanceDelaySec] = React.useState<number>(
     () => {
       const saved = getLS("autoAdvanceDelayMs");
@@ -675,7 +669,7 @@ const SettingsPage = () => {
                                       ? () => handleTimerToggle()
                                       : (v) => {
                                           setSrsReviewMode(v);
-                                          localStorage.setItem(
+                                          setLS(
                                             "srsReviewMode",
                                             String(v),
                                           );
@@ -774,7 +768,7 @@ const SettingsPage = () => {
                                   );
                                   const clamped = Math.max(1, Math.min(50, n));
                                   setSrsNewPerSession(clamped);
-                                  localStorage.setItem(
+                                  setLS(
                                     "srsNewPerSession",
                                     String(clamped),
                                   );

@@ -17,9 +17,9 @@ Use this guide to capture a short, focused demo GIF for the README.
 2. Keep the browser zoom at 100% and the window at ~1280×800
 3. Trim the clip to the moments above (no setup fluff)
 4. Convert to GIF:
-   - With ffmpeg + gifski (recommended quality):
-     ffmpeg -i demo.mp4 -vf scale=960:-1:flags=lanczos,fps=30 -f gif - | gifski -o demo.gif --fps 30 --quality 80
-   - Or use an online MP4→GIF converter
+    - With ffmpeg + gifski (recommended quality):
+      ffmpeg -i demo.mp4 -vf scale=960:-1:flags=lanczos,fps=30 -f gif - | gifski -o demo.gif --fps 30 --quality 80
+    - Or use an online MP4→GIF converter
 5. Save the final GIF to `public/demo.gif`
 
 ## Tips
