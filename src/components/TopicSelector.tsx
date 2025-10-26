@@ -270,12 +270,20 @@ export const TopicSelector = ({
                                     const uniqueCorrect =
                                         summary.uniqueCorrect || 0;
                                     const total = itemCount ?? 0;
+
+                                    // Clamp displayed progress to the topic total.
+                                    const displayedCorrect =
+                                        total > 0
+                                            ? Math.min(uniqueCorrect, total)
+                                            : uniqueCorrect;
+
                                     const pct =
                                         total > 0
                                             ? Math.min(
                                                   100,
                                                   Math.round(
-                                                      (uniqueCorrect / total) *
+                                                      (displayedCorrect /
+                                                          total) *
                                                           100,
                                                   ),
                                               )
@@ -355,7 +363,7 @@ export const TopicSelector = ({
                                                             'var(--border)',
                                                     }}
                                                 >
-                                                    {uniqueCorrect}/
+                                                    {displayedCorrect}/
                                                     {itemCount ?? '—'}
                                                 </span>
                                                 {_hasSub && (
@@ -672,5 +680,3 @@ export const TopicSelector = ({
         </div>
     );
 };
-
-export default TopicSelector;

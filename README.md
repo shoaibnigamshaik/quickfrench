@@ -1,4 +1,4 @@
-# QuickFrench 🇫🇷
+# QuickFrench
 
 QuickFrench is a focused, interactive app for mastering French vocabulary through fast quiz loops and spaced repetition.
 
