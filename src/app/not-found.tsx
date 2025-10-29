@@ -32,8 +32,8 @@ export default function NotFound() {
             </div>
 
             <p className="max-w-xl text-pretty text-[var(--muted-foreground)]">
-                The page you're looking for doesn't exist. Head back home to
-                pick a topic and continue practicing.
+                The page you&rsquo;re looking for doesn&rsquo;t exist. Head back
+                home to pick a topic and continue practicing.
             </p>
 
             <div className="flex flex-col items-center gap-3 sm:flex-row">

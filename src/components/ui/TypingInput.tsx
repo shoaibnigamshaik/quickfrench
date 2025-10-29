@@ -82,7 +82,7 @@ export const TypingInput = ({
                                 color: 'var(--muted-foreground)',
                             }}
                         >
-                            I don&apos;t know (Ctrl+Enter)
+                            I don&rsquo;t know (Ctrl+Enter)
                         </button>
                     </div>
                 )}
