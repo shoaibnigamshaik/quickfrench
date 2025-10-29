@@ -124,8 +124,6 @@ export const topics: Topic[] = [
         icon: Music,
     },
 ];
-
-// Topics that have subcategories
 export const SUBTOPIC_TOPICS = [
     'food',
     'body',

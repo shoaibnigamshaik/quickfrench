@@ -167,10 +167,6 @@ export interface Topic {
     icon: React.ComponentType<{ className?: string }>;
 }
 
-// QuizMode:
-//  - multiple-choice: always show options
-//  - typing: user must type every answer
-//  - hybrid: start each question in typing mode; user can reveal / switch to MCQ if stuck
 export type QuizMode = 'multiple-choice' | 'typing' | 'hybrid';
 
 export type TranslationDirection = 'french-to-english' | 'english-to-french';

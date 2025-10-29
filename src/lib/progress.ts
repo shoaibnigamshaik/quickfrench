@@ -1,6 +1,3 @@
-// Client-side progress tracking for QuickFrench
-// Stores aggregated stats per word and per topic in localStorage.
-
 import type { TranslationDirection } from '@/types/quiz';
 
 const LS_KEY = 'quickfrench:progress:v1' as const;
@@ -21,7 +18,7 @@ export interface WordStats {
     byDirection?: Partial<
         Record<DirKey, { attempts: number; correct: number }>
     >;
-    // Spaced repetition scheduling per direction
+    // Spaced repetition (per direction)
     srs?: Partial<
         Record<
             DirKey,
@@ -54,12 +51,11 @@ export interface ProgressState {
     };
     topics: Record<string, TopicStats>;
     words: Record<string, WordStats>;
-    // Day-level streaks: number of consecutive days with >= 1 quiz completed
     daily?: {
-        currentStreak: number; // current day streak in days
-        bestStreak: number; // best day streak
-        lastCompletionDate?: string; // YYYY-MM-DD (local)
-        completions?: string[]; // YYYY-MM-DD list of days with >= 1 completion
+        currentStreak: number;
+        bestStreak: number;
+        lastCompletionDate?: string; // YYYY-MM-DD
+        completions?: string[];
     };
 }
 
@@ -171,7 +167,6 @@ export const recordAttempt = (args: {
     const state = load();
     const t = now();
 
-    // Init containers
     state.totals.firstSeenAt ||= t;
     state.totals.lastSeenAt = t;
     state.topics[args.topicId] ||= {
@@ -196,18 +191,17 @@ export const recordAttempt = (args: {
         };
     }
 
-    // Update counts
+    // update counts
     state.totals.attempts += 1;
     topicStats.attempts += 1;
     word.attempts += 1;
     word.lastSeenAt = t;
     word.lastResult = args.isCorrect ? 'correct' : 'wrong';
 
-    // Per-direction
     const dirStats = (word.byDirection![dir] ||= { attempts: 0, correct: 0 });
     dirStats.attempts += 1;
 
-    // Correctness and streaks
+    // correctness and streaks
     if (args.isCorrect) {
         state.totals.correct += 1;
         topicStats.correct += 1;
@@ -218,13 +212,13 @@ export const recordAttempt = (args: {
         word.consecCorrect = 0;
     }
 
-    // Learned transition
+    // learned transition
     if (!word.learned && word.correct >= LEARNED_CORRECTS) {
         word.learned = true;
         topicStats.learnedCount += 1;
     }
 
-    // Mastered transition
+    // mastered transition
     if (!word.mastered && word.consecCorrect >= MASTERED_CONSEC) {
         word.mastered = true;
         topicStats.masteredCount += 1;

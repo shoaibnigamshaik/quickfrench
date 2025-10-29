@@ -48,6 +48,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface SettingItem {
     id:
@@ -131,7 +132,6 @@ const SettingsPage = () => {
     );
     const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
 
-    // Radix Dialog manages focus and escape handling; no custom trap needed
     // Spaced repetition controls (persisted locally)
     const [srsReviewMode, setSrsReviewMode] = React.useState<
         boolean | undefined
@@ -397,7 +397,6 @@ const SettingsPage = () => {
             style={{ backgroundColor: 'var(--background)' }}
         >
             <div className="max-w-4xl mx-auto p-4">
-                {/* Header with Back Button */}
                 <div className="mb-8">
                     <div className="flex items-center mb-6">
                         <Link
@@ -609,18 +608,14 @@ const SettingsPage = () => {
                                                         {[5, 10, 15, 20].map(
                                                             (count) => (
                                                                 <Button
+                                                                    type="button"
                                                                     key={count}
                                                                     onClick={() =>
                                                                         handleQuestionCountChange(
                                                                             count,
                                                                         )
                                                                     }
-                                                                    className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 ${
-                                                                        questionCount ===
-                                                                        count
-                                                                            ? 'border'
-                                                                            : 'border'
-                                                                    }`}
+                                                                    className="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 border"
                                                                     style={
                                                                         questionCount ===
                                                                         count
@@ -645,12 +640,13 @@ const SettingsPage = () => {
                                                             ),
                                                         )}
                                                         <Button
+                                                            type="button"
                                                             onClick={() =>
                                                                 handleQuestionCountChange(
                                                                     'all',
                                                                 )
                                                             }
-                                                            className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 border`}
+                                                            className="px-3 py-1.5 rounded-lg font-medium text-sm transition-all duration-200 border"
                                                             style={
                                                                 questionCount ===
                                                                 'all'
@@ -985,6 +981,7 @@ const SettingsPage = () => {
 
                                             {item.type === 'speech' && (
                                                 <Button
+                                                    type="button"
                                                     onClick={() =>
                                                         setIsSpeechOpen(true)
                                                     }
@@ -1127,11 +1124,11 @@ const SettingsPage = () => {
                                 <Button
                                     onClick={testSpeak}
                                     disabled={frenchVoices.length === 0}
-                                    className={`px-3 py-2 rounded-lg text-sm border ${
-                                        frenchVoices.length === 0
-                                            ? 'opacity-60 cursor-not-allowed'
-                                            : ''
-                                    }`}
+                                    className={cn(
+                                        'px-3 py-2 rounded-lg text-sm border',
+                                        frenchVoices.length === 0 &&
+                                            'opacity-60 cursor-not-allowed',
+                                    )}
                                     style={{
                                         backgroundColor: 'var(--primary-100)',
                                         color: 'var(--primary-700)',

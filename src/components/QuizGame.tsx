@@ -9,6 +9,7 @@ import { QuizState, QuizSettings } from '@/types/quiz';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { checkTypedAnswer, stripGenderMarkers } from '@/lib/quiz-utils';
+import { Button } from '@/components/ui/button';
 
 interface QuizGameProps {
     quizState: QuizState;
@@ -117,7 +118,6 @@ export const QuizGame = ({
             }, settings.autoAdvanceDelayMs ?? 1000);
         }
 
-        // Cleanup function to clear timeout if component unmounts or dependencies change
         return () => {
             if (autoAdvanceTimeoutRef.current) {
                 clearTimeout(autoAdvanceTimeoutRef.current);
@@ -242,7 +242,6 @@ export const QuizGame = ({
                 }
             />
 
-            {/* Quiz Card */}
             <div
                 className="rounded-3xl overflow-hidden border"
                 style={{
@@ -250,7 +249,6 @@ export const QuizGame = ({
                     borderColor: 'var(--border)',
                 }}
             >
-                {/* Question */}
                 <div
                     className="p-5 sm:p-6 text-center"
                     style={{
@@ -260,7 +258,6 @@ export const QuizGame = ({
                     }}
                 >
                     <div className="inline-flex flex-wrap justify-center items-center gap-3 max-w-full">
-                        {/* Word variants rendered as chips (previously slash-separated) */}
                         {wordParts.map((part, idx) => {
                             const raw = part.trim();
                             // Clean the display text by removing the gender markers
@@ -282,8 +279,7 @@ export const QuizGame = ({
                                     </span>
                                     {settings.translationDirection ===
                                         'french-to-english' && (
-                                        <button
-                                            type="button"
+                                        <Button
                                             aria-label={`Pronounce: ${display}`}
                                             title={
                                                 hasFrenchVoice
@@ -298,7 +294,7 @@ export const QuizGame = ({
                                             style={{ color: 'white' }}
                                         >
                                             <Volume2 className="h-5 w-5" />
-                                        </button>
+                                        </Button>
                                     )}
                                 </div>
                             );
@@ -306,7 +302,6 @@ export const QuizGame = ({
                     </div>
                 </div>
 
-                {/* Options */}
                 <div className="p-6">
                     {(() => {
                         // Determine effective mode per-question when hybrid
@@ -357,7 +352,6 @@ export const QuizGame = ({
                         );
                     })()}
 
-                    {/* Next Button */}
                     {quizState.showResult && (
                         <QuizResult
                             currentQuestion={quizState.currentQuestion}

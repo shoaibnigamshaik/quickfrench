@@ -13,7 +13,6 @@ export function useSpeechSynthesis() {
     const [speechVoiceURI, setSpeechVoiceURI] = useState<string | null>(null);
     const [hasFrenchVoice, setHasFrenchVoice] = useState<boolean>(false);
 
-    // Load settings from localStorage
     useEffect(() => {
         const loadSettings = () => {
             const vol = parseFloat(getStorageItem('speechVolume', '1'));
@@ -31,7 +30,6 @@ export function useSpeechSynthesis() {
         loadSettings();
     }, []);
 
-    // Load voices
     useEffect(() => {
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
             return;
@@ -152,9 +150,7 @@ export function useSpeechSynthesis() {
             utter.rate = speechRate;
             utter.pitch = speechPitch;
             synth.speak(utter);
-        } catch {
-            // no-op
-        }
+        } catch {}
     };
 
     const testSpeak = () => {

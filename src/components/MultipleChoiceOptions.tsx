@@ -2,6 +2,8 @@ import { Check, X, HelpCircle } from 'lucide-react';
 import { Question } from '@/types/quiz';
 import { stripGenderMarkers } from '@/lib/quiz-utils';
 import React from 'react';
+import { cva } from 'class-variance-authority';
+import { Button } from '@/components/ui/button';
 
 interface MultipleChoiceOptionsProps {
     question: Question;
@@ -22,14 +24,16 @@ export const MultipleChoiceOptions = ({
         <div className="mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {question.options.map((option: string, index: number) => {
-                    let buttonClass =
-                        'w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold';
+                    const buttonClassFn = cva(
+                        'w-full p-5 rounded-2xl border-2 transition-all duration-200 transform hover:scale-105 text-left font-semibold',
+                    );
+                    let buttonClass = buttonClassFn();
                     let inlineStyle: React.CSSProperties | undefined =
                         undefined;
 
                     if (showResult) {
                         if (option === question.correct) {
-                            buttonClass += ' border';
+                            buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
                                 backgroundColor: 'var(--success-50)',
@@ -40,7 +44,7 @@ export const MultipleChoiceOptions = ({
                             option === selectedAnswer &&
                             option !== question.correct
                         ) {
-                            buttonClass += ' border';
+                            buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
                                 backgroundColor: 'var(--danger-50)',
@@ -48,7 +52,7 @@ export const MultipleChoiceOptions = ({
                                 color: 'var(--danger-600)',
                             };
                         } else {
-                            buttonClass += ' border';
+                            buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
                                 backgroundColor: 'var(--muted)',
@@ -57,7 +61,7 @@ export const MultipleChoiceOptions = ({
                             };
                         }
                     } else {
-                        buttonClass += ' border hover:shadow-sm';
+                        buttonClass = `${buttonClass} border hover:shadow-sm`;
                         inlineStyle = {
                             ...(inlineStyle || {}),
                             backgroundColor: 'var(--card)',
@@ -67,7 +71,7 @@ export const MultipleChoiceOptions = ({
                     }
 
                     return (
-                        <button
+                        <Button
                             key={index}
                             onClick={() => onAnswerSelect(option)}
                             disabled={showResult}
@@ -102,15 +106,14 @@ export const MultipleChoiceOptions = ({
                                         />
                                     )}
                             </div>
-                        </button>
+                        </Button>
                     );
                 })}
             </div>
 
             {!showResult && (
                 <div className="flex justify-center">
-                    <button
-                        type="button"
+                    <Button
                         onClick={onIDontKnow}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm md:text-base font-medium hover:bg-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
                         style={{
@@ -121,7 +124,7 @@ export const MultipleChoiceOptions = ({
                     >
                         <HelpCircle className="h-4 w-4" /> I don&rsquo;t know (0
                         or ?)
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

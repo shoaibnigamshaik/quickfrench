@@ -15,6 +15,8 @@ import {
 } from '@/lib/progress';
 import { Calendar, RangeCalendar } from '@/components/ui/calendar-rac';
 import { parseDate as racParseDate } from '@internationalized/date';
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
 
 interface TopicSelectorProps {
     topics: Topic[];
@@ -23,8 +25,6 @@ interface TopicSelectorProps {
     onStartSubtopic?: (topic: string, subtopic: string) => void;
     onToggleDirection: () => void;
 }
-
-// (Counts and subtopic map now imported from data modules.)
 
 export const TopicSelector = ({
     topics,
@@ -49,7 +49,6 @@ export const TopicSelector = ({
     const [markedDates, setMarkedDates] = React.useState<string[]>([]);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
-    // Close modal on Escape key
     React.useEffect(() => {
         if (!isCalendarOpen) return;
         const onKey = (e: KeyboardEvent) => {
@@ -64,7 +63,6 @@ export const TopicSelector = ({
         if (saved) setSelectedId(saved);
     }, []);
 
-    // Refresh when progress updates
     React.useEffect(() => {
         // Mark mounted, then load progress data.
         setIsMounted(true);
@@ -94,7 +92,6 @@ export const TopicSelector = ({
             localStorage.setItem('topicSelector:selectedId', selectedId);
     }, [selectedId]);
 
-    // Save scroll position when component unmounts or when starting a quiz
     React.useEffect(() => {
         const handleSaveScroll = () => {
             if (scrollContainerRef.current) {
@@ -115,7 +112,6 @@ export const TopicSelector = ({
     React.useEffect(() => {
         const savedScrollTop = localStorage.getItem('topicSelector:scrollTop');
         if (savedScrollTop && scrollContainerRef.current) {
-            // Use setTimeout to ensure DOM is ready
             setTimeout(() => {
                 if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTop = parseInt(
@@ -171,8 +167,7 @@ export const TopicSelector = ({
 
                         {/* Right: direction toggle + daily streak + settings */}
                         <div className="flex items-center gap-2 self-start md:self-auto">
-                            <button
-                                type="button"
+                            <Button
                                 onClick={onToggleDirection}
                                 aria-label={`Toggle translation direction (currently ${
                                     translationDirection === 'french-to-english'
@@ -196,10 +191,10 @@ export const TopicSelector = ({
                                         ? 'FR → EN'
                                         : 'EN → FR'}
                                 </span>
-                            </button>
+                            </Button>
                             {/* Daily streak pill (hidden when zero) */}
                             {daily.currentStreak > 0 && (
-                                <button
+                                <Button
                                     type="button"
                                     onClick={() => setIsCalendarOpen(true)}
                                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
@@ -218,7 +213,7 @@ export const TopicSelector = ({
                                     <span className="text-sm font-semibold">
                                         Daily {daily.currentStreak}
                                     </span>
-                                </button>
+                                </Button>
                             )}
                             <Link
                                 href="/settings"
@@ -315,7 +310,6 @@ export const TopicSelector = ({
                                                                 topic.id,
                                                             );
                                                         else {
-                                                            // Save scroll position before starting quiz
                                                             if (
                                                                 scrollContainerRef.current
                                                             ) {
@@ -331,7 +325,7 @@ export const TopicSelector = ({
                                                     }
                                                 }}
                                                 aria-label={`${topic.name}${_hasSub ? ' (has subtopics)' : ''}`}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]`}
+                                                className="w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
                                                 style={{
                                                     color: 'var(--foreground)',
                                                 }}
@@ -405,7 +399,13 @@ export const TopicSelector = ({
                     <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
                         {selectedTopic ? (
                             <div
-                                className={`rounded-xl border ${hasSubtopics(selectedTopic.id) ? 'p-6' : 'p-4'} lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek`}
+                                className={cn(
+                                    `rounded-xl border  lg:max-h-[calc(100dvh-12rem)] lg:overflow-y-auto lg:overscroll-contain scrollbar-sleek`,
+                                    {
+                                        'p-6': hasSubtopics(selectedTopic.id),
+                                        'p-4': !hasSubtopics(selectedTopic.id),
+                                    },
+                                )}
                                 style={{
                                     backgroundColor: 'var(--card)',
                                     borderColor: 'var(--border)',
@@ -512,7 +512,7 @@ export const TopicSelector = ({
                                             {subtopicsFor(selectedTopic.id).map(
                                                 (sub) => (
                                                     <li key={sub}>
-                                                        <button
+                                                        <Button
                                                             type="button"
                                                             onClick={() => {
                                                                 // Save scroll position before starting subtopic quiz
@@ -552,7 +552,7 @@ export const TopicSelector = ({
                                                                     color: 'var(--muted-foreground)',
                                                                 }}
                                                             />
-                                                        </button>
+                                                        </Button>
                                                     </li>
                                                 ),
                                             )}
@@ -577,22 +577,6 @@ export const TopicSelector = ({
                             </div>
                         )}
                     </div>
-                </div>
-
-                <div
-                    className="mt-6 p-3 rounded-xl lg:hidden"
-                    style={{ backgroundColor: 'var(--muted)' }}
-                >
-                    <p
-                        className="text-sm"
-                        style={{ color: 'var(--muted-foreground)' }}
-                    >
-                        Tip: On desktop, click a topic to preview details and
-                        subtopics; click the play button to start. On mobile,
-                        tap to start immediately (topics with subtopics will
-                        first show choices). Use FR ↔ EN above to switch
-                        translation direction.
-                    </p>
                 </div>
             </div>
             {/* Streak Calendar Modal */}
@@ -631,7 +615,8 @@ export const TopicSelector = ({
                                     Your Streak
                                 </h3>
                             </div>
-                            <button
+                            <Button
+                                type="button"
                                 onClick={() => setIsCalendarOpen(false)}
                                 className="px-3 py-1.5 rounded-lg text-sm border"
                                 style={{
@@ -641,7 +626,7 @@ export const TopicSelector = ({
                                 }}
                             >
                                 Close
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="px-5 py-4 flex flex-col items-center gap-3">

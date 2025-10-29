@@ -22,7 +22,6 @@ import {
 } from '@/lib/progress';
 import { expandMorphologicalParentheticals } from '@/lib/utils';
 
-// Fisher–Yates shuffle (returns a new shuffled copy)
 export const shuffleArray = <T>(input: T[]): T[] => {
     const a = [...input];
     for (let i = a.length - 1; i > 0; i--) {
@@ -70,7 +69,6 @@ export const generateQuestions = (
     });
 };
 
-// DRY helper: category-aware MCQ generator for items shaped like { word, meaning, category? }
 type WithOptionalCategory = {
     word: string;
     meaning: string;
@@ -93,7 +91,7 @@ const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-        // If category exists (including null), restrict to the same category; otherwise use full set
+        // Prefer distractors from the same category when available
         const pool =
             'category' in item
                 ? items.filter((x) => x.category === item.category)
@@ -115,7 +113,6 @@ const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
     });
 };
 
-// Progress-aware generator: prioritize targets by user progress, but use full set for distractors
 export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
     items: T[],
     questionCount: number | 'all',
@@ -133,11 +130,11 @@ export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
     const weight = (it: T): number => {
         const key = `${topicId}::${normalizeFrench(it.word)}`;
         const ws = progress.words[key];
-        if (!ws) return 0; // unseen highest priority
-        if (ws.correct === 0 && ws.attempts > 0) return 1; // seen but never correct
-        if (!ws.learned) return 2; // some correct but not learned
-        if (!ws.mastered) return 3; // learned but not mastered
-        return 4; // mastered last
+        if (!ws) return 0;
+        if (ws.correct === 0 && ws.attempts > 0) return 1;
+        if (!ws.learned) return 2;
+        if (!ws.mastered) return 3;
+        return 4;
     };
 
     const prioritized = [...items].sort((a, b) => weight(a) - weight(b));
@@ -173,7 +170,6 @@ export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
     });
 };
 
-// SRS-based generator: take due items (direction-aware), then fill with new/unseen for the topic
 export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     items: T[],
     questionCount: number | 'all',
@@ -186,7 +182,6 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     const isEnglishToFrench = translationDirection === 'english-to-french';
     const nowTs = options?.nowTs;
 
-    // Map items by progress key for quick lookup
     const byKey = new Map<string, T>();
     for (const it of items) byKey.set(makeProgressKey(topicId, it.word), it);
 
@@ -215,7 +210,7 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     // If not enough due, add never-seen/new items (based on absence in progress.words)
     if (targets.length < numRequested) {
         const progress = getProgress();
-        const dirKey = isEnglishToFrench ? 'en→fr' : 'fr→en'; // direction of recall target
+        const dirKey = isEnglishToFrench ? 'en→fr' : 'fr→en';
         const newPool = items.filter((it) => {
             const key = makeProgressKey(topicId, it.word);
             const ws = progress.words[key];
@@ -230,7 +225,6 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
         targets.push(...shuffledNew);
     }
 
-    // If still short, add remaining items by low progress weight (fallback)
     if (targets.length < numRequested) {
         const progress = getProgress();
         const weight = (it: T): number => {
@@ -243,7 +237,6 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
                     : 'en→fr';
             const dueAt = ws.srs?.[dirKey]?.dueAt ?? Infinity;
             const reps = ws.srs?.[dirKey]?.reps ?? 0;
-            // Prefer items with fewer reps or overdue sooner
             return (dueAt === Infinity ? 0 : -dueAt) - reps * 10;
         };
         const remaining = items
@@ -255,7 +248,6 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
         }
     }
 
-    // Build MCQ questions with category-aware distractors where available
     return targets.map((item) => {
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
@@ -280,7 +272,6 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     });
 };
 
-// Special function for adverbs that includes category information
 export const generateAdverbQuestions = (
     adverbs: Adverb[],
     questionCount: number | 'all',
@@ -292,7 +283,6 @@ export const generateAdverbQuestions = (
         translationDirection,
     );
 
-// Special function for food that includes category information (similar to adverbs)
 export const generateFoodQuestions = (
     foods: Food[],
     questionCount: number | 'all',
@@ -300,7 +290,6 @@ export const generateFoodQuestions = (
 ): Question[] =>
     generateCategoryAwareQuestions(foods, questionCount, translationDirection);
 
-// Special function for family (similar shape as food/body)
 export const generateFamilyQuestions = (
     items: FamilyItem[],
     questionCount: number | 'all',
@@ -308,7 +297,6 @@ export const generateFamilyQuestions = (
 ): Question[] =>
     generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
-// Special function for home (category-based similar to family/food)
 export const generateHomeQuestions = (
     items: HomeItem[],
     questionCount: number | 'all',
@@ -316,7 +304,6 @@ export const generateHomeQuestions = (
 ): Question[] =>
     generateCategoryAwareQuestions(items, questionCount, translationDirection);
 
-// Special function for body that may include category information
 export const generateBodyQuestions = (
     items: BodyItem[],
     questionCount: number | 'all',
@@ -332,7 +319,7 @@ export const stripGenderMarkers = (text: string): string => {
 };
 
 export const checkTypedAnswer = (correct: string, typed: string): boolean => {
-    // Normalize text: lowercase, strip gender markers (m/f), remove diacritics,
+    // Normalize text: lowercase, remove gender markers and diacritics,
     // drop punctuation, collapse spaces, and remove articles.
     const normalizeText = (text: string): string => {
         const normalized = text
@@ -355,39 +342,32 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
         return filtered.join(' ').trim();
     };
 
-    // Extract possible alternatives from the correct answer. Supports:
-    // - Entire string separated by '/', ',', '|', or ' or '
-    // - Parenthetical alternatives like "(corridor / hallway)"
     const extractAlternatives = (text: string): string[] => {
         const alts: string[] = [];
 
-        // Collect parenthetical content
+        // collect parenthetical content
         const parenMatches = Array.from(text.matchAll(/\(([^)]*)\)/g));
         for (const match of parenMatches) {
             const inside = match[1];
             if (inside) alts.push(inside);
         }
-
-        // Base text with parentheticals removed (could itself be a candidate)
+        // base text with parentheticals removed (candidate)
         const base = text.replace(/\([^)]*\)/g, ' ');
         if (base.trim()) alts.push(base);
-
-        // If no parentheses at all, use original text as candidate
+        // If no parentheses, fall back to original
         if (alts.length === 0) alts.push(text);
 
-        // Expand morphological parentheticals like "lourd(e)" -> ["lourd", "lourde"] first
+        // Expand morphological parentheticals like "lourd(e)" -> ["lourd", "lourde"]
         const morphExpanded = alts.flatMap((s) =>
             expandMorphologicalParentheticals(s),
         );
-
-        // Then split all candidates by common separators to yield final atomic options
+        // split candidates by common separators to yield atomic options
         const splitOn = /\s*(?:\/|,|\||;|\bor\b)\s*/i;
         const expanded = morphExpanded
             .flatMap((s) => s.split(splitOn))
             .map((s) => s.trim())
             .filter((s) => s.length > 0);
-
-        // Deduplicate while preserving order
+        // deduplicate while preserving order
         const seen = new Set<string>();
         const unique: string[] = [];
         for (const s of expanded) {
@@ -404,11 +384,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
     const typedNorm = normalizeText(typed);
     if (!typedNorm) return false;
 
-    // If both correct answer and typed answer contain paired alternatives
-    // (e.g. "acteur / actrice" or "actor / actress"), treat them as
-    // element-wise pairs and accept when all corresponding elements match
-    // after normalization. This handles user input like "acteur / actrice"
-    // where the previous logic only checked single atomic alternatives.
+    // Handle paired alternatives like "acteur / actrice" by comparing element-wise
     const pairSplit = /\s*(?:\/|,|\||;|\bor\b)\s*/i;
     if (pairSplit.test(correct) && pairSplit.test(typed)) {
         const correctParts = correct
@@ -434,7 +410,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
     // Fast path: exact match to any candidate
     if (candidates.some((c) => c === typedNorm)) return true;
 
-    // Small Levenshtein distance allowance for minor typos against any candidate.
+    // Small Levenshtein allowance for minor typos
     const levenshtein = (s: string, t: string): number => {
         if (s === t) return 0;
         const n = s.length;
@@ -462,7 +438,7 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
         return v0[m];
     };
 
-    // Determine threshold against the closest candidate length
+    // Determine threshold based on closest candidate length
     const closestLen = candidates.reduce(
         (min, c) => Math.min(min, Math.max(c.length, typedNorm.length)),
         Infinity,

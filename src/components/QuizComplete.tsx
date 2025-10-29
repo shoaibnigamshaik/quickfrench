@@ -1,6 +1,8 @@
 import { Trophy, Home, RotateCcw } from 'lucide-react';
 import { getScoreColor, getScoreMessage } from '@/lib/quiz-utils';
 import React from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
 
 interface QuizCompleteProps {
     score: number;
@@ -106,14 +108,15 @@ export const QuizComplete = ({
 
                 <div className="space-y-6">
                     <div
-                        className={`text-2xl font-bold ${getScoreColor(score, totalQuestions)}`}
+                        className={cn(
+                            `text-2xl font-bold ${getScoreColor(score, totalQuestions)}`,
+                        )}
                     >
                         {getScoreMessage(score, totalQuestions)}
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         {wrongCount > 0 && onRetryWrongOnly && (
-                            <button
-                                type="button"
+                            <Button
                                 onClick={onRetryWrongOnly}
                                 className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
                                 style={{
@@ -133,10 +136,9 @@ export const QuizComplete = ({
                                 >
                                     {wrongCount}
                                 </span>
-                            </button>
+                            </Button>
                         )}
-                        <button
-                            type="button"
+                        <Button
                             onClick={onRestartQuiz}
                             className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold border hover:shadow-sm"
                             style={{
@@ -147,15 +149,14 @@ export const QuizComplete = ({
                         >
                             <RotateCcw className="mr-2 h-5 w-5" />
                             Restart Quiz
-                        </button>
-                        <button
-                            type="button"
+                        </Button>
+                        <Button
                             onClick={onReturnHome}
                             className="inline-flex items-center px-8 py-4 rounded-2xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg text-white bg-gradient-to-r from-[var(--cta-grad-from)] to-[var(--cta-grad-to)]"
                         >
                             <Home className="mr-2 h-5 w-5" />
                             Return Home
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

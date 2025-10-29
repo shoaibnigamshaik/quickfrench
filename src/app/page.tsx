@@ -40,7 +40,6 @@ const FrenchVocabularyQuiz = () => {
         revealCurrentQuestionOptions,
     } = useQuizState(vocabulary, selectedTopic);
 
-    // Prevent page scroll while selecting topics (desktop UX)
     useEffect(() => {
         if (!showTopicSelector) return;
         const isDesktop =
@@ -55,7 +54,6 @@ const FrenchVocabularyQuiz = () => {
         };
     }, [showTopicSelector]);
 
-    // Load translation direction from localStorage and update settings
     useEffect(() => {
         const savedDirection = getStorageItem('translationDirection') as
             | 'french-to-english'
@@ -72,7 +70,6 @@ const FrenchVocabularyQuiz = () => {
         await handleStartQuizHook(topic, fetchVocabulary, startQuiz);
     };
 
-    // Generic subtopic selection handler (DRY)
     const handleSubtopicSelect = async (
         topic: SubtopicKey,
         category: string,
@@ -85,13 +82,11 @@ const FrenchVocabularyQuiz = () => {
         );
     };
 
-    // Handle back from food subtopics
     const handleResetQuiz = () => {
         handleResetQuizHook(goHome);
     };
 
     const getTopicDisplayName = () => {
-        // Handle combined topicId format for subtopics (e.g., "food::Fruits")
         if (selectedTopic.includes('::')) {
             const [mainTopic, subtopic] = selectedTopic.split('::');
             const label =
@@ -158,10 +153,6 @@ const FrenchVocabularyQuiz = () => {
                 maxStreak={quizState.maxStreak}
                 onReturnHome={handleResetQuiz}
                 onRestartQuiz={() => {
-                    // Restart in place: regenerate questions and reset progress
-                    // Use the reset function from hook but preserve selectedTopic and fetched vocabulary
-                    // We can call next handlers to re-start the same topic: use startQuiz with current selectedTopic
-                    // Easiest: toggle quizComplete false and rely on useQuizState.resetQuiz which now restarts in place
                     resetQuiz();
                 }}
                 wrongCount={quizState.wrongAnswers.length}
