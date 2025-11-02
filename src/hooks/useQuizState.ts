@@ -9,17 +9,12 @@ import {
 } from '@/types/quiz';
 import type { Question } from '@/types/quiz';
 import {
-    generateQuestionsProgressAware,
     generateQuestionsSrs,
     checkTypedAnswer,
     loadQuizSettings,
     shuffleArray,
 } from '@/lib/quiz-utils';
-import {
-    recordAttempt,
-    recordSessionComplete,
-    getDueFrenchKeys,
-} from '@/lib/progress';
+import { recordAttempt, recordSessionComplete } from '@/lib/progress';
 
 export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     const [quizState, setQuizState] = useState<QuizState>({
@@ -46,8 +41,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         autoAdvanceDelayMs: 1000,
         timerEnabled: false,
         timerDurationSec: 30,
-        srsReviewMode: undefined,
-        srsMaxPerSession: undefined,
         srsNewPerSession: undefined,
     });
 
@@ -66,21 +59,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
             autoAdvanceDelayMs: savedSettings.autoAdvanceDelayMs ?? 1000,
             timerEnabled: savedSettings.timerEnabled ?? false,
             timerDurationSec: savedSettings.timerDurationSec ?? 30,
-            // SRS toggles (optional): read if present
-            srsReviewMode:
-                (localStorage.getItem('srsReviewMode') as
-                    | 'true'
-                    | 'false'
-                    | null) === 'true'
-                    ? true
-                    : undefined,
-            srsMaxPerSession: (() => {
-                const v = localStorage.getItem('srsMaxPerSession');
-                const n = v ? parseInt(v, 10) : NaN;
-                return Number.isFinite(n)
-                    ? Math.max(5, Math.min(100, n))
-                    : undefined;
-            })(),
             srsNewPerSession: (() => {
                 const v = localStorage.getItem('srsNewPerSession');
                 const n = v ? parseInt(v, 10) : NaN;
@@ -91,59 +69,25 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         }));
     }, []);
 
-    // Helper to decide SRS usage
-    const shouldUseSrs = useCallback(
-        (
-            explicitFlag: boolean | undefined,
-            topicId: string,
-            direction: TranslationDirection,
-        ): boolean => {
-            if (typeof explicitFlag === 'boolean') return explicitFlag;
-            try {
-                const due = getDueFrenchKeys({
-                    topicId,
-                    direction,
-                    now: Date.now(),
-                });
-                return due.length > 0;
-            } catch {
-                return false;
-            }
-        },
-        [],
-    );
-
     // Build questions for current topic (SRS + progress aware) in one place
     const buildQuestions = useCallback(
         (vocab: VocabularyItem[], topicId: string, cfg: QuizSettings) => {
             const shuffled = shuffleArray(vocab);
             const nowTs = Date.now();
-            const useSrs = shouldUseSrs(
-                cfg.srsReviewMode,
-                topicId,
-                cfg.translationDirection,
-            );
             const maxNew =
                 typeof cfg.srsNewPerSession === 'number'
                     ? cfg.srsNewPerSession
                     : undefined;
-            if (useSrs) {
-                return generateQuestionsSrs(
-                    shuffled,
-                    cfg.questionCount,
-                    cfg.translationDirection,
-                    topicId,
-                    { maxNew, nowTs },
-                );
-            }
-            return generateQuestionsProgressAware(
+            // Always use SRS: prioritize due items and add new/practice as needed
+            return generateQuestionsSrs(
                 shuffled,
                 cfg.questionCount,
                 cfg.translationDirection,
                 topicId,
+                { maxNew, nowTs },
             );
         },
-        [shouldUseSrs],
+        [],
     );
 
     // Generate questions when topic or relevant settings change
@@ -158,7 +102,6 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
         settings.questionCount,
         settings.translationDirection,
         topic,
-        settings.srsReviewMode,
         settings.srsNewPerSession,
         buildQuestions,
         settings,

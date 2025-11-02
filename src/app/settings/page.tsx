@@ -132,13 +132,7 @@ const SettingsPage = () => {
     );
     const [isSpeechOpen, setIsSpeechOpen] = React.useState(false);
 
-    // Spaced repetition controls (persisted locally)
-    const [srsReviewMode, setSrsReviewMode] = React.useState<
-        boolean | undefined
-    >(() => {
-        const v = getLS('srsReviewMode');
-        return v === null ? undefined : v === 'true';
-    });
+    // Spaced repetition: always enabled; only persist per-session new items cap
     const [srsNewPerSession, setSrsNewPerSession] = React.useState<
         number | undefined
     >(() => {
@@ -327,11 +321,10 @@ const SettingsPage = () => {
                 {
                     id: 'srs-review',
                     icon: RefreshCw,
-                    label: 'Review (Spaced Repetition)',
+                    label: 'Spaced Repetition',
                     description:
-                        'Prioritize due items first; fallback to practice when nothing is due',
-                    type: 'auto-advance' as const, // reuse toggle visuals
-                    value: !!srsReviewMode,
+                        'Enabled by default. Prioritize due items; add new ones as needed.',
+                    type: 'auto-advance' as const, // reuse layout for custom row below
                 },
             ],
         },
@@ -522,7 +515,7 @@ const SettingsPage = () => {
                                                             label: 'Hybrid',
                                                             tips: [
                                                                 'Start by typing',
-                                                                'Press 0/? or click to show options',
+                                                                'Press Ctrl + Enter or click to show options',
                                                                 'Then answer like MCQ',
                                                                 'Best for active recall',
                                                             ],
@@ -758,53 +751,6 @@ const SettingsPage = () => {
 
                                             {item.type === 'auto-advance' && (
                                                 <div className="flex items-center gap-4">
-                                                    {(() => {
-                                                        const isOn =
-                                                            item.label ===
-                                                            'Auto Advance'
-                                                                ? autoAdvance
-                                                                : item.label ===
-                                                                    'Timer'
-                                                                  ? timerEnabled
-                                                                  : !!srsReviewMode;
-                                                        return (
-                                                            <Switch
-                                                                checked={isOn}
-                                                                onCheckedChange={
-                                                                    item.label ===
-                                                                    'Auto Advance'
-                                                                        ? () =>
-                                                                              handleAutoAdvanceChange()
-                                                                        : item.label ===
-                                                                            'Timer'
-                                                                          ? () =>
-                                                                                handleTimerToggle()
-                                                                          : (
-                                                                                v,
-                                                                            ) => {
-                                                                                setSrsReviewMode(
-                                                                                    v,
-                                                                                );
-                                                                                setLS(
-                                                                                    'srsReviewMode',
-                                                                                    String(
-                                                                                        v,
-                                                                                    ),
-                                                                                );
-                                                                            }
-                                                                }
-                                                                aria-label={
-                                                                    item.label ===
-                                                                    'Auto Advance'
-                                                                        ? 'Toggle auto advance'
-                                                                        : item.label ===
-                                                                            'Timer'
-                                                                          ? 'Toggle timer'
-                                                                          : 'Toggle SRS review mode'
-                                                                }
-                                                            />
-                                                        );
-                                                    })()}
                                                     {item.id ===
                                                     'auto-advance' ? (
                                                         <div className="flex items-center gap-2">
@@ -816,6 +762,15 @@ const SettingsPage = () => {
                                                             >
                                                                 Delay (s):
                                                             </label>
+                                                            <Switch
+                                                                checked={
+                                                                    autoAdvance
+                                                                }
+                                                                onCheckedChange={() =>
+                                                                    handleAutoAdvanceChange()
+                                                                }
+                                                                aria-label="Toggle auto advance"
+                                                            />
                                                             <Input
                                                                 type="number"
                                                                 min={0.3}
@@ -869,6 +824,15 @@ const SettingsPage = () => {
                                                             >
                                                                 Seconds:
                                                             </label>
+                                                            <Switch
+                                                                checked={
+                                                                    timerEnabled
+                                                                }
+                                                                onCheckedChange={() =>
+                                                                    handleTimerToggle()
+                                                                }
+                                                                aria-label="Toggle timer"
+                                                            />
                                                             <Input
                                                                 type="number"
                                                                 min={5}
@@ -955,9 +919,6 @@ const SettingsPage = () => {
                                                                 }}
                                                                 className="w-24"
                                                                 aria-label="SRS new items per quiz"
-                                                                disabled={
-                                                                    !srsReviewMode
-                                                                }
                                                             />
                                                         </div>
                                                     )}
