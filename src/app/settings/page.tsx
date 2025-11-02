@@ -373,7 +373,7 @@ const SettingsPage = () => {
                     {format(value)}
                 </span>
             </div>
-            <input
+            <Input
                 type="range"
                 min={min}
                 max={max}
@@ -680,7 +680,7 @@ const SettingsPage = () => {
                                                         >
                                                             Or enter a number:
                                                         </label>
-                                                        <input
+                                                        <Input
                                                             type="number"
                                                             min={1}
                                                             max={50}
