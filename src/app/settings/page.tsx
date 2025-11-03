@@ -323,7 +323,7 @@ const SettingsPage = () => {
                     icon: RefreshCw,
                     label: 'Spaced Repetition',
                     description:
-                        'Enabled by default. Prioritize due items; add new ones as needed.',
+                        'Prioritize due items; add new ones as needed.',
                     type: 'auto-advance' as const, // reuse layout for custom row below
                 },
             ],

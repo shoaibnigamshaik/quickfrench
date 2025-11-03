@@ -33,25 +33,30 @@ export const MultipleChoiceOptions = ({
 
                     if (showResult) {
                         if (option === question.correct) {
+                            // Previous subtle style, but keep it from fading when disabled
                             buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
                                 backgroundColor: 'var(--success-50)',
                                 borderColor: 'var(--success-600)',
                                 color: 'var(--success-600)',
+                                opacity: 1,
                             };
                         } else if (
                             option === selectedAnswer &&
                             option !== question.correct
                         ) {
+                            // Previous subtle style for wrong selected, also prevent fade
                             buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
                                 backgroundColor: 'var(--danger-50)',
                                 borderColor: 'var(--danger-600)',
                                 color: 'var(--danger-600)',
+                                opacity: 1,
                             };
                         } else {
+                            // Keep other options muted and allow global disabled fade
                             buttonClass = `${buttonClass} border`;
                             inlineStyle = {
                                 ...(inlineStyle || {}),
@@ -115,7 +120,7 @@ export const MultipleChoiceOptions = ({
                 <div className="flex justify-center">
                     <Button
                         onClick={onIDontKnow}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm md:text-base font-medium hover:bg-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)] focus:ring-offset-2 focus:ring-offset-[var(--card)]"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm md:text-base font-medium hover:bg-(--muted) focus:outline-none focus:ring-2 focus:ring-(--primary-600) focus:ring-offset-2 focus:ring-offset-(--card)"
                         style={{
                             backgroundColor: 'var(--card)',
                             borderColor: 'var(--border)',
