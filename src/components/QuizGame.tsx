@@ -224,7 +224,7 @@ export const QuizGame = ({
     })();
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto max-w-3xl md:max-w-4xl px-3 md:px-0">
             <QuizHeader onResetQuiz={onResetQuiz} />
 
             <ProgressBar
@@ -250,14 +250,14 @@ export const QuizGame = ({
                 }}
             >
                 <div
-                    className="p-5 sm:p-6 text-center"
+                    className="p-3 sm:p-4 md:p-6 text-center"
                     style={{
                         // Keep ONLY the primary gradient layer for the question banner
                         background:
                             'linear-gradient(90deg, var(--cta-grad-from), var(--cta-grad-to))',
                     }}
                 >
-                    <div className="inline-flex flex-wrap justify-center items-center gap-3 max-w-full">
+                    <div className="inline-flex flex-wrap justify-center items-center gap-2 sm:gap-3 max-w-full">
                         {wordParts.map((part, idx) => {
                             const raw = part.trim();
                             // Clean the display text by removing the gender markers
@@ -265,15 +265,14 @@ export const QuizGame = ({
                             return (
                                 <div
                                     key={`chip-${idx}-${raw}`}
-                                    className="group relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-white text-2xl sm:text-3xl font-semibold shadow-lg"
+                                    className="group relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-white text-2xl md:text-3xl font-semibold"
                                     style={{
-                                        background: 'rgba(255,255,255,0.12)',
-                                        backdropFilter: 'blur(4px)',
-                                        border: '1px solid rgba(255,255,255,0.25)',
+                                        background: 'rgba(255,255,255,0.08)',
+                                        border: '1px solid rgba(255,255,255,0.15)',
                                     }}
                                 >
                                     <span className="flex items-center gap-2">
-                                        <span className="leading-none break-words">
+                                        <span className="leading-tight wrap-break-word">
                                             {display}
                                         </span>
                                     </span>
@@ -290,8 +289,7 @@ export const QuizGame = ({
                                                 hasFrenchVoice && speak(display)
                                             }
                                             disabled={!hasFrenchVoice}
-                                            className={`inline-flex items-center justify-center rounded-full p-1.5 focus:outline-none focus:ring-2 focus:ring-white/70 transition-colors bg-white/10 hover:bg-white/20 ${!hasFrenchVoice ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                            style={{ color: 'white' }}
+                                            className={`inline-flex items-center justify-center rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-white/70 transition-colors text-white bg-white/10 hover:bg-white/20 disabled:opacity-60 ${!hasFrenchVoice ? 'cursor-not-allowed' : ''}`}
                                         >
                                             <Volume2 className="h-5 w-5" />
                                         </Button>
@@ -302,7 +300,7 @@ export const QuizGame = ({
                     </div>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                     {(() => {
                         // Determine effective mode per-question when hybrid
                         const isHybrid = settings.quizMode === 'hybrid';
