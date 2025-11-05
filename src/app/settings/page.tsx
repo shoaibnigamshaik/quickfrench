@@ -94,15 +94,15 @@ const SettingsPage = () => {
             saved === 'multiple-choice' ||
             saved === 'hybrid'
             ? (saved as 'multiple-choice' | 'typing' | 'hybrid')
-            : 'multiple-choice';
+            : 'hybrid';
     });
     const [questionCount, setQuestionCount] = React.useState<number | 'all'>(
         () => {
             const saved = getLS('questionCount');
-            if (!saved) return 10;
+            if (!saved) return 'all';
             if (saved === 'all') return 'all';
             const n = parseInt(saved, 10);
-            return Number.isNaN(n) ? 10 : Math.max(1, Math.min(50, n));
+            return Number.isNaN(n) ? 'all' : Math.max(1, Math.min(50, n));
         },
     );
     const [autoAdvance, setAutoAdvance] = React.useState<boolean>(() => {
@@ -726,23 +726,6 @@ const SettingsPage = () => {
                                                         >
                                                             (1–50)
                                                         </span>
-                                                    </div>
-
-                                                    <div className="text-right">
-                                                        <p
-                                                            className="text-xs"
-                                                            style={{
-                                                                color: 'var(--muted-foreground)',
-                                                            }}
-                                                        >
-                                                            Selected:{' '}
-                                                            <strong>
-                                                                {questionCount ===
-                                                                'all'
-                                                                    ? 'All available questions'
-                                                                    : `${questionCount} questions`}
-                                                            </strong>
-                                                        </p>
                                                     </div>
                                                 </div>
                                             )}

@@ -584,18 +584,19 @@ export const loadQuizSettings = () => {
 
     const parseCount = (val: string | null): number | 'all' => {
         if (val === 'all') return 'all';
-        if (!val) return 10;
+        if (!val) return 'all';
         const n = parseInt(val, 10);
-        if (Number.isNaN(n)) return 10;
+        if (Number.isNaN(n)) return 'all';
         // Clamp to reasonable bounds
         return Math.min(Math.max(n, 1), 50);
     };
 
     return {
-        quizMode: savedMode || 'multiple-choice',
+        quizMode: savedMode || 'hybrid',
         questionCount: parseCount(savedCount),
         translationDirection: savedDirection || 'french-to-english',
-        autoAdvance: savedAutoAdvance === 'true',
+        autoAdvance:
+            savedAutoAdvance === null ? true : savedAutoAdvance === 'true',
         autoAdvanceDelayMs:
             savedAutoAdvanceDelay &&
             !Number.isNaN(parseInt(savedAutoAdvanceDelay))

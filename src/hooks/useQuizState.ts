@@ -33,11 +33,11 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     });
 
     const [settings, setSettings] = useState<QuizSettings>({
-        quizMode: 'multiple-choice',
-        questionCount: 10,
+        quizMode: 'hybrid',
+        questionCount: 'all',
         selectedTopic: '',
         translationDirection: 'french-to-english',
-        autoAdvance: false,
+        autoAdvance: true,
         autoAdvanceDelayMs: 1000,
         timerEnabled: false,
         timerDurationSec: 30,
