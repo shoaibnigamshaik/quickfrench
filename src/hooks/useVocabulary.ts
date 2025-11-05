@@ -8,10 +8,12 @@ export const useVocabulary = () => {
     const [error, setError] = useState<string | null>(null);
 
     const fetchVocabulary = useCallback(
-        async (topic: string, subCategory?: string) => {
+        async (topic: string, _subCategory?: string) => {
             try {
                 setLoading(true);
                 setError(null);
+                // Intentionally unused: subtopic filtering is applied later in question generation
+                void _subCategory;
 
                 let data: VocabularyItem[] = [];
 
@@ -109,16 +111,9 @@ export const useVocabulary = () => {
                 if (topic in simpleFetchers) {
                     data = await simpleFetchers[topic]();
                 } else if (topic in categoryFetchers) {
+                    // Always fetch the full topic pool; subtopic filtering will be applied later during question generation
                     const allItems = await categoryFetchers[topic]();
-                    if (subCategory && subCategory !== 'All') {
-                        data = allItems.filter(
-                            (item) =>
-                                'category' in item &&
-                                item.category === subCategory,
-                        );
-                    } else {
-                        data = allItems;
-                    }
+                    data = allItems;
                 } else {
                     console.warn(`Unknown topic: ${topic}`);
                 }

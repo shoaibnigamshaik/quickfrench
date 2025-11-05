@@ -72,19 +72,30 @@ export const useQuizState = (vocabulary: VocabularyItem[], topic: string) => {
     // Build questions for current topic (SRS + progress aware) in one place
     const buildQuestions = useCallback(
         (vocab: VocabularyItem[], topicId: string, cfg: QuizSettings) => {
-            const shuffled = shuffleArray(vocab);
             const nowTs = Date.now();
             const maxNew =
                 typeof cfg.srsNewPerSession === 'number'
                     ? cfg.srsNewPerSession
                     : undefined;
-            // Always use SRS: prioritize due items and add new/practice as needed
+
+            // If a subtopic is selected (topicId includes ::), filter the target pool accordingly
+            let targetPool = vocab;
+            const sepIdx = topicId.indexOf('::');
+            if (sepIdx > 0) {
+                const subCategory = topicId.slice(sepIdx + 2);
+                targetPool = vocab.filter(
+                    (it) => 'category' in it && it.category === subCategory,
+                );
+            }
+
+            // Shuffle target pool for variety; keep full vocab as fallback for distractors
+            const shuffledTargets = shuffleArray(targetPool);
             return generateQuestionsSrs(
-                shuffled,
+                shuffledTargets,
                 cfg.questionCount,
                 cfg.translationDirection,
                 topicId,
-                { maxNew, nowTs },
+                { maxNew, nowTs, distractorPool: vocab },
             );
         },
         [],

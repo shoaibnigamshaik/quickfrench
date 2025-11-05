@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button } from './button';
 
 type ThemeKey = 'light' | 'dark' | 'system';
 
@@ -82,7 +83,7 @@ export function ThemeSwitcher({
             {themes.map(({ key, icon: Icon, label }) => {
                 const isActive = theme === key;
                 return (
-                    <button
+                    <Button
                         type="button"
                         key={key}
                         className="relative h-6 w-6 rounded-full"
@@ -107,7 +108,7 @@ export function ThemeSwitcher({
                             />
                         )}
                         <Icon className={cn('relative m-auto h-4 w-4')} />
-                    </button>
+                    </Button>
                 );
             })}
         </div>

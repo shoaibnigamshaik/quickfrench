@@ -132,7 +132,7 @@ export const TopicSelector = ({
         SUBTOPIC_MAP[id] ?? [];
 
     return (
-        <div className="max-w-2xl lg:max-w-5xl w-full mx-auto min-h-[100dvh]">
+        <div className="max-w-2xl lg:max-w-5xl w-full mx-auto min-h-dvh">
             <div
                 className="rounded-3xl p-6 md:p-7"
                 style={{
@@ -175,7 +175,7 @@ export const TopicSelector = ({
                                         : 'English to French'
                                 })`}
                                 title="Toggle translation direction"
-                                className="inline-flex items-center px-2 py-1 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                                className="inline-flex items-center px-2 py-1 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-600)"
                                 style={{
                                     background:
                                         'linear-gradient(90deg, var(--badge-grad-from), var(--badge-grad-to))',
@@ -197,7 +197,7 @@ export const TopicSelector = ({
                                 <Button
                                     type="button"
                                     onClick={() => setIsCalendarOpen(true)}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-600)"
                                     style={{
                                         backgroundColor: 'var(--muted)',
                                         borderColor: 'var(--border)',
@@ -288,11 +288,11 @@ export const TopicSelector = ({
                                             key={topic.id}
                                             className={
                                                 isSelected
-                                                    ? 'bg-[var(--muted)]'
+                                                    ? 'bg-(--muted). '
                                                     : undefined
                                             }
                                         >
-                                            <button
+                                            <Button
                                                 type="button"
                                                 onClick={() => {
                                                     const isDesktop =
@@ -325,7 +325,7 @@ export const TopicSelector = ({
                                                     }
                                                 }}
                                                 aria-label={`${topic.name}${_hasSub ? ' (has subtopics)' : ''}`}
-                                                className="w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                                                className="w-full flex items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-600)"
                                                 style={{
                                                     color: 'var(--foreground)',
                                                 }}
@@ -368,11 +368,11 @@ export const TopicSelector = ({
                                                         }}
                                                     />
                                                 )}
-                                            </button>
+                                            </Button>
                                             {/* Progress bar */}
                                             <div className="px-4 pb-3">
                                                 <div
-                                                    className="w-full h-1.5 rounded-full bg-[var(--muted)] border"
+                                                    className="w-full h-1.5 rounded-full bg-(--muted) border"
                                                     style={{
                                                         borderColor:
                                                             'var(--border)',
@@ -537,7 +537,7 @@ export const TopicSelector = ({
                                                                     );
                                                                 }
                                                             }}
-                                                            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-600)]"
+                                                            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-600)"
                                                             style={{
                                                                 color: 'var(--foreground)',
                                                             }}

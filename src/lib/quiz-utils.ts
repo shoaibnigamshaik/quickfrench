@@ -47,19 +47,12 @@ export const generateQuestions = (
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-        const otherOptions = shuffleArray(
-            vocabulary.filter((vocabItem) =>
-                isEnglishToFrench
-                    ? vocabItem.word !== item.word
-                    : vocabItem.meaning !== item.meaning,
-            ),
-        )
-            .slice(0, 3)
-            .map((vocabItem) =>
-                isEnglishToFrench ? vocabItem.word : vocabItem.meaning,
-            );
-
-        const options = shuffleArray([correctAnswer, ...otherOptions]);
+        const options = buildOptions({
+            items: vocabulary,
+            item,
+            isEnglishToFrench,
+            fallbackPool: vocabulary,
+        });
 
         return {
             word: questionWord,
@@ -91,23 +84,12 @@ const generateCategoryAwareQuestions = <T extends WithOptionalCategory>(
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-        // Prefer distractors from the same category when available
-        const pool =
-            'category' in item
-                ? items.filter((x) => x.category === item.category)
-                : (items as T[]);
-
-        const distractors = shuffleArray(
-            pool.filter((x) =>
-                isEnglishToFrench
-                    ? x.word !== item.word
-                    : x.meaning !== item.meaning,
-            ),
-        )
-            .slice(0, 3)
-            .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-        const options = shuffleArray([correctAnswer, ...distractors]);
+        const options = buildOptions({
+            items,
+            item,
+            isEnglishToFrench,
+            fallbackPool: items,
+        });
 
         return { word: questionWord, correct: correctAnswer, options };
     });
@@ -146,26 +128,12 @@ export const generateQuestionsProgressAware = <T extends WithOptionalCategory>(
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
 
-        const pool =
-            'category' in item
-                ? items.filter(
-                      (x) =>
-                          x.category ===
-                          (item as T & { category?: string | null }).category,
-                  )
-                : items;
-
-        const distractors = shuffleArray(
-            pool.filter((x) =>
-                isEnglishToFrench
-                    ? x.word !== item.word
-                    : x.meaning !== item.meaning,
-            ),
-        )
-            .slice(0, 3)
-            .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-        const options = shuffleArray([correctAnswer, ...distractors]);
+        const options = buildOptions({
+            items,
+            item,
+            isEnglishToFrench,
+            fallbackPool: items,
+        });
         return { word: questionWord, correct: correctAnswer, options };
     });
 };
@@ -175,7 +143,7 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     questionCount: number | 'all',
     translationDirection: TranslationDirection = 'french-to-english',
     topicId: string,
-    options?: { maxNew?: number; nowTs?: number },
+    options?: { maxNew?: number; nowTs?: number; distractorPool?: T[] },
 ): Question[] => {
     if (!Array.isArray(items) || items.length === 0) return [];
 
@@ -251,24 +219,17 @@ export const generateQuestionsSrs = <T extends WithOptionalCategory>(
     return targets.map((item) => {
         const questionWord = isEnglishToFrench ? item.meaning : item.word;
         const correctAnswer = isEnglishToFrench ? item.word : item.meaning;
-
-        const pool =
-            'category' in item
-                ? items.filter((x) => x.category === item.category)
-                : items;
-
-        const distractors = shuffleArray(
-            pool.filter((x) =>
-                isEnglishToFrench
-                    ? x.word !== item.word
-                    : x.meaning !== item.meaning,
-            ),
-        )
-            .slice(0, 3)
-            .map((x) => (isEnglishToFrench ? x.word : x.meaning));
-
-        const options = shuffleArray([correctAnswer, ...distractors]);
-        return { word: questionWord, correct: correctAnswer, options };
+        const choiceOptions = buildOptions({
+            items,
+            item,
+            isEnglishToFrench,
+            fallbackPool: options?.distractorPool ?? items,
+        });
+        return {
+            word: questionWord,
+            correct: correctAnswer,
+            options: choiceOptions,
+        };
     });
 };
 
@@ -445,6 +406,73 @@ export const checkTypedAnswer = (correct: string, typed: string): boolean => {
     );
     const threshold = closestLen <= 3 ? 0 : closestLen <= 6 ? 1 : 2;
     return candidates.some((c) => levenshtein(c, typedNorm) <= threshold);
+};
+
+// Helper to build up to 4 total options (1 correct + 3 distractors) robustly.
+// Strategy:
+// - Prefer distractors from the same category (if present)
+// - Backfill from the global pool if not enough
+// - Ensure option texts are unique after stripping gender markers and case
+// - Always include the correct answer
+const normalizeOptionText = (s: string): string =>
+    stripGenderMarkers(s).toLowerCase().trim();
+
+type WithMaybeCategory = {
+    word: string;
+    meaning: string;
+    category?: string | null;
+};
+
+const buildOptions = <T extends WithMaybeCategory>(args: {
+    items: T[];
+    item: T;
+    isEnglishToFrench: boolean;
+    fallbackPool?: T[]; // optional broader pool (e.g., entire topic) for backfilling
+}): string[] => {
+    const { items, item, isEnglishToFrench, fallbackPool } = args;
+    const getText = (x: T) => (isEnglishToFrench ? x.word : x.meaning);
+
+    const correct = getText(item);
+    const seen = new Set<string>([normalizeOptionText(correct)]);
+    const distractors: string[] = [];
+
+    // Stage 1: same-category pool (if available), excluding the current item
+    const sameCategoryPool =
+        'category' in item
+            ? items.filter(
+                  (x) =>
+                      x !== item &&
+                      (x as WithMaybeCategory).category ===
+                          (item as WithMaybeCategory).category,
+              )
+            : [];
+
+    // Stage 2: global pool excluding the current item
+    const globalPool = items.filter((x) => x !== item);
+
+    const tryAddFrom = (pool: T[]) => {
+        if (distractors.length >= 3) return;
+        for (const x of shuffleArray(pool)) {
+            const text = getText(x);
+            const norm = normalizeOptionText(text);
+            if (!seen.has(norm)) {
+                seen.add(norm);
+                distractors.push(text);
+                if (distractors.length >= 3) break;
+            }
+        }
+    };
+
+    tryAddFrom(sameCategoryPool);
+    if (distractors.length < 3) tryAddFrom(globalPool);
+
+    // If still not enough, backfill from provided fallback pool (e.g., entire topic items)
+    if (fallbackPool && distractors.length < 3) {
+        tryAddFrom(fallbackPool.filter((x) => x !== item));
+    }
+
+    const options = shuffleArray([correct, ...distractors.slice(0, 3)]);
+    return options;
 };
 
 // Nature: restrict options to the same category (including null category)
