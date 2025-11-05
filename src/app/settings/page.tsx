@@ -11,13 +11,15 @@ import {
     ArrowLeft,
     Palette,
     HelpCircle,
-    Info,
     CheckCircle,
     LucideIcon,
     Timer,
     FastForward,
     RefreshCw,
     Sliders,
+    Keyboard,
+    ListChecks,
+    Layers,
 } from 'lucide-react';
 
 import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
@@ -27,7 +29,7 @@ import { resetProgress } from '@/lib/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+// Using a custom compact segmented control instead of RadioGroup
 import {
     Select,
     SelectContent,
@@ -36,12 +38,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
     Dialog,
     DialogContent,
@@ -353,12 +349,12 @@ const SettingsPage = () => {
     }) => (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <label
+                <Label
                     className="text-sm font-medium"
                     style={{ color: 'var(--foreground)' }}
                 >
                     {label}
-                </label>
+                </Label>
                 <span
                     className="text-xs"
                     style={{ color: 'var(--muted-foreground)' }}
@@ -464,134 +460,102 @@ const SettingsPage = () => {
                                                 >
                                                     {item.label}
                                                 </h3>
-                                                <p
-                                                    className="text-sm"
-                                                    style={{
-                                                        color: 'var(--muted-foreground)',
-                                                    }}
-                                                >
-                                                    {item.description}
-                                                </p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-end md:justify-self-end">
                                             {item.type === 'quiz-mode' && (
-                                                <RadioGroup
-                                                    value={quizMode}
-                                                    onValueChange={(v) =>
-                                                        handleQuizModeChange(
-                                                            v as
-                                                                | 'multiple-choice'
-                                                                | 'typing'
-                                                                | 'hybrid',
-                                                        )
-                                                    }
-                                                    className="space-y-2"
-                                                >
-                                                    {[
-                                                        {
-                                                            value: 'multiple-choice' as const,
-                                                            label: 'Multiple Choice',
-                                                            tips: [
-                                                                'Select from 4 options',
-                                                                'Use keys 1-4 to select',
-                                                                'Space/Enter for next',
-                                                                'R to restart',
-                                                            ],
-                                                        },
-                                                        {
-                                                            value: 'typing' as const,
-                                                            label: 'Typing',
-                                                            tips: [
-                                                                'Type the English meaning',
-                                                                'Type your answer',
-                                                                'Enter to submit',
-                                                                'Space for next question',
-                                                            ],
-                                                        },
-                                                        {
-                                                            value: 'hybrid' as const,
-                                                            label: 'Hybrid',
-                                                            tips: [
-                                                                'Start by typing',
-                                                                'Press Ctrl + Enter or click to show options',
-                                                                'Then answer like MCQ',
-                                                                'Best for active recall',
-                                                            ],
-                                                        },
-                                                    ].map((opt) => (
-                                                        <div
-                                                            key={opt.value}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <RadioGroupItem
-                                                                value={
-                                                                    opt.value
-                                                                }
-                                                            />
-                                                            <Label className="text-sm">
-                                                                {opt.label}
-                                                            </Label>
-                                                            <TooltipProvider>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger
-                                                                        asChild
+                                                <div className="w-full md:w-auto">
+                                                    <div
+                                                        role="radiogroup"
+                                                        aria-label="Quiz mode"
+                                                        className="flex flex-wrap gap-2 md:justify-end"
+                                                    >
+                                                        {[
+                                                            {
+                                                                value: 'multiple-choice' as const,
+                                                                label: 'Multiple Choice',
+                                                                Icon: ListChecks,
+                                                            },
+                                                            {
+                                                                value: 'typing' as const,
+                                                                label: 'Typing',
+                                                                Icon: Keyboard,
+                                                            },
+                                                            {
+                                                                value: 'hybrid' as const,
+                                                                label: 'Hybrid',
+                                                                Icon: Layers,
+                                                            },
+                                                        ].map((opt) => {
+                                                            const selected =
+                                                                quizMode ===
+                                                                opt.value;
+                                                            return (
+                                                                <button
+                                                                    key={
+                                                                        opt.value
+                                                                    }
+                                                                    type="button"
+                                                                    role="radio"
+                                                                    aria-checked={
+                                                                        selected
+                                                                    }
+                                                                    aria-labelledby={`mode-${opt.value}-label`}
+                                                                    onClick={() =>
+                                                                        handleQuizModeChange(
+                                                                            opt.value,
+                                                                        )
+                                                                    }
+                                                                    className={cn(
+                                                                        'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                                                                        selected
+                                                                            ? 'shadow-sm'
+                                                                            : 'hover:bg-[rgba(0,0,0,0.03)] dark:hover:bg-[rgba(255,255,255,0.05)]',
+                                                                    )}
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            selected
+                                                                                ? 'var(--primary-100)'
+                                                                                : 'transparent',
+                                                                        color: selected
+                                                                            ? 'var(--primary-700)'
+                                                                            : 'var(--foreground)',
+                                                                        borderColor:
+                                                                            selected
+                                                                                ? 'var(--primary-600)'
+                                                                                : 'var(--border)',
+                                                                    }}
+                                                                >
+                                                                    <opt.Icon className="h-4 w-4" />
+                                                                    <Label
+                                                                        id={`mode-${opt.value}-label`}
+                                                                        className="text-sm cursor-pointer"
                                                                     >
-                                                                        <Button
-                                                                            type="button"
-                                                                            aria-label={`More info: ${opt.label}`}
-                                                                            className="inline-flex items-center justify-center p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                                                        {
+                                                                            opt.label
+                                                                        }
+                                                                    </Label>
+                                                                    {opt.value ===
+                                                                        'hybrid' && (
+                                                                        <span
+                                                                            className="ml-1 text-[10px] px-1 py-0.5 rounded border"
                                                                             style={{
-                                                                                color: 'var(--muted-foreground)',
-                                                                                outlineColor:
+                                                                                color: 'var(--primary-700)',
+                                                                                backgroundColor:
+                                                                                    'var(--primary-100)',
+                                                                                borderColor:
                                                                                     'var(--primary-600)',
                                                                             }}
                                                                         >
-                                                                            <Info
-                                                                                className="h-4 w-4"
-                                                                                aria-hidden
-                                                                            />
-                                                                        </Button>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent
-                                                                        className="border"
-                                                                        style={{
-                                                                            backgroundColor:
-                                                                                'var(--card)',
-                                                                            color: 'var(--foreground)',
-                                                                            borderColor:
-                                                                                'var(--border)',
-                                                                        }}
-                                                                    >
-                                                                        <div className="font-semibold mb-1">
-                                                                            {
-                                                                                opt.label
-                                                                            }
-                                                                        </div>
-                                                                        <ul className="list-disc pl-4 space-y-0.5">
-                                                                            {opt.tips.map(
-                                                                                (
-                                                                                    t,
-                                                                                ) => (
-                                                                                    <li
-                                                                                        key={
-                                                                                            t
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            t
-                                                                                        }
-                                                                                    </li>
-                                                                                ),
-                                                                            )}
-                                                                        </ul>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </TooltipProvider>
-                                                        </div>
-                                                    ))}
-                                                </RadioGroup>
+                                                                            Recommended
+                                                                        </span>
+                                                                    )}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
                                             )}
 
                                             {item.type === 'question-count' && (
@@ -614,8 +578,8 @@ const SettingsPage = () => {
                                                                         count
                                                                             ? {
                                                                                   backgroundColor:
-                                                                                      'transparent',
-                                                                                  color: 'var(--foreground)',
+                                                                                      'var(--primary-600)',
+                                                                                  color: '#ffffff',
                                                                                   borderColor:
                                                                                       'var(--primary-600)',
                                                                               }
@@ -645,8 +609,8 @@ const SettingsPage = () => {
                                                                 'all'
                                                                     ? {
                                                                           backgroundColor:
-                                                                              'transparent',
-                                                                          color: 'var(--foreground)',
+                                                                              'var(--primary-600)',
+                                                                          color: '#ffffff',
                                                                           borderColor:
                                                                               'var(--primary-600)',
                                                                       }
@@ -665,18 +629,20 @@ const SettingsPage = () => {
 
                                                     {/* Always-visible numeric field */}
                                                     <div className="flex items-center md:justify-end gap-2">
-                                                        <label
+                                                        <Label
+                                                            htmlFor="question-count-input"
                                                             className="text-sm"
                                                             style={{
                                                                 color: 'var(--muted-foreground)',
                                                             }}
                                                         >
                                                             Or enter a number:
-                                                        </label>
+                                                        </Label>
                                                         <Input
                                                             type="number"
                                                             min={1}
                                                             max={50}
+                                                            id="question-count-input"
                                                             value={
                                                                 typeof questionCount ===
                                                                 'number'
@@ -737,14 +703,15 @@ const SettingsPage = () => {
                                                     {item.id ===
                                                     'auto-advance' ? (
                                                         <div className="flex items-center gap-2">
-                                                            <label
+                                                            <Label
+                                                                htmlFor="auto-advance-delay"
                                                                 className="text-sm"
                                                                 style={{
                                                                     color: 'var(--muted-foreground)',
                                                                 }}
                                                             >
                                                                 Delay (s):
-                                                            </label>
+                                                            </Label>
                                                             <Switch
                                                                 checked={
                                                                     autoAdvance
@@ -759,6 +726,7 @@ const SettingsPage = () => {
                                                                 min={0.3}
                                                                 max={5.0}
                                                                 step={0.1}
+                                                                id="auto-advance-delay"
                                                                 value={
                                                                     autoAdvanceDelaySec
                                                                 }
@@ -799,14 +767,15 @@ const SettingsPage = () => {
                                                         </div>
                                                     ) : item.id === 'timer' ? (
                                                         <div className="flex items-center gap-2">
-                                                            <label
+                                                            <Label
+                                                                htmlFor="timer-duration"
                                                                 className="text-sm"
                                                                 style={{
                                                                     color: 'var(--muted-foreground)',
                                                                 }}
                                                             >
                                                                 Seconds:
-                                                            </label>
+                                                            </Label>
                                                             <Switch
                                                                 checked={
                                                                     timerEnabled
@@ -821,6 +790,7 @@ const SettingsPage = () => {
                                                                 min={5}
                                                                 max={300}
                                                                 step={5}
+                                                                id="timer-duration"
                                                                 value={
                                                                     timerDurationSec
                                                                 }
@@ -853,7 +823,8 @@ const SettingsPage = () => {
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-center gap-2">
-                                                            <label
+                                                            <Label
+                                                                htmlFor="srs-new-per-session"
                                                                 className="text-sm"
                                                                 style={{
                                                                     color: 'var(--muted-foreground)',
@@ -861,12 +832,13 @@ const SettingsPage = () => {
                                                             >
                                                                 Max new per
                                                                 quiz:
-                                                            </label>
+                                                            </Label>
                                                             <Input
                                                                 type="number"
                                                                 min={1}
                                                                 max={50}
                                                                 step={1}
+                                                                id="srs-new-per-session"
                                                                 value={
                                                                     srsNewPerSession ??
                                                                     10
@@ -908,8 +880,6 @@ const SettingsPage = () => {
                                                 </div>
                                             )}
 
-                                            {/* Removed generic select; Theme uses ThemeSwitcher below */}
-
                                             {item.type === 'select' &&
                                                 item.label === 'Theme' &&
                                                 themeReady && (
@@ -921,14 +891,17 @@ const SettingsPage = () => {
                                                     />
                                                 )}
 
-                                            {/* Cache controls removed */}
-
                                             {item.type === 'speech' && (
                                                 <Button
                                                     type="button"
                                                     onClick={() =>
                                                         setIsSpeechOpen(true)
                                                     }
+                                                    variant="outline"
+                                                    className="border focus-visible:ring-0 focus-visible:ring-transparent focus:outline-none focus-visible:outline-none"
+                                                    style={{
+                                                        borderColor: '#ffffff',
+                                                    }}
                                                 >
                                                     Open
                                                 </Button>
@@ -993,13 +966,13 @@ const SettingsPage = () => {
 
                         {/* Voice picker */}
                         <div className="space-y-2">
-                            <label
+                            <Label
                                 className="text-sm font-medium"
                                 style={{ color: 'var(--foreground)' }}
                                 id="voice-label"
                             >
                                 Voice (French only)
-                            </label>
+                            </Label>
                             <div className="flex items-center gap-2">
                                 <div className="relative flex-1">
                                     <Select
@@ -1187,7 +1160,10 @@ const SettingsPage = () => {
                             >
                                 Reset
                             </Button>
-                            <Button onClick={() => setIsSpeechOpen(false)}>
+                            <Button
+                                onClick={() => setIsSpeechOpen(false)}
+                                className="focus-visible:ring-0 focus-visible:ring-transparent focus:outline-none focus-visible:outline-none"
+                            >
                                 Done
                             </Button>
                         </div>

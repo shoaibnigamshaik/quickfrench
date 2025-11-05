@@ -72,7 +72,7 @@ export function ThemeSwitcher({
     return (
         <div
             className={cn(
-                'relative flex h-8 rounded-full p-1 border',
+                'relative flex items-center gap-1 h-8 rounded-full p-1 border',
                 className,
             )}
             style={{
@@ -86,7 +86,9 @@ export function ThemeSwitcher({
                     <Button
                         type="button"
                         key={key}
-                        className="relative h-6 w-6 rounded-full"
+                        size="icon"
+                        variant="ghost"
+                        className="relative size-6 rounded-full"
                         onClick={() => setTheme(key)}
                         aria-label={label}
                         style={{
